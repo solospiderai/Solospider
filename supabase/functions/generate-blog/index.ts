@@ -52,10 +52,10 @@ CONTENT RULES:
 - ALWAYS output pure markdown sections without wrapping them in explanatory text. Do NOT output overarching markdown code fences (like \`\`\`markdown).`;
 
 const OPENROUTER_MODELS = {
-  title: "meta-llama/llama-3.3-70b-instruct",
-  outline: "meta-llama/llama-3.3-70b-instruct",
-  section: "meta-llama/llama-3.3-70b-instruct",
-  faq: "meta-llama/llama-3.3-70b-instruct",
+  title: "meta-llama/llama-3.1-8b-instruct",
+  outline: "meta-llama/llama-3.1-8b-instruct",
+  section: "meta-llama/llama-3.1-8b-instruct",
+  faq: "meta-llama/llama-3.1-8b-instruct",
 } as const;
 
 async function callOpenRouter(messages: any[], model: string, maxTokens: number = 2000): Promise<string> {
