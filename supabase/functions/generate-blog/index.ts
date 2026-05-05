@@ -465,9 +465,9 @@ serve(async (req) => {
     const authHeader = req.headers.get("Authorization");
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const groqKey = Deno.env.get("GROQ_API_KEY");
+    const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
 
-    if (!groqKey) throw new Error("GROQ_API_KEY not configured");
+    if (!openrouterKey) throw new Error("OPENROUTER_API_KEY not configured");
 
     const supabase = createClient(supabaseUrl, supabaseKey);
     const { contentId, includeToc } = await req.json();
