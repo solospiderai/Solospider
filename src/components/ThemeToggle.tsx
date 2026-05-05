@@ -1,7 +1,7 @@
 import { useTheme } from "next-themes";
 import { Moon, Sun } from "lucide-react";
 
-const ThemeToggle = () => {
+export const ThemeToggle = () => {
     const { theme, setTheme } = useTheme();
 
     return (
@@ -18,4 +18,4 @@ const ThemeToggle = () => {
     );
 };
 
-export default ThemeToggle;
+

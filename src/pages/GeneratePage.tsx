@@ -155,19 +155,19 @@ const GeneratePage = () => {
     <div className="p-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <span className="bg-blue-100 text-blue-600 p-1.5 rounded-lg">
+          <h1 className="text-2xl font-black flex items-center gap-2 text-ink">
+            <span className="bg-primary/10 text-primary p-2 rounded-xl">
               <FileText className="h-5 w-5" />
             </span>
             1-Click Blog Post
           </h1>
-          <p className="text-muted-foreground text-sm mt-1 ml-10">Generate a high-quality article in 1 click.</p>
+          <p className="text-ink-2 text-sm mt-1 ml-12 font-medium">Generate a high-quality article in 1 click.</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-amber-200">
+          <span className="text-xs font-bold bg-pink/10 text-pink px-4 py-2 rounded-full flex items-center gap-1.5 border border-pink/20 uppercase tracking-wider">
             Cost: 1 Credit
           </span>
-          <span className="text-sm font-medium bg-primary/10 text-primary px-3 py-1.5 rounded-full flex items-center gap-1.5 border border-primary/20">
+          <span className="text-xs font-bold bg-primary/10 text-primary px-4 py-2 rounded-full flex items-center gap-1.5 border border-primary/20 uppercase tracking-wider">
             <Sparkles className="h-4 w-4" /> 50 Credits Available
           </span>
         </div>
@@ -212,7 +212,7 @@ const GeneratePage = () => {
                 variant="default"
                 onClick={handleGenerateTitle}
                 disabled={generatingTitle || !mainKeyword.trim()}
-                className="shadow-sm bg-[#0A2540] hover:bg-[#0A2540]/90 text-white"
+                className="shadow-sm btn-grad text-white"
               >
                 {generatingTitle ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 {generatingTitle ? "Generating..." : "Generate a Title"}
@@ -321,8 +321,8 @@ const GeneratePage = () => {
         {/* Image Settings */}
         <div className="rounded-xl border bg-card/40 overflow-hidden">
           <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row items-center gap-3">
-            <div className="h-10 w-10 flex-shrink-0 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-              <ImageIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="h-10 w-10 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
+              <ImageIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h3 className="font-bold flex items-center gap-2">Image Settings <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">BETA</Badge></h3>
@@ -515,9 +515,9 @@ const GeneratePage = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t flex flex-col items-center gap-2">
-          <Badge variant="secondary" className="bg-blue-50 text-blue-700 hover:bg-blue-50 border-0 rounded-full font-medium">Estimated blog generation time: 5-10 minutes</Badge>
-          <Button type="submit" className="w-[300px] shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow" size="lg" disabled={loading}>
+        <div className="pt-6 border-t flex flex-col items-center gap-4">
+          <Badge variant="secondary" className="bg-primary/5 text-primary hover:bg-primary/10 border-0 rounded-full font-bold px-4 py-1">Estimated blog generation time: 5-10 minutes</Badge>
+          <Button type="submit" className="w-[300px] btn-grad h-14 text-lg" disabled={loading}>
             {loading ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : null}

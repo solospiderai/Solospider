@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -100,7 +101,10 @@ const AuthPage = () => {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-8 bg-bg relative">
+        <div className="absolute top-8 right-8">
+          <ThemeToggle />
+        </div>
         <div className="w-full max-w-sm">
           <div className="flex items-center mb-6 lg:hidden">
             <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[34px] w-auto dark:invert dark:brightness-200" />

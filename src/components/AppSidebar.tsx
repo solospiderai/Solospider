@@ -10,7 +10,7 @@ import {
   BarChart2, Eye, Lightbulb, Link as LinkIcon, Video, Users,
   Fingerprint, Globe, Edit, ImageIcon,
 } from "lucide-react";
-import ThemeToggle from "@/components/ThemeToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -52,7 +52,7 @@ const AppSidebar = () => {
       id: "content",
       label: "Content Creation",
       icon: FileText,
-      color: "text-blue-500",
+      color: "text-primary",
       items: [
         { to: `/project/${pid}/keyword-research`, label: "Keyword Research", icon: Search },
         { to: `/project/${pid}/generate`, label: "Single Post Creation", icon: Edit },
@@ -65,7 +65,7 @@ const AppSidebar = () => {
       id: "social",
       label: "Social Media",
       icon: Share2,
-      color: "text-pink-500",
+      color: "text-pink",
       items: [
         { to: `/project/${pid}/social-posts`, label: "Post Creation", icon: Share2 },
         { to: `/project/${pid}/social-image`, label: "Image Generation", icon: ImageIcon },
@@ -77,7 +77,7 @@ const AppSidebar = () => {
       id: "ads",
       label: "Performance Ads",
       icon: TrendingUp,
-      color: "text-amber-500",
+      color: "text-[#22d3ee]",
       items: [
         { to: `/project/${pid}/ads/meta`, label: "Meta Ads Improvement", icon: TrendingUp },
         { to: `/project/${pid}/ads/meta-analytics`, label: "Meta Ads Analytics", icon: BarChart2 },
@@ -89,7 +89,7 @@ const AppSidebar = () => {
       id: "seo",
       label: "SEO Optimization",
       icon: Search,
-      color: "text-emerald-500",
+      color: "text-primary",
       items: [
         { to: `/project/${pid}/seo/keywords`, label: "SEO Keywords", icon: Search },
         { to: `/project/${pid}/seo/backlinks`, label: "Backlinks", icon: LinkIcon },
@@ -99,7 +99,7 @@ const AppSidebar = () => {
       id: "aeo",
       label: "AEO (AI Search)",
       icon: Bot,
-      color: "text-purple-500",
+      color: "text-pink",
       items: [
         { to: `/project/${pid}/aeo/prompt-generation`, label: "AI Prompt Generation", icon: Bot },
         { to: `/project/${pid}/aeo/analytics`, label: "AEO Analytics", icon: BarChart2 },
@@ -111,7 +111,7 @@ const AppSidebar = () => {
       id: "brand",
       label: "Brand Workspace",
       icon: Globe,
-      color: "text-orange-500",
+      color: "text-[#22d3ee]",
       items: [
         { to: `/project/${pid}/brand`, label: "Brand Info", icon: Fingerprint },
         { to: `/project/${pid}/competitors`, label: "Competitors", icon: Users },
@@ -141,7 +141,7 @@ const AppSidebar = () => {
 
         {/* Projects Section */}
         <div className="px-3 py-3 border-b border-sidebar-border/50">
-          <h3 className="px-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2">
+          <h3 className="px-2 text-[10px] font-black text-ink uppercase tracking-[0.2em] mb-3">
             Projects
           </h3>
           <div className="space-y-1">
@@ -218,10 +218,10 @@ const AppSidebar = () => {
                   <button
                     onClick={() => toggleSection(section.id)}
                     className={cn(
-                      "w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-colors",
+                      "w-full flex items-center gap-2.5 px-4 py-3 text-[10px] font-black uppercase tracking-[0.2em] transition-colors",
                       hasActive
-                        ? "text-foreground bg-sidebar-accent/30"
-                        : "text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent/20"
+                        ? "text-ink bg-primary/5"
+                        : "text-ink hover:text-primary hover:bg-primary/5"
                     )}
                   >
                     <SectionIcon className={cn("h-3.5 w-3.5 shrink-0", section.color)} />
@@ -244,11 +244,11 @@ const AppSidebar = () => {
                             className={cn(
                               "flex items-center gap-2.5 px-3 py-2 text-xs font-medium transition-all rounded-md",
                               active
-                                ? "bg-sidebar-accent text-sidebar-foreground"
-                                : "text-muted-foreground hover:bg-sidebar-accent/40 hover:text-sidebar-foreground"
+                                ? "bg-sidebar-accent text-primary font-bold"
+                                : "text-ink-2 hover:bg-sidebar-accent/40 hover:text-primary"
                             )}
                           >
-                            <Icon className={cn("h-3.5 w-3.5 shrink-0", active ? "text-foreground" : "text-muted-foreground")} />
+                            <Icon className={cn("h-3.5 w-3.5 shrink-0", active ? "text-primary" : "text-ink-2")} />
                             <span className="flex-1 truncate">{item.label}</span>
                             {item.badge && (
                               <span className="text-[9px] font-bold bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded-full uppercase">

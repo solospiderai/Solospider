@@ -33,10 +33,10 @@ export const DashboardTab = () => {
         <div className="space-y-6 mt-6 animate-fade-in">
             {/* Quick Metrics */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card>
+                <Card className="glass">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">AEO Visibility Score</CardTitle>
-                        <Activity className="h-4 w-4 text-primary" />
+                        <CardTitle className="text-[10px] font-black text-ink uppercase tracking-widest opacity-70">AEO Visibility Score</CardTitle>
+                        <Activity className="h-4 w-4 text-primary shadow-[0_0_10px_rgba(144,37,242,0.4)]" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">84/100</div>
@@ -48,10 +48,10 @@ export const DashboardTab = () => {
                         </p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="glass">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Top Position Mentions</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-emerald-500" />
+                        <CardTitle className="text-[10px] font-black text-ink uppercase tracking-widest opacity-70">Top Position Mentions</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-[#22d3ee]" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">143</div>
@@ -63,10 +63,10 @@ export const DashboardTab = () => {
                         </p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="glass">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Primary Engine</CardTitle>
-                        <Cpu className="h-4 w-4 text-primary" />
+                        <CardTitle className="text-[10px] font-black text-ink uppercase tracking-widest opacity-70">Primary Engine</CardTitle>
+                        <Cpu className="h-4 w-4 text-pink" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">ChatGPT</div>
@@ -75,9 +75,9 @@ export const DashboardTab = () => {
                         </p>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="glass">
                     <CardHeader className="flex flex-row items-center justify-between pb-2">
-                        <CardTitle className="text-sm font-medium">Brand Sentiment</CardTitle>
+                        <CardTitle className="text-[10px] font-black text-ink uppercase tracking-widest opacity-70">Brand Sentiment</CardTitle>
                         <Globe className="h-4 w-4 text-primary" />
                     </CardHeader>
                     <CardContent>
@@ -89,10 +89,10 @@ export const DashboardTab = () => {
 
             <div className="grid gap-4 md:grid-cols-7">
                 {/* Main Chart */}
-                <Card className="md:col-span-5">
+                <Card className="md:col-span-5 glass">
                     <CardHeader>
-                        <CardTitle>AI Visibility Over Time</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-xl font-black text-ink tracking-tight">AI Visibility Over Time</CardTitle>
+                        <CardDescription className="text-xs font-medium text-ink-2">
                             Your brand's appearance rate in generated AI answers over the last 7 days.
                         </CardDescription>
                     </CardHeader>
@@ -101,28 +101,28 @@ export const DashboardTab = () => {
                             <AreaChart data={visibilityData}>
                                 <defs>
                                     <linearGradient id="colorVis" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="hsl(160, 84%, 39%)" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#9025F2" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#9025F2" stopOpacity={0}/>
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--ink-2)' }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: 'var(--ink-2)' }} />
                                 <Tooltip 
-                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
-                                    itemStyle={{ color: 'hsl(var(--foreground))', fontWeight: 'bold' }}
+                                    contentStyle={{ backgroundColor: 'var(--panel)', borderRadius: '16px', border: '1px solid var(--line)', boxShadow: '0 20px 40px -20px rgba(0,0,0,0.5)' }}
+                                    itemStyle={{ color: 'var(--ink)', fontWeight: 'black', fontSize: '12px' }}
                                 />
-                                <Area type="monotone" dataKey="visibility" stroke="hsl(160, 84%, 39%)" strokeWidth={3} fillOpacity={1} fill="url(#colorVis)" />
+                                <Area type="monotone" dataKey="visibility" stroke="#9025F2" strokeWidth={4} fillOpacity={1} fill="url(#colorVis)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </CardContent>
                 </Card>
 
                 {/* Pie Chart */}
-                <Card className="md:col-span-2">
+                <Card className="md:col-span-2 glass">
                     <CardHeader>
-                        <CardTitle>Mentions by Engine</CardTitle>
-                        <CardDescription>Where you appear most</CardDescription>
+                        <CardTitle className="text-xl font-black text-ink tracking-tight">Mentions by Engine</CardTitle>
+                        <CardDescription className="text-xs font-medium text-ink-2">Where you appear most</CardDescription>
                     </CardHeader>
                     <CardContent className="h-[250px] flex flex-col items-center justify-center">
                         <ResponsiveContainer width="100%" height="100%">
@@ -137,22 +137,22 @@ export const DashboardTab = () => {
                                     dataKey="value"
                                 >
                                     {sourceData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} stroke="transparent" />
                                     ))}
                                 </Pie>
                                 <Tooltip 
-                                    contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: '1px solid hsl(var(--border))' }}
+                                    contentStyle={{ backgroundColor: 'var(--panel)', borderRadius: '16px', border: '1px solid var(--line)' }}
                                 />
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="w-full mt-4 space-y-2">
                             {sourceData.map((item) => (
-                                <div key={item.name} className="flex items-center justify-between text-xs">
+                                <div key={item.name} className="flex items-center justify-between text-[11px] font-bold text-ink-2">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
                                         <span>{item.name}</span>
                                     </div>
-                                    <span className="font-semibold">{item.value}%</span>
+                                    <span className="font-black text-ink">{item.value}%</span>
                                 </div>
                             ))}
                         </div>
@@ -161,10 +161,10 @@ export const DashboardTab = () => {
             </div>
 
             {/* Queries Table */}
-            <Card>
+            <Card className="glass">
                 <CardHeader>
-                    <CardTitle>Top AI Queries Driving Visibility</CardTitle>
-                    <CardDescription>The actual questions users asked where your brand was recommended.</CardDescription>
+                    <CardTitle className="text-xl font-black text-ink tracking-tight">Top AI Queries Driving Visibility</CardTitle>
+                    <CardDescription className="text-xs font-medium text-ink-2">The actual questions users asked where your brand was recommended.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto">

@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const mockPrompts = [
     { id: 1, prompt: "best CRM for small agencies", engine: "ChatGPT", rank: 1, prevRank: 3, change: "up", volume: "High" },
@@ -15,75 +16,79 @@ const mockPrompts = [
 
 export const PromptsTrackingTab = () => {
     return (
-        <div className="space-y-6 mt-6 animate-fade-in">
+        <div className="space-y-8 mt-8 reveal in">
             {/* Header / Add Prompt */}
-            <Card className="bg-gradient-to-r from-primary/10 via-background to-background border-primary/20">
-                <CardContent className="p-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h3 className="text-lg font-bold flex items-center gap-2">
-                                <Target className="h-5 w-5 text-primary" /> 
-                                Track New Prompts
-                            </h3>
-                            <p className="text-sm text-muted-foreground mt-1">
-                                Monitor your brand's ranking across 500+ specific AI questions.
-                            </p>
-                        </div>
-                        <div className="flex w-full md:w-auto items-center gap-2">
-                            <Input placeholder="e.g. 'best seo tools'" className="w-full md:w-64" />
-                            <Button className="shrink-0 gap-2"><Plus className="h-4 w-4" /> Add Prompt</Button>
-                        </div>
+            <div className="glass bg-primary/5 border-primary/20 rounded-[2.5rem] p-8 reveal d1">
+                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+                    <div className="space-y-1">
+                        <h3 className="text-xl font-black text-ink flex items-center gap-3 tracking-tight">
+                            <Target className="h-6 w-6 text-primary shadow-[0_0_15px_rgba(144,37,242,0.4)]" />
+                            Neural Prompt <span className="grad-text">Surveillance</span>
+                        </h3>
+                        <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60">
+                            Real-time brand positioning across 500+ AI intent vectors.
+                        </p>
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="flex w-full lg:w-auto items-center gap-3">
+                        <Input placeholder="e.g. 'best seo tools'" className="h-12 bg-bg border-line rounded-xl font-bold text-ink lg:w-72" />
+                        <Button className="btn-grad text-white font-black px-6 h-12 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.05] transition-all">
+                            <Plus className="h-4 w-4 mr-2" /> TRACK
+                        </Button>
+                    </div>
+                </div>
+            </div>
 
             {/* Tracking Table */}
-            <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <div>
-                        <CardTitle>Active Prompt Rankings</CardTitle>
-                        <CardDescription>Real-time positions within AI-generated responses.</CardDescription>
+            <div className="glass rounded-[2.5rem] overflow-hidden reveal d2">
+                <div className="p-8 border-b border-line bg-primary/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="space-y-1">
+                        <h3 className="text-xl font-black text-ink tracking-tight flex items-center gap-3">
+                            <TrendingUp className="h-5 w-5 text-primary" /> Active Rank Protocol
+                        </h3>
+                        <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60 mt-1">
+                            Current authority distribution within AI engine response layers.
+                        </p>
                     </div>
-                    <div className="relative w-64 hidden sm:block">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input type="search" placeholder="Search tracked prompts..." className="pl-8" />
+                    <div className="relative w-full md:w-72">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-2 opacity-40" />
+                        <Input type="search" placeholder="Filter protocols..." className="pl-11 h-11 bg-bg border-line rounded-xl font-bold text-ink" />
                     </div>
-                </CardHeader>
-                <CardContent>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="text-xs text-muted-foreground uppercase bg-muted/50">
+                </div>
+                    <div className="overflow-x-auto p-4">
+                        <table className="w-full text-sm text-left border-separate border-spacing-y-2">
+                            <thead className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60">
                                 <tr>
-                                    <th className="px-6 py-4 rounded-tl-lg font-medium">Target Prompt</th>
-                                    <th className="px-6 py-4 font-medium">Primary Engine</th>
-                                    <th className="px-6 py-4 font-medium">Search Volume</th>
-                                    <th className="px-6 py-4 font-medium">Current Position</th>
-                                    <th className="px-6 py-4 rounded-tr-lg font-medium">7-Day Change</th>
+                                    <th className="px-8 py-4 font-black">Target Intent</th>
+                                    <th className="px-8 py-4 font-black">Neural Engine</th>
+                                    <th className="px-8 py-4 font-black">Velocity</th>
+                                    <th className="px-8 py-4 font-black">Position</th>
+                                    <th className="px-8 py-4 font-black">7-Day Delta</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-border">
+                            <tbody className="">
                                 {mockPrompts.map((item) => (
-                                    <tr key={item.id} className="hover:bg-muted/30 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-foreground">{item.prompt}</td>
-                                        <td className="px-6 py-4 text-muted-foreground">{item.engine}</td>
-                                        <td className="px-6 py-4">
-                                            <Badge variant="outline" className={
-                                                item.volume === 'High' ? 'text-orange-500 border-orange-500/30 bg-orange-500/10' :
-                                                item.volume === 'Medium' ? 'text-blue-500 border-blue-500/30 bg-blue-500/10' :
-                                                'text-muted-foreground'
-                                            }>
+                                    <tr key={item.id} className="group bg-bg/50 hover:bg-bg transition-all">
+                                        <td className="px-8 py-6 rounded-l-2xl border-y border-l border-line font-bold text-ink">{item.prompt}</td>
+                                        <td className="px-8 py-6 border-y border-line text-ink-2 font-bold">{item.engine}</td>
+                                        <td className="px-8 py-6 border-y border-line">
+                                            <Badge variant="outline" className={cn(
+                                                "px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border-transparent",
+                                                item.volume === 'High' ? 'text-primary bg-primary/10' :
+                                                item.volume === 'Medium' ? 'text-[#22d3ee] bg-[#22d3ee]/10' :
+                                                'text-ink-2 bg-bg border-line'
+                                            )}>
                                                 {item.volume}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                                        <td className="px-8 py-6 border-y border-line">
+                                            <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20">
                                                 #{item.rank}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 font-medium flex items-center gap-1">
-                                            {item.change === 'up' && <span className="text-emerald-500 flex items-center"><TrendingUp className="h-4 w-4 mr-1" /> +{(item.prevRank - item.rank)}</span>}
-                                            {item.change === 'down' && <span className="text-red-500 flex items-center"><TrendingDown className="h-4 w-4 mr-1" /> -{(item.rank - item.prevRank)}</span>}
-                                            {item.change === 'flat' && <span className="text-muted-foreground flex items-center"><Minus className="h-4 w-4 mr-1" /> 0</span>}
+                                        <td className="px-8 py-6 rounded-r-2xl border-y border-r border-line font-black">
+                                            {item.change === 'up' && <span className="text-emerald-500 flex items-center gap-2"><TrendingUp className="h-4 w-4" /> +{(item.prevRank - item.rank)}</span>}
+                                            {item.change === 'down' && <span className="text-pink flex items-center gap-2"><TrendingDown className="h-4 w-4" /> -{(item.rank - item.prevRank)}</span>}
+                                            {item.change === 'flat' && <span className="text-ink-2 opacity-40 flex items-center gap-2"><Minus className="h-4 w-4" /> 0</span>}
                                         </td>
                                     </tr>
                                 ))}

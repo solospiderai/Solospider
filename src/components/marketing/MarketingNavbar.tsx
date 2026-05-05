@@ -18,8 +18,8 @@ export const MarketingNavbar = () => {
     <nav
       className={`sticky top-0 w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-white/85 backdrop-blur-md border-b border-line"
-          : "bg-white/85 backdrop-blur-md border-b border-line"
+          ? "bg-bg/85 backdrop-blur-md border-b border-line shadow-sm"
+          : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="max-w-[1240px] mx-auto px-7">
@@ -48,10 +48,10 @@ export const MarketingNavbar = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-[14px]">
-            <Link to="/auth" className="text-[14px] text-ink-2 font-medium hover:text-primary transition-colors">
+            <Link to="/auth" className="text-[14px] text-ink font-bold hover:text-primary transition-colors">
               Log in
             </Link>
-            <Link to="/auth" className="btn btn-grad">
+            <Link to="/auth" className="btn btn-grad px-6 py-2.5 h-auto text-xs">
               Start Free →
             </Link>
           </div>
@@ -67,7 +67,7 @@ export const MarketingNavbar = () => {
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-line py-6 px-4 flex flex-col gap-4 shadow-2xl animate-in slide-in-from-top-2">
+          <div className="md:hidden absolute top-full left-0 w-full bg-bg border-b border-line py-6 px-4 flex flex-col gap-4 shadow-2xl animate-in slide-in-from-top-2">
             <Link to="/#features" className="text-lg text-ink-2 py-2 border-b border-line" onClick={() => setMobileMenuOpen(false)}>
               Features
             </Link>
@@ -84,6 +84,7 @@ export const MarketingNavbar = () => {
               SEO Audit
             </Link>
             <div className="flex flex-col gap-3 mt-4">
+
               <Link to="/auth" className="w-full text-center" onClick={() => setMobileMenuOpen(false)}>
                 <button className="w-full py-3 rounded-xl border border-line text-ink-2 font-medium hover:bg-bg-2">
                   Log in

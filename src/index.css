@@ -12,9 +12,9 @@
     --panel-2: #F9F9FB;
     --line: #E5E7EB;
     --line-2: #D1D5DB;
-    --ink: #111827;
-    --ink-2: #6B7280;
-    --muted: #7a7892;
+    --ink: #000000;
+    --ink-2: #111827;
+    --muted: #374151;
     --primary: #9025F2;
     --primary-2: #7a17d6;
     --primary-soft: #f3e8ff;
@@ -36,18 +36,28 @@
     --border: var(--line);
     --input: var(--line);
     --ring: var(--primary);
-    --radius: 0.75rem;
+    --radius: 1rem;
   }
 
   .dark {
-    --bg: #09090B;
-    --bg-2: #18181B;
-    --panel: #09090B;
-    --panel-2: #18181B;
-    --line: #27272A;
-    --line-2: #3F3F46;
-    --ink: #FAFAFA;
-    --ink-2: #A1A1AA;
+    --bg: #030712;
+    --bg-2: #0b0f1a;
+    --panel: #0b0f1a;
+    --panel-2: #111827;
+    --line: rgba(255,255,255,0.06);
+    --line-2: rgba(255,255,255,0.12);
+    --ink: #F9FAFB;
+    --ink-2: #9CA3AF;
+    --muted: #6B7280;
+    --primary: #a855f7;
+    --primary-soft: rgba(168, 85, 247, 0.1);
+    
+    --background: var(--bg);
+    --foreground: var(--ink);
+    --card: var(--panel);
+    --card-foreground: var(--ink);
+    --ring: var(--primary);
+    --border: var(--line);
   }
 
   * {
@@ -98,6 +108,29 @@
   .animate-pulse-gentle {
     animation: pulseGentle 2s ease-in-out infinite;
   }
+
+  /* Premium v3 Additions */
+  .premium-shadow {
+    box-shadow: 0 20px 50px -12px rgba(144, 37, 242, 0.12);
+  }
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+  }
+  
+  .dark .premium-shadow {
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+  }
+  
+  .dark .glass {
+    background: rgba(11, 15, 26, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .dark .btn-grad {
+    box-shadow: 0 14px 40px -10px rgba(168, 85, 247, 0.35);
+  }
 }
 
 /* BUTTONS */
@@ -131,36 +164,22 @@
   border-color: var(--line-2);
   color: var(--ink);
 }
+.dark .btn-ghost {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.1);
+  color: #fff;
+}
 .btn-ghost:hover {
   border-color: var(--primary);
   color: var(--primary);
   background: var(--primary-tint);
 }
-.btn-light {
-  background: var(--ink);
-  color: #fff;
-  font-weight: 700;
-}
-.btn-light:hover {
-  background: #000;
-  transform: translateY(-1px);
+.dark .btn-ghost:hover {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: var(--primary);
 }
 
-/* Animations */
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .45; }
-}
-@keyframes slideIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulseGentle {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* REVEAL UTILITY FROM ORIGINAL TEMPLATE */
+/* REVEAL UTILITY */
 .reveal {
   opacity: 0;
   transform: translateY(24px);
@@ -174,6 +193,25 @@
 .reveal.d2 { transition-delay: .12s; }
 .reveal.d3 { transition-delay: .18s; }
 .reveal.d4 { transition-delay: .24s; }
-@media (prefers-reduced-motion:reduce) {
-  .reveal { opacity: 1; transform: none; transition: none; }
+
+/* HERO ABOVE-THE-FOLD ANIMATIONS — no IntersectionObserver needed */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
+
+.hero-fade {
+  animation: heroFadeUp 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.hero-d0 { animation-delay: 0s; }
+.hero-d1 { animation-delay: 0.1s; }
+.hero-d2 { animation-delay: 0.2s; }
+.hero-d3 { animation-delay: 0.35s; }
+.hero-d4 { animation-delay: 0.45s; }
+

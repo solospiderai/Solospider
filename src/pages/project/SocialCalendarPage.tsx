@@ -12,9 +12,9 @@ import { ChevronLeft, ChevronRight, Plus, ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "bg-white/10 text-muted-foreground",
-  scheduled: "bg-blue-500/80 text-white",
-  published: "bg-green-500/80 text-white",
+  draft: "bg-bg/80 text-ink-2 border border-line",
+  scheduled: "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_10px_rgba(144,37,242,0.2)]",
+  published: "bg-[#22d3ee]/20 text-[#22d3ee] border border-[#22d3ee]/30",
 };
 
 export function SocialCalendarPage() {
@@ -52,54 +52,54 @@ export function SocialCalendarPage() {
   const unscheduledPosts = posts.filter((p: any) => !p.scheduled_at && p.status === "draft");
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-8 max-w-6xl mx-auto space-y-10 reveal in">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Social Calendar</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {posts.filter((p: any) => p.status === "scheduled").length} scheduled ·{" "}
-            {posts.filter((p: any) => p.status === "published").length} published ·{" "}
-            {unscheduledPosts.length} drafts
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 reveal d1">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-black text-ink tracking-tight">Social <span className="grad-text">Calendar</span></h1>
+          <p className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60 pl-1">
+            {posts.filter((p: any) => p.status === "scheduled").length} SCHEDULED ·{" "}
+            {posts.filter((p: any) => p.status === "published").length} PUBLISHED ·{" "}
+            {unscheduledPosts.length} DRAFTS
           </p>
         </div>
         <Button
-          className="bg-gradient-to-r from-[#00f0ff] to-[#7000ff] text-white"
+          className="btn-grad text-white font-black px-8 h-12 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
           onClick={() => { setEditPost(null); setEditorOpen(true); }}
         >
-          <Plus className="h-4 w-4 mr-2" /> Schedule Post
+          <Plus className="h-4 w-4 mr-2" /> SCHEDULE POST
         </Button>
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-4 text-xs">
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-white/20" />Draft</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-blue-500" />Scheduled</span>
-        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-green-500" />Published</span>
+      <div className="flex items-center gap-6 reveal d2 pl-1">
+        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-ink opacity-60"><span className="h-2 w-2 rounded-full border border-line bg-bg" /> Draft</span>
+        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary"><span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(144,37,242,0.5)]" /> Scheduled</span>
+        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22d3ee]"><span className="h-2 w-2 rounded-full bg-[#22d3ee]" /> Published</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr,280px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr,320px] gap-8 reveal d3">
         {/* Calendar */}
-        <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+        <div className="glass rounded-[2.5rem] overflow-hidden">
           {/* Month nav */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-            <h2 className="text-lg font-bold">{format(currentDate, "MMMM yyyy")}</h2>
-            <div className="flex gap-1">
+          <div className="flex items-center justify-between px-8 py-6 border-b border-line">
+            <h2 className="text-xl font-black text-ink tracking-tight">{format(currentDate, "MMMM yyyy")}</h2>
+            <div className="flex gap-2">
               <button
                 onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                className="p-2.5 rounded-xl bg-bg border border-line hover:border-primary/40 transition-all text-ink"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => setCurrentDate(new Date())}
-                className="px-3 py-1.5 text-xs rounded-lg hover:bg-white/10 transition-colors text-muted-foreground"
+                className="px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl bg-bg border border-line hover:border-primary/40 transition-all text-ink opacity-60 hover:opacity-100"
               >
                 Today
               </button>
               <button
                 onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-                className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+                className="p-2.5 rounded-xl bg-bg border border-line hover:border-primary/40 transition-all text-ink"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -129,14 +129,14 @@ export function SocialCalendarPage() {
                   key={day.toISOString()}
                   onClick={() => setSelectedDay(isSelected ? null : day)}
                   className={cn(
-                    "border-b border-r border-white/5 min-h-[100px] p-2 cursor-pointer transition-all",
-                    isSelected ? "bg-neon-blue/10 border-neon-blue/20" : "hover:bg-white/5",
-                    !inMonth && "opacity-30"
+                    "border-b border-r border-line min-h-[120px] p-3 cursor-pointer transition-all",
+                    isSelected ? "bg-primary/5 border-primary/40" : "hover:bg-primary/5",
+                    !inMonth && "opacity-20"
                   )}
                 >
                   <div className={cn(
-                    "text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full mb-1.5",
-                    isCurrentDay ? "bg-[#00f0ff] text-black" : "text-muted-foreground"
+                    "text-[10px] font-black w-7 h-7 flex items-center justify-center rounded-xl mb-2 tracking-tighter transition-all",
+                    isCurrentDay ? "bg-primary text-white shadow-lg shadow-primary/30" : "text-ink opacity-40 group-hover:opacity-100"
                   )}>
                     {format(day, "d")}
                   </div>

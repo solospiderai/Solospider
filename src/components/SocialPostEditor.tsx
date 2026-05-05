@@ -1,332 +1,318 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useActiveProject } from "@/hooks/useActiveProject";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { generatePollinationsImageUrl, generateHighQualityImage, PostIdea } from "@/lib/social";
-import {
-  Instagram, Facebook, Linkedin, X, Calendar, Send, FileText,
-  RefreshCw, Loader2, Hash, ImageIcon, Sparkles, Clock
+import { 
+  Instagram, Sparkles, Calendar, Save, Loader2, 
+  Image as ImageIcon, Hash, Layout, History, Send, Clock
 } from "lucide-react";
-import { format } from "date-fns";
+import { generatePollinationsImageUrl } from "@/lib/social";
 import { cn } from "@/lib/utils";
-
-const PLATFORMS = [
-  { id: "instagram", label: "Instagram", icon: Instagram, color: "from-pink-500 to-purple-600" },
-  { id: "facebook", label: "Facebook", icon: Facebook, color: "from-blue-600 to-blue-700" },
-  { id: "linkedin", label: "LinkedIn", icon: Linkedin, color: "from-blue-500 to-blue-600" },
-];
-
-const POST_TYPES: Record<string, { label: string; color: string }> = {
-  educational: { label: "Educational", color: "bg-blue-500/10 text-blue-400" },
-  promotional: { label: "Promotional", color: "bg-amber-500/10 text-amber-400" },
-  engagement: { label: "Engagement", color: "bg-pink-500/10 text-pink-400" },
-  story: { label: "Story", color: "bg-purple-500/10 text-purple-400" },
-  product: { label: "Product", color: "bg-emerald-500/10 text-emerald-400" },
-};
 
 interface SocialPostEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
-  idea?: PostIdea | null;
-  existingPost?: any | null;
+  idea: any;
+  existingPost: any;
   onSaved: () => void;
 }
 
 export function SocialPostEditor({ open, onOpenChange, projectId, idea, existingPost, onSaved }: SocialPostEditorProps) {
   const [caption, setCaption] = useState("");
   const [hashtags, setHashtags] = useState<string[]>([]);
-  const [hashtagInput, setHashtagInput] = useState("");
-  const [imagePrompt, setImagePrompt] = useState("");
+  const [newHashtag, setNewHashtag] = useState("");
   const [imageUrl, setImageUrl] = useState("");
-  const [platform, setPlatform] = useState("instagram");
+  const [imagePrompt, setImagePrompt] = useState("");
   const [scheduledAt, setScheduledAt] = useState("");
   const [saving, setSaving] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
+  
+  const { projects } = useActiveProject();
+  const project = projects?.find((p: any) => p.id === projectId);
 
   useEffect(() => {
     if (idea) {
-      setCaption(idea.caption);
+      setCaption(idea.caption || "");
       setHashtags(idea.hashtags || []);
-      setImagePrompt(idea.imagePrompt || "");
+      setImagePrompt(idea.hook || "");
       setImageUrl("");
     } else if (existingPost) {
-      setCaption(existingPost.caption);
+      setCaption(existingPost.caption || "");
       setHashtags(existingPost.hashtags || []);
-      setImagePrompt(existingPost.image_prompt || "");
       setImageUrl(existingPost.image_url || "");
-      setPlatform(existingPost.platform || "instagram");
-      setScheduledAt(existingPost.scheduled_at ? format(new Date(existingPost.scheduled_at), "yyyy-MM-dd'T'HH:mm") : "");
+      setImagePrompt(existingPost.image_prompt || "");
+      if (existingPost.scheduled_at) {
+        setScheduledAt(new Date(existingPost.scheduled_at).toISOString().slice(0, 16));
+      }
+    } else {
+      setCaption("");
+      setHashtags([]);
+      setImageUrl("");
+      setImagePrompt("");
+      setScheduledAt("");
     }
   }, [idea, existingPost, open]);
 
   const handleGenerateImage = async () => {
     if (!imagePrompt) {
-      toast.error("Add an image prompt first");
+      toast.error("Please provide an image concept");
       return;
     }
     setGeneratingImage(true);
     try {
-      const url = await generateHighQualityImage(imagePrompt);
+      const url = await generatePollinationsImageUrl(imagePrompt);
       setImageUrl(url);
-      toast.success("High-quality image generated!");
+      toast.success("Elite visual asset generated");
     } catch (e) {
-      console.error("Fireworks failed, falling back to Pollinations:", e);
-      const url = generatePollinationsImageUrl(imagePrompt);
-      setImageUrl(url);
-      toast.info("Generated via fallback engine");
+      toast.error("Failed to generate asset");
     } finally {
       setGeneratingImage(false);
     }
   };
 
-  const handleAddHashtag = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      const tag = hashtagInput.replace(/#/g, "").trim();
-      if (tag && !hashtags.includes(tag)) {
-        setHashtags([...hashtags, tag]);
-      }
-      setHashtagInput("");
+  const handleSave = async (status: "draft" | "scheduled") => {
+    if (!caption) {
+      toast.error("Caption is required");
+      return;
     }
-  };
-
-  const handleSave = async (status: "draft" | "scheduled" | "published") => {
-    if (!caption.trim()) { toast.error("Caption is required"); return; }
-    if (status === "scheduled" && !scheduledAt) { toast.error("Set a schedule date/time"); return; }
     setSaving(true);
     try {
-      const payload: any = {
+      const postData = {
         project_id: projectId,
-        platform,
-        caption: caption.trim(),
+        platform: "instagram",
+        caption,
         hashtags,
-        image_prompt: imagePrompt,
         image_url: imageUrl,
+        image_prompt: imagePrompt,
         status,
-        scheduled_at: status === "scheduled" ? new Date(scheduledAt).toISOString() : null,
+        scheduled_at: status === "scheduled" ? scheduledAt : null,
+        updated_at: new Date().toISOString(),
       };
 
       if (existingPost?.id) {
-        const { error } = await supabase.from("social_posts").update(payload).eq("id", existingPost.id);
+        const { error } = await supabase
+          .from("social_posts")
+          .update(postData)
+          .eq("id", existingPost.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("social_posts").insert([payload]);
+        const { error } = await supabase
+          .from("social_posts")
+          .insert([postData]);
         if (error) throw error;
       }
 
-      toast.success(status === "draft" ? "Saved as draft!" : status === "scheduled" ? "Post scheduled! 🗓️" : "Published! 🎉");
+      toast.success(status === "scheduled" ? "Campaign deployed to schedule" : "Draft preserved");
       onSaved();
       onOpenChange(false);
     } catch (e: any) {
-      toast.error(e.message || "Failed to save post");
+      toast.error(e.message || "Failed to preserve asset");
     } finally {
       setSaving(false);
     }
   };
 
-  const fullCaption = caption + (hashtags.length > 0 ? "\n\n" + hashtags.map(h => `#${h}`).join(" ") : "");
+  const addHashtag = () => {
+    if (newHashtag.trim() && !hashtags.includes(newHashtag.trim())) {
+      setHashtags([...hashtags, newHashtag.trim().replace("#", "")]);
+      setNewHashtag("");
+    }
+  };
+
+  const fullCaption = `${caption}\n\n${(hashtags || []).map(h => `#${h}`).join(" ")}`;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0 gap-0 bg-card border-line shadow-lg">
-        <DialogHeader className="px-6 py-4 border-b border-line flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <DialogTitle className="text-lg font-bold">
-                {existingPost ? "Edit Post" : "Create Instagram Post"}
-              </DialogTitle>
-              {idea && (
-                <Badge className={cn("text-xs", POST_TYPES[idea.type]?.color || "bg-muted text-muted-foreground")}>
-                  {POST_TYPES[idea.type]?.label || idea.type}
-                </Badge>
-              )}
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="flex flex-1 overflow-hidden">
-          {/* Left: Editor */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-5 border-r border-line">
-            {/* Platform */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Platform</Label>
-              <div className="flex gap-2">
-                {PLATFORMS.map((p) => {
-                  const Icon = p.icon;
-                  return (
-                    <button
-                      key={p.id}
-                      onClick={() => setPlatform(p.id)}
-                      className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold border transition-all",
-                        platform === p.id
-                          ? `bg-primary text-primary-foreground shadow-sm border-transparent`
-                          : "border-input text-muted-foreground hover:border-line hover:bg-muted/50"
-                      )}
-                    >
-                      <Icon className="h-3.5 w-3.5" /> {p.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Hook */}
-            {idea?.hook && (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3">
-                <p className="text-xs text-primary font-semibold mb-1 flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" /> Hook
-                </p>
-                <p className="text-sm font-bold">{idea.hook}</p>
-              </div>
-            )}
-
-            {/* Caption */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider">Caption</Label>
-              <Textarea
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                placeholder="Write your caption..."
-                rows={6}
-                className="bg-muted/50 border-input resize-none text-sm"
-              />
-              <p className="text-xs text-muted-foreground text-right">{caption.length} chars</p>
-            </div>
-
-            {/* Hashtags */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Hash className="h-3.5 w-3.5" /> Hashtags
-              </Label>
-              <div className="flex flex-wrap gap-1.5 p-3 rounded-lg bg-muted/50 border border-input min-h-[60px]">
-                {hashtags.map((tag) => (
-                  <span
-                    key={tag}
-                    onClick={() => setHashtags(hashtags.filter((h) => h !== tag))}
-                    className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs cursor-pointer hover:bg-red-500/20 hover:text-red-400 transition-colors"
-                  >
-                    #{tag} ×
-                  </span>
-                ))}
-                <input
-                  value={hashtagInput}
-                  onChange={(e) => setHashtagInput(e.target.value)}
-                  onKeyDown={handleAddHashtag}
-                  placeholder="Type hashtag, press Enter..."
-                  className="flex-1 min-w-[120px] bg-transparent text-xs outline-none text-muted-foreground placeholder:text-muted-foreground/50"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">{hashtags.length}/30 hashtags • Click a tag to remove it</p>
-            </div>
-
-            {/* Image Prompt */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <ImageIcon className="h-3.5 w-3.5" /> Image Prompt
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  value={imagePrompt}
-                  onChange={(e) => setImagePrompt(e.target.value)}
-                  placeholder="Describe the image for AI generation..."
-                  className="bg-muted/50 border-input text-sm"
-                />
-                <Button
-                  onClick={handleGenerateImage}
-                  disabled={!imagePrompt || generatingImage}
-                  size="sm"
-                  variant="outline"
-                  className="shrink-0 border-primary/30 text-primary hover:bg-primary/5"
-                >
-                  {generatingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            {/* Schedule */}
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Clock className="h-3.5 w-3.5" /> Schedule Date & Time
-              </Label>
-              <Input
-                type="datetime-local"
-                value={scheduledAt}
-                onChange={(e) => setScheduledAt(e.target.value)}
-                className="bg-muted/50 border-input text-sm"
-              />
-            </div>
-          </div>
-
-          {/* Right: Preview */}
-          <div className="w-72 flex-shrink-0 p-5 overflow-y-auto space-y-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Preview</p>
-
-            {/* Instagram mock */}
-            <div className="rounded-xl border border-line bg-card shadow-sm overflow-hidden">
-              {/* Image */}
-              <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden">
-                {imageUrl ? (
-                  <img
-                    src={imageUrl}
-                    alt="Post preview"
-                    className="w-full h-full object-cover"
-                    onError={() => setImageUrl("")}
-                  />
-                ) : (
-                  <div className="text-center text-muted-foreground/40 p-4">
-                    <ImageIcon className="h-12 w-12 mx-auto mb-2 opacity-30" />
-                    <p className="text-xs">Generate image above</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Caption preview */}
-              <div className="p-3 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-primary/20" />
-                  <span className="text-xs font-bold">your_brand</span>
+      <DialogContent className="max-w-6xl h-[90vh] p-0 gap-0 overflow-hidden bg-white/95 backdrop-blur-2xl border-line premium-shadow rounded-[3rem]">
+        <div className="flex h-full">
+          {/* Editor Side */}
+          <div className="flex-1 flex flex-col border-r border-line bg-slate-50/30">
+            <DialogHeader className="p-8 border-b border-line bg-white/50">
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle className="text-2xl font-black text-ink tracking-tight flex items-center gap-2">
+                    <Layout className="h-6 w-6 text-primary" />
+                    Campaign <span className="grad-text">Command Center</span>
+                  </DialogTitle>
+                  <DialogDescription className="text-[10px] font-black text-muted uppercase tracking-[0.2em] mt-1">
+                    Calibrate and deploy social media assets
+                  </DialogDescription>
                 </div>
-                <p className="text-xs text-foreground leading-relaxed line-clamp-4">
-                  {fullCaption || "Your caption will appear here..."}
-                </p>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="h-8 rounded-xl border-line bg-white px-4 text-[10px] font-black uppercase tracking-widest text-muted">
+                    V3 Engine Active
+                  </Badge>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <ScrollArea className="flex-1">
+              <div className="p-8 space-y-10">
+                {/* Content Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                      <Send className="h-3.5 w-3.5" /> Narrative Blueprint
+                    </Label>
+                    <span className="text-[10px] font-black text-primary">{(caption?.length || 0)}/2200</span>
+                  </div>
+                  <Textarea
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    placeholder="Engineer your brand narrative..."
+                    className="min-h-[220px] rounded-[2rem] border-line bg-white premium-shadow-sm text-[15px] font-bold text-ink leading-relaxed resize-none p-8 focus:border-primary/40 transition-all"
+                  />
+                </div>
+
+                {/* Hashtags Section */}
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                    <Hash className="h-3.5 w-3.5" /> Reach Optimization
+                  </Label>
+                  <div className="flex flex-wrap gap-2 mb-3 min-h-[40px] p-6 rounded-2xl bg-bg border border-line">
+                    {(hashtags || []).map((h) => (
+                      <Badge key={h} className="bg-white border-line text-ink hover:bg-primary/5 hover:text-primary transition-all px-4 py-2 rounded-xl text-[11px] font-black group">
+                        #{h}
+                        <button onClick={() => setHashtags(hashtags.filter(tag => tag !== h))} className="ml-2 opacity-30 group-hover:opacity-100 transition-opacity">×</button>
+                      </Badge>
+                    ))}
+                    {(hashtags?.length || 0) === 0 && <span className="text-[11px] text-ink-2 font-bold italic opacity-40">Zero tags calibrated</span>}
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      value={newHashtag}
+                      onChange={(e) => setNewHashtag(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && addHashtag()}
+                      placeholder="Add strategic tag..."
+                      className="flex-1 rounded-xl border-line bg-white h-12 text-sm font-bold text-ink"
+                    />
+                    <Button variant="outline" onClick={addHashtag} className="rounded-xl border-line font-black h-12 px-8 text-[10px] tracking-widest hover:bg-primary/5 transition-all">ADD</Button>
+                  </div>
+                </div>
+
+                {/* Visual Asset Section */}
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                    <ImageIcon className="h-3.5 w-3.5" /> Visual Intelligence
+                  </Label>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      value={imagePrompt}
+                      onChange={(e) => setImagePrompt(e.target.value)}
+                      placeholder="Describe the neural visual concept..."
+                      className="flex-1 rounded-xl border-line bg-white h-12 text-sm font-bold text-ink focus:border-primary/40 transition-all"
+                    />
+                    <Button 
+                      className="btn-grad text-white font-black rounded-xl h-12 px-8 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all shrink-0"
+                      onClick={handleGenerateImage}
+                      disabled={generatingImage}
+                    >
+                      {generatingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                      GENERATE
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Logistics Section */}
+                <div className="space-y-4">
+                  <Label className="text-[10px] font-black text-muted uppercase tracking-widest flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" /> Deployment Logistics
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    value={scheduledAt}
+                    onChange={(e) => setScheduledAt(e.target.value)}
+                    className="rounded-xl border-line bg-white h-11 text-sm font-bold w-full md:w-64"
+                  />
+                </div>
+              </div>
+            </ScrollArea>
+
+            <DialogFooter className="p-8 border-t border-line bg-white/50 flex flex-col md:flex-row gap-4">
+              <Button variant="outline" className="flex-1 h-14 rounded-2xl border-line font-black uppercase tracking-widest hover:bg-slate-50" onClick={() => handleSave("draft")} disabled={saving}>
+                <History className="h-4 w-4 mr-2" /> Preserve Draft
+              </Button>
+              <Button className="flex-[2] h-14 rounded-2xl btn-grad text-white font-black uppercase tracking-widest shadow-2xl shadow-primary/20" onClick={() => handleSave("scheduled")} disabled={saving}>
+                <Send className="h-4 w-4 mr-2" /> {scheduledAt ? "Schedule Deployment" : "Initiate Campaign"}
+              </Button>
+            </DialogFooter>
+          </div>
+
+          {/* Preview Side */}
+          <div className="hidden lg:flex w-[400px] flex-col bg-white">
+            <div className="p-8 border-b border-line bg-slate-50/50">
+              <h3 className="text-[10px] font-black text-muted uppercase tracking-[0.2em] mb-1">Live Intelligence</h3>
+              <p className="text-sm font-bold text-ink">Mockup Calibration</p>
+            </div>
+            <div className="flex-1 p-8 flex items-center justify-center">
+              <div className="w-[320px] rounded-[2.5rem] bg-white border border-line premium-shadow overflow-hidden reveal in">
+                {/* Instagram Mockup UI */}
+                <div className="p-4 border-b border-line flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full btn-grad flex items-center justify-center text-[10px] text-white font-black">
+                      {(project as any)?.brand_name?.charAt(0) || project?.name?.charAt(0) || "S"}
+                    </div>
+                    <span className="text-[13px] font-black tracking-tight">{(project as any)?.brand_name || project?.name || "solospider"}</span>
+                  </div>
+                  <div className="flex gap-1">
+                    <div className="w-1 h-1 rounded-full bg-muted"></div>
+                    <div className="w-1 h-1 rounded-full bg-muted"></div>
+                    <div className="w-1 h-1 rounded-full bg-muted"></div>
+                  </div>
+                </div>
+                <div className="aspect-square bg-slate-100 flex items-center justify-center relative overflow-hidden group">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  ) : (
+                    <div className="text-center space-y-3 opacity-20">
+                      <ImageIcon className="h-12 w-12 mx-auto" />
+                      <p className="text-[10px] font-black uppercase tracking-widest">Awaiting Vision</p>
+                    </div>
+                  )}
+                  {generatingImage && (
+                    <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-4">
+                        <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                        <p className="text-[10px] font-black text-primary uppercase tracking-widest animate-pulse">Synthesizing Asset...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="p-5 space-y-3">
+                  <div className="flex items-center gap-4">
+                    <Instagram className="h-5 w-5 text-ink" />
+                    <Send className="h-5 w-5 text-ink" />
+                    <div className="flex-1"></div>
+                    <Save className="h-5 w-5 text-ink" />
+                  </div>
+                  <p className="text-[12px] text-ink font-medium leading-relaxed line-clamp-5">
+                    {fullCaption || "Your brand narrative will materialize here..."}
+                  </p>
+                  <p className="text-[10px] text-muted font-bold uppercase tracking-widest pt-2">V3 Neural Preview</p>
+                </div>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="space-y-2 pt-2">
-              <Button
-                className="w-full shadow-sm"
-                onClick={() => handleSave("scheduled")}
-                disabled={saving}
-              >
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Post
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border-input text-muted-foreground hover:bg-muted"
-                onClick={() => handleSave("draft")}
-                disabled={saving}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                Save as Draft
-              </Button>
-              <Button
-                variant="outline"
-                className="w-full border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/10"
-                onClick={() => handleSave("published")}
-                disabled={saving}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Mark as Published
-              </Button>
+            <div className="p-8 border-t border-line bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                    <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <p className="text-[10px] font-black text-muted uppercase tracking-widest">System Operational</p>
+                </div>
             </div>
           </div>
         </div>

@@ -43,7 +43,7 @@ const Index = () => {
 
       <main>
         {/* HERO */}
-        <section className="relative overflow-hidden pt-[90px] pb-[100px] bg-gradient-to-b from-white to-primary-tint">
+        <section className="relative pt-[90px] pb-[100px] bg-gradient-to-b from-white to-primary-tint">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute left-[-10%] top-[10%] w-[560px] h-[560px] rounded-full bg-[radial-gradient(circle,rgba(144,37,242,0.18)_0,transparent_65%)] blur-[20px]"></div>
             <div className="absolute right-[-10%] top-[30%] w-[620px] h-[620px] rounded-full bg-[radial-gradient(circle,rgba(236,72,153,0.14)_0,transparent_65%)] blur-[20px]"></div>
@@ -87,23 +87,23 @@ const Index = () => {
           </div>
 
           <div className="relative text-center max-w-[980px] mx-auto px-7">
-            <span className="inline-flex items-center gap-2.5 py-1.5 px-4 rounded-full bg-primary/5 border border-primary/20 text-[13px] font-medium text-primary-2 reveal">
+            <span className="inline-flex items-center gap-2.5 py-1.5 px-4 rounded-full bg-primary/5 border border-primary/20 text-[13px] font-medium text-primary-2 hero-fade hero-d0">
               <span className="w-2 h-2 rounded-full bg-primary shadow-[0_0_12px_rgba(144,37,242,0.65)] animate-pulse-gentle"></span>
               Now live — The AI marketing OS for agencies & creators
             </span>
-            <h1 className="text-5xl md:text-[84px] leading-[0.98] my-7 reveal d1">
+            <h1 className="text-5xl md:text-[80px] leading-[1.05] my-7 hero-fade hero-d1">
               Replace Your Entire<br />
               <span className="grad-text">Digital Marketing Team</span><br />
               With One Tool
             </h1>
-            <p className="text-[20px] text-ink-2 max-w-[760px] mx-auto mb-9 leading-relaxed reveal d2">
+            <p className="text-[20px] text-ink-2 max-w-[760px] mx-auto mb-9 leading-relaxed hero-fade hero-d2">
               Solo Spider automates everything your marketing team does — blogs, social media, SEO, and AI search visibility. One subscription. No agency retainer. No hiring headache.
             </p>
-            <div className="flex justify-center gap-3.5 flex-wrap mb-5.5 reveal d3">
+            <div className="flex justify-center gap-3.5 flex-wrap mb-5.5 hero-fade hero-d3">
               <Link to="/auth" className="btn btn-grad">Start for Free →</Link>
               <Link to="#how" className="btn btn-ghost">See How It Works</Link>
             </div>
-            <div className="flex justify-center gap-5.5 flex-wrap text-[13px] text-muted reveal d4">
+            <div className="flex justify-center gap-5.5 flex-wrap text-[13px] text-muted hero-fade hero-d4">
               <span className="flex items-center gap-2">No credit card required</span>
               <span className="flex items-center gap-2 before:content-['·'] before:text-muted">Free plan available</span>
               <span className="flex items-center gap-2 before:content-['·'] before:text-muted">Set up in 5 minutes</span>

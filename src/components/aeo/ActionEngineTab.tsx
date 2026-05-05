@@ -1,6 +1,7 @@
 import { Zap, CheckCircle2, ArrowRight, PlayCircle, Flame } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 const tasks = [
     { title: "Publish 'Top CRM 2026' guide to WordPress", type: "Content", impact: "High", effort: "Low", status: "pending", cta: "1-Click Publish" },
@@ -11,71 +12,89 @@ const tasks = [
 
 export const ActionEngineTab = () => {
     return (
-        <div className="space-y-6 mt-6 animate-fade-in">
-            <div className="bg-gradient-to-r from-yellow-500/10 via-amber-500/5 to-background border border-yellow-500/20 rounded-xl p-6 relative overflow-hidden">
-                <div className="absolute -right-10 -top-10 w-40 h-40 bg-yellow-500/10 rounded-full blur-3xl"></div>
-                <h3 className="text-xl font-bold flex items-center gap-2 mb-2">
-                    <Flame className="h-6 w-6 text-yellow-500 animate-pulse" />
-                    Your Weekly Action Plan
+        <div className="space-y-8 mt-8 reveal in">
+            <div className="glass bg-primary/5 border-primary/20 rounded-[2rem] p-8 relative overflow-hidden group">
+                <div className="absolute -right-20 -top-20 w-64 h-64 bg-primary/10 rounded-full blur-[100px] group-hover:scale-125 transition-transform duration-700"></div>
+                <h3 className="text-2xl font-black flex items-center gap-3 mb-3 tracking-tight text-ink">
+                    <Flame className="h-7 w-7 text-primary animate-pulse" />
+                    Weekly <span className="grad-text">Action Protocol</span>
                 </h3>
-                <p className="text-muted-foreground w-full md:w-2/3">
-                    Forget exploring dashboards. We've calculated the exact high-impact, low-effort tasks you need to complete this week to dominate AI answers.
+                <p className="text-ink-2 font-bold uppercase tracking-widest text-[11px] opacity-60 w-full md:w-2/3 leading-relaxed">
+                    calculated high-impact execution vectors to dominate AI engine citations.
                 </p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Priority Execution Queue</CardTitle>
-                    <CardDescription>Tasks sorted dynamically by Impact vs. Effort ratio.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4 shadow-sm">
+            <div className="glass rounded-[2.5rem] overflow-hidden reveal d1">
+                <div className="p-8 border-b border-line bg-primary/5">
+                    <h3 className="text-xl font-black text-ink tracking-tight flex items-center gap-3">
+                        <Zap className="h-5 w-5 text-primary" /> Priority Execution Queue
+                    </h3>
+                    <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60 mt-1">
+                        Dynamic tasks sorted by Neural Impact vs. Effort ratio.
+                    </p>
+                </div>
+                <div className="p-8">
+                    <div className="space-y-4">
                         {tasks.map((task, i) => (
-                            <div key={i} className={`flex flex-col md:flex-row justify-between items-start md:items-center p-4 rounded-xl border ${task.status === 'completed' ? 'bg-muted/20 opacity-60' : 'bg-card hover:bg-muted/30'} transition-all gap-4`}>
-                                <div className="flex items-start gap-4">
+                            <div key={i} className={cn(
+                                "flex flex-col md:flex-row justify-between items-start md:items-center p-6 rounded-[1.5rem] border transition-all gap-6",
+                                task.status === 'completed' 
+                                    ? "bg-bg/40 opacity-40 border-line" 
+                                    : "bg-bg border-line hover:border-primary/40 hover:scale-[1.01] premium-shadow-sm"
+                            )}>
+                                <div className="flex items-start gap-6">
                                     <div className="mt-1">
                                         {task.status === 'completed' ? (
-                                            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                                            <CheckCircle2 className="h-6 w-6 text-emerald-500" />
                                         ) : (
-                                            <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30"></div>
+                                            <div className="h-6 w-6 rounded-xl border-2 border-primary/30 bg-primary/5"></div>
                                         )}
                                     </div>
-                                    <div>
-                                        <p className={`font-semibold text-base ${task.status === 'completed' ? 'line-through text-muted-foreground' : ''}`}>
+                                    <div className="space-y-1.5">
+                                        <p className={cn(
+                                            "font-black text-lg tracking-tight",
+                                            task.status === 'completed' ? "line-through text-ink-2" : "text-ink"
+                                        )}>
                                             {task.title}
                                         </p>
-                                        <div className="flex items-center gap-3 mt-1 text-xs">
-                                            <span className="bg-muted px-2 py-0.5 rounded-md text-muted-foreground font-medium">{task.type}</span>
-                                            <span className={task.impact === 'High' ? 'text-emerald-500' : 'text-blue-500'}>
+                                        <div className="flex flex-wrap items-center gap-4">
+                                            <Badge variant="outline" className="border-line text-ink-2 font-black px-2 py-0.5 rounded-md text-[8px] uppercase tracking-widest">{task.type}</Badge>
+                                            <span className={cn(
+                                                "text-[9px] font-black uppercase tracking-widest",
+                                                task.impact === 'High' ? 'text-primary' : 'text-pink'
+                                            )}>
                                                 Impact: {task.impact}
                                             </span>
-                                            <span className="text-muted-foreground">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-ink-2 opacity-60">
                                                 Effort: {task.effort}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-full md:w-auto mt-2 md:mt-0">
+                                <div className="w-full md:w-auto">
                                     <Button 
                                         variant={task.status === 'completed' ? "outline" : "default"} 
-                                        className={`w-full gap-2 ${task.status !== 'completed' && 'bg-primary shadow-lg shadow-primary/20 hover:scale-105 transition-transform'}`}
+                                        className={cn(
+                                            "w-full md:w-44 h-12 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all",
+                                            task.status !== 'completed' && "btn-grad text-white shadow-xl shadow-primary/20"
+                                        )}
                                         disabled={task.status === 'completed'}
                                     >
-                                        {task.status !== 'completed' && <PlayCircle className="h-4 w-4" />}
+                                        {task.status !== 'completed' && <PlayCircle className="h-4 w-4 mr-2" />}
                                         {task.cta}
                                     </Button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
-            <div className="grid md:grid-cols-2 gap-4 mt-6">
-                <Button className="h-16 text-lg bg-emerald-600 hover:bg-emerald-700 shadow-xl shadow-emerald-500/20" variant="default">
-                    <Zap className="h-5 w-5 mr-2" /> Auto-Execute Entire Queue
+            <div className="grid md:grid-cols-2 gap-6 mt-8 reveal d2">
+                <Button className="h-16 text-[12px] font-black uppercase tracking-widest btn-grad text-white shadow-2xl shadow-primary/30 rounded-2xl" variant="default">
+                    <Zap className="h-5 w-5 mr-3" /> Auto-Execute Full Protocol
                 </Button>
-                <Button className="h-16 text-lg border-primary/20 hover:bg-primary/5" variant="outline">
+                <Button className="h-16 text-[12px] font-black uppercase tracking-widest border-line bg-bg hover:bg-primary/5 text-ink rounded-2xl transition-all" variant="outline">
                     Regenerate Strategy
                 </Button>
             </div>

@@ -6,101 +6,117 @@ import { Badge } from "@/components/ui/badge";
 
 export const ContentEngineTab = () => {
     return (
-        <div className="space-y-6 mt-6 animate-fade-in">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-muted/30 p-4 rounded-xl border border-primary/10">
-                <div>
-                    <h3 className="text-lg font-bold flex items-center gap-2">
-                        <Wand2 className="h-5 w-5 text-primary" />
-                        AI-Optimized Content Generation
+        <div className="space-y-8 mt-8 reveal in">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 glass p-8 rounded-[2rem] border-primary/20">
+                <div className="space-y-1">
+                    <h3 className="text-xl font-black text-ink flex items-center gap-3 tracking-tight">
+                        <Wand2 className="h-6 w-6 text-primary shadow-[0_0_15px_rgba(144,37,242,0.4)]" />
+                        AI Narrative <span className="grad-text">Architect</span>
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Sitefire auto-generates articles based on the exact entities and structures top-cited content uses.
+                    <p className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60">
+                        Autonomous entity synchronization with top-tier AI citations.
                     </p>
                 </div>
-                <Button className="shrink-0 gap-2"><PenTool className="h-4 w-4" /> Generate New Brief</Button>
+                <Button className="btn-grad text-white font-black px-8 h-12 rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.05] transition-all">
+                    <PenTool className="h-4 w-4 mr-2" /> NEW BRIEF
+                </Button>
             </div>
 
-            <div className="grid lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-1 bg-gradient-to-b from-background to-muted/20">
-                    <CardHeader>
-                        <CardTitle>Content Setup</CardTitle>
-                        <CardDescription>Configure parameters for AI optimization.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">Target Prompt / Keyword</label>
-                            <Input placeholder="e.g. b2b marketing automation" />
+            <div className="grid lg:grid-cols-3 gap-8 reveal d1">
+                <div className="lg:col-span-1 glass rounded-[2.5rem] p-8 space-y-8">
+                    <div className="space-y-1">
+                        <h3 className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60">Engine Parameters</h3>
+                        <p className="text-sm font-black text-ink">Calibration</p>
+                    </div>
+                    <div className="space-y-6">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-ink-2 uppercase tracking-widest opacity-60">Target Logic</label>
+                            <Input placeholder="e.g. b2b marketing automation" className="bg-bg border-line h-12 rounded-xl font-bold text-ink" />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Type className="h-4 w-4" /> Tone Matching</label>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-ink-2 uppercase tracking-widest opacity-60 flex items-center gap-2"><Type className="h-4 w-4" /> Voice Synthesis</label>
                             <div className="flex flex-wrap gap-2">
-                                <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white">Authoritative</Badge>
-                                <Badge variant="default" className="cursor-pointer">Brand Voice</Badge>
-                                <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-white">Conversational</Badge>
+                                <Badge className="bg-primary/10 text-primary border-primary/20 font-black px-3 py-1.5 rounded-xl cursor-pointer">Brand Voice</Badge>
+                                <Badge variant="outline" className="border-line text-ink-2 font-black px-3 py-1.5 rounded-xl cursor-pointer hover:border-primary/40">Authoritative</Badge>
+                                <Badge variant="outline" className="border-line text-ink-2 font-black px-3 py-1.5 rounded-xl cursor-pointer hover:border-primary/40">Conversational</Badge>
                             </div>
                         </div>
-                        <div className="space-y-2 pt-2">
-                            <label className="text-sm font-medium flex items-center gap-2"><Layers className="h-4 w-4" /> Schema Injection</label>
-                            <div className="flex flex-col gap-2">
-                                <label className="flex items-center gap-2 text-sm"><input type="checkbox" defaultChecked className="rounded border-gray-300" /> FAQPage Schema</label>
-                                <label className="flex items-center gap-2 text-sm"><input type="checkbox" defaultChecked className="rounded border-gray-300" /> HowTo Schema</label>
-                                <label className="flex items-center gap-2 text-sm"><input type="checkbox" className="rounded border-gray-300" /> Article Schema</label>
+                        <div className="space-y-3 pt-2">
+                            <label className="text-[10px] font-black text-ink-2 uppercase tracking-widest opacity-60 flex items-center gap-2"><Layers className="h-4 w-4" /> Schema Injection</label>
+                            <div className="flex flex-col gap-3 p-4 rounded-2xl bg-bg border border-line">
+                                <label className="flex items-center gap-3 text-xs font-black text-ink cursor-pointer group">
+                                    <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-line bg-bg text-primary focus:ring-primary/20" />
+                                    FAQPage Schema
+                                </label>
+                                <label className="flex items-center gap-3 text-xs font-black text-ink cursor-pointer group">
+                                    <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-line bg-bg text-primary focus:ring-primary/20" />
+                                    HowTo Schema
+                                </label>
+                                <label className="flex items-center gap-3 text-xs font-black text-ink cursor-pointer group">
+                                    <input type="checkbox" className="h-4 w-4 rounded border-line bg-bg text-primary focus:ring-primary/20" />
+                                    Article Schema
+                                </label>
                             </div>
                         </div>
-                        <Button className="w-full mt-4" variant="secondary">Extract Competitor Entities</Button>
-                    </CardContent>
-                </Card>
+                        <Button className="w-full h-12 rounded-xl border-line text-ink-2 font-black uppercase text-[10px] tracking-widest hover:bg-primary/5 transition-all" variant="outline">Extract Entities</Button>
+                    </div>
+                </div>
 
-                <Card className="lg:col-span-2 border-primary/20 shadow-md">
-                    <CardHeader className="bg-primary/5 border-b">
-                        <CardTitle className="text-primary flex items-center gap-2">
-                            <CheckSquare className="h-5 w-5" /> Auto Content Brief
-                        </CardTitle>
-                        <CardDescription>Generated based on citations by top AI engines.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-6 space-y-6">
-                        <div>
-                            <h4 className="font-bold text-lg mb-2">The Ultimate B2B Marketing Automation Guide</h4>
-                            <div className="flex gap-2">
-                                <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 bg-emerald-500/10">ChatGPT Optimized</Badge>
-                                <Badge variant="outline" className="border-indigo-500/30 text-indigo-600 bg-indigo-500/10">14 Required Entities</Badge>
-                                <Badge variant="outline" className="border-purple-500/30 text-purple-600 bg-purple-500/10">2,500 Words Suggested</Badge>
+                <div className="lg:col-span-2 glass border-primary/20 rounded-[2.5rem] overflow-hidden flex flex-col">
+                    <div className="bg-primary/5 p-8 border-b border-line">
+                        <h3 className="text-xl font-black text-primary flex items-center gap-3 tracking-tight">
+                            <CheckSquare className="h-6 w-6" /> Auto Intelligence Brief
+                        </h3>
+                        <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60 mt-1">
+                            Generated based on high-authority AI engine citations.
+                        </p>
+                    </div>
+                    <div className="p-8 space-y-10 flex-1">
+                        <div className="space-y-4">
+                            <h4 className="font-black text-2xl text-ink tracking-tight leading-tight">The Ultimate B2B Marketing Automation Guide for Elite Teams</h4>
+                            <div className="flex flex-wrap gap-3">
+                                <Badge variant="outline" className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border-emerald-500/30 text-emerald-500 bg-emerald-500/10">ChatGPT Optimized</Badge>
+                                <Badge variant="outline" className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border-primary/30 text-primary bg-primary/10">14 Required Entities</Badge>
+                                <Badge variant="outline" className="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border-pink/30 text-pink bg-pink/10">2,500 Words Goal</Badge>
                             </div>
                         </div>
-
-                        <div className="space-y-3">
-                            <p className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">Required Structure (To Outrank Competitors)</p>
-                            <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
-                                <p className="font-bold">H1: The Ultimate Guide to B2B Marketing Automation in 2026</p>
-                                <p className="pl-4 font-medium text-foreground/80">H2: What is Marketing Automation?</p>
-                                <p className="pl-8 text-muted-foreground">↳ Must include entity: "CRM Syncing", "Lead Scoring"</p>
-                                <p className="pl-4 font-medium text-foreground/80">H2: Top 5 Tools Comparison</p>
-                                <p className="pl-8 text-muted-foreground">↳ Must include structural list items for Perplexity extraction.</p>
-                                <p className="pl-4 font-medium text-foreground/80">H2: Frequently Asked Questions</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <p className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                                <LinkIcon className="h-4 w-4" /> Internal Linking Suggestions
+ 
+                        <div className="space-y-4">
+                            <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60 flex items-center gap-2">
+                                Required Structural Layers
                             </p>
-                            <div className="bg-muted/50 p-4 rounded-lg space-y-2 text-sm">
-                                <p className="flex justify-between items-center">
-                                    <span>Link to: <span className="text-primary hover:underline cursor-pointer">/features/lead-scoring</span></span>
-                                    <Badge variant="secondary">High Impact</Badge>
-                                </p>
-                                <p className="flex justify-between items-center border-t pt-2">
-                                    <span>Link to: <span className="text-primary hover:underline cursor-pointer">/pricing</span></span>
-                                    <Badge variant="secondary">Conversion Focus</Badge>
-                                </p>
+                            <div className="bg-bg border border-line p-6 rounded-[2rem] space-y-4 text-sm">
+                                <p className="font-black text-ink text-base">H1: The Ultimate Guide to B2B Marketing Automation in 2026</p>
+                                <div className="pl-6 border-l-2 border-line space-y-4">
+                                    <p className="font-bold text-ink-2">H2: What is Marketing Automation?</p>
+                                    <p className="pl-6 text-[11px] font-black text-primary uppercase tracking-widest">↳ ENTITY SYNC: "CRM Syncing", "Lead Scoring"</p>
+                                    <p className="font-bold text-ink-2">H2: Top 5 Tools Comparison</p>
+                                    <p className="pl-6 text-[11px] font-black text-primary uppercase tracking-widest">↳ PERPLEXITY EXTRACTION: Structural Lists Enabled</p>
+                                </div>
                             </div>
                         </div>
-
-                        <Button className="w-full gap-2 py-6 text-base font-semibold">
-                            <Wand2 className="h-5 w-5" /> Generate Citation-Based Article
+ 
+                        <div className="space-y-4">
+                            <p className="text-[10px] font-black text-ink-2 uppercase tracking-[0.2em] opacity-60 flex items-center gap-2">
+                                <LinkIcon className="h-3.5 w-3.5" /> Neural Link Calibration
+                            </p>
+                            <div className="bg-bg border border-line p-6 rounded-[2rem] space-y-4">
+                                <div className="flex justify-between items-center group">
+                                    <span className="text-[13px] font-bold text-ink group-hover:text-primary transition-colors cursor-pointer">/features/lead-scoring</span>
+                                    <Badge className="bg-[#22d3ee]/10 text-[#22d3ee] border-[#22d3ee]/20 font-black px-2 py-0.5 rounded-md text-[8px] uppercase tracking-widest">High Impact</Badge>
+                                </div>
+                                <div className="flex justify-between items-center border-t border-line pt-4 group">
+                                    <span className="text-[13px] font-bold text-ink group-hover:text-primary transition-colors cursor-pointer">/pricing</span>
+                                    <Badge className="bg-pink/10 text-pink border-pink/20 font-black px-2 py-0.5 rounded-md text-[8px] uppercase tracking-widest">Conversion Focus</Badge>
+                                </div>
+                            </div>
+                        </div>
+ 
+                        <Button className="w-full h-16 btn-grad text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all gap-3">
+                            <Wand2 className="h-5 w-5" /> SYNTHESIZE FULL ARTICLE
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );
