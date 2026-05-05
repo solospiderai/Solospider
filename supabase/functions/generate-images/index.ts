@@ -8,17 +8,22 @@ const corsHeaders = {
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-// Generate an image prompt via Groq
+// Generate an image prompt via OpenRouter
 async function generatePrompt(topic: string, context: string): Promise<string> {
-    const key = Deno.env.get("GROQ_API_KEY");
+    const key = Deno.env.get("OPENROUTER_API_KEY");
     if (!key) return `Professional photo of ${topic}, photorealistic, high resolution`;
 
     try {
-        const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
-            headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+            headers: { 
+                Authorization: `Bearer ${key}`, 
+                "Content-Type": "application/json",
+                "HTTP-Referer": "https://solospider.ai",
+                "X-Title": "SoloSpider",
+            },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
+                model: "meta-llama/llama-3.1-8b-instruct",
                 messages: [
                     { role: "system", content: "You are an expert AI image prompt engineer. Create vivid, detailed prompts for photorealistic image generation. Include: subject, environment, lighting (golden hour, soft diffused, etc.), camera angle, and mood. Output ONLY the prompt, no quotes, no explanation. Maximum 45 words. End with: DSLR photography, 4K ultra HD, sharp focus, no text, no watermark." },
                     { role: "user", content: `Create a photorealistic image prompt for a blog about \"${context}\". The image should represent: \"${topic}\"` }
@@ -27,7 +32,7 @@ async function generatePrompt(topic: string, context: string): Promise<string> {
                 temperature: 0.7,
             }),
         });
-        if (!res.ok) throw new Error(`Groq ${res.status}`);
+        if (!res.ok) throw new Error(`OpenRouter ${res.status}`);
         const data = await res.json();
         return data.choices?.[0]?.message?.content?.trim() || `Professional photo of ${topic}, photorealistic, high resolution`;
     } catch (e) {
@@ -36,70 +41,12 @@ async function generatePrompt(topic: string, context: string): Promise<string> {
     }
 }
 
-// Generate image via Fireworks AI and upload to Supabase Storage
+// Generate image via Fireworks AI (DISABLED)
 async function generateAndUpload(
     supabase: any, prompt: string, fileName: string, width: number, height: number
 ): Promise<string | null> {
-    const key = Deno.env.get("FIREWORKS_API_KEY");
-    if (!key) {
-        console.error("FIREWORKS_API_KEY not set");
-        return null;
-    }
-
-    console.log(`Generating image: ${prompt.substring(0, 60)}...`);
-
-    try {
-        const res = await fetch(
-            "https://api.fireworks.ai/inference/v1/image_generation/accounts/fireworks/models/playground-v2-5-1024px-aesthetic",
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${key}`,
-                    "Content-Type": "application/json",
-                    Accept: "image/jpeg",
-                },
-                body: JSON.stringify({
-                    prompt,
-                    negative_prompt: "text, watermark, logo, signature, ugly, deformed, blurry, low quality, low resolution, bad anatomy, extra limbs, missing limbs, floating objects, cartoon, anime, painting",
-                    height: 768,
-                    width: 1344,
-                    num_inference_steps: 40,
-                    guidance_scale: 7.5,
-                    samples: 1,
-                }),
-            }
-        );
-
-        if (!res.ok) {
-            const t = await res.text();
-            console.error(`Fireworks error ${res.status}: ${t}`);
-            return null;
-        }
-
-        const imageData = await res.arrayBuffer();
-        const uint8Array = new Uint8Array(imageData);
-        console.log(`Got image blob: ${uint8Array.byteLength} bytes`);
-
-        // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
-            .from("blog-images")
-            .upload(fileName, uint8Array, {
-                contentType: "image/jpeg",
-                upsert: true,
-            });
-
-        if (error) {
-            console.error("Storage upload error:", JSON.stringify(error));
-            return null;
-        }
-
-        const { data: { publicUrl } } = supabase.storage.from("blog-images").getPublicUrl(data.path);
-        console.log(`Uploaded: ${publicUrl}`);
-        return publicUrl;
-    } catch (e) {
-        console.error("generateAndUpload error:", e);
-        return null;
-    }
+    console.warn("Image generation is currently disabled.");
+    return null;
 }
 
 // Main generation logic

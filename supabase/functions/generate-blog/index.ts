@@ -51,26 +51,25 @@ CONTENT RULES:
 - AEO & Featured Snippets: Write direct, clear answers. Use definition-style structures.
 - ALWAYS output pure markdown sections without wrapping them in explanatory text. Do NOT output overarching markdown code fences (like \`\`\`markdown).`;
 
-const GROQ_MODELS = {
-  title: "llama-3.3-70b-versatile",
-  outline: "llama-3.3-70b-versatile",
-  section: "llama-3.3-70b-versatile",
-  faq: "llama-3.3-70b-versatile",
+const OPENROUTER_MODELS = {
+  title: "meta-llama/llama-3.3-70b-instruct",
+  outline: "meta-llama/llama-3.3-70b-instruct",
+  section: "meta-llama/llama-3.3-70b-instruct",
+  faq: "meta-llama/llama-3.3-70b-instruct",
 } as const;
 
-async function callGroq(messages: any[], model: string, maxTokens: number = 2000): Promise<string> {
-  const groqKey = Deno.env.get("GROQ_API_KEY");
-  if (!groqKey) throw new Error("GROQ_API_KEY not configured");
+async function callOpenRouter(messages: any[], model: string, maxTokens: number = 2000): Promise<string> {
+  const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
+  if (!openrouterKey) throw new Error("OPENROUTER_API_KEY not configured");
 
   for (let attempt = 0; attempt < 3; attempt++) {
-    // Aggressive intentional delay to respect Groq Tokens-Per-Minute limits
-    await new Promise(r => setTimeout(r, 3000));
-
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${groqKey}`,
+        Authorization: `Bearer ${openrouterKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://solospider.ai",
+        "X-Title": "SoloSpider",
       },
       body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature: 0.7 }),
     });
@@ -78,24 +77,22 @@ async function callGroq(messages: any[], model: string, maxTokens: number = 2000
     if (response.status === 429) {
       const text = await response.text();
       console.warn(`Rate limited on ${model}, attempt ${attempt + 1}. Details: ${text}`);
-      // Heavy exponential backoff
-      await new Promise(r => setTimeout(r, 5000 * (attempt + 1)));
+      await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
       continue;
     }
 
     if (!response.ok) {
       const text = await response.text();
-      throw new Error(`Groq error ${response.status}: ${text}`);
+      throw new Error(`OpenRouter error ${response.status}: ${text}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
     if (content) {
       console.log(`Generated with ${model}`);
-      // DeepSeek R1 and thinking models wrap output in <think> tags — strip them
       return content.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
     }
-    throw new Error("Empty response from Groq");
+    throw new Error("Empty response from OpenRouter");
   }
   throw new Error(`Rate limited on ${model} after 3 attempts`);
 }
@@ -181,10 +178,10 @@ async function generateBlog(supabase: any, contentId: string, userId: string, in
     targetCount = Math.min(targetCount, 12);
 
     if (hasPlaceholders) {
-      const generatedHeadings = await callGroq([
+      const generatedHeadings = await callOpenRouter([
         { role: "system", content: "Generate SEO blog section headings. Return ONLY headings, one per line. No numbering, no explanation, no quotes." },
         { role: "user", content: `Generate exactly ${targetCount} H2 headings for a blog about "${main_keyword}". Short, specific, SEO-friendly. One per line.` },
-      ], GROQ_MODELS.outline);
+      ], OPENROUTER_MODELS.outline);
       const newH2s = generatedHeadings.split("\n").map((h: string) => h.replace(/^#+\s*/, "").replace(/^\d+\.?\s*/, "").trim()).filter(Boolean);
       if (newH2s.length >= Math.max(2, targetCount - 2)) {
         h2s = newH2s.slice(0, targetCount);
@@ -216,10 +213,10 @@ async function generateBlog(supabase: any, contentId: string, userId: string, in
     let metaDescription = "";
 
     if (h1 && h1.trim().length > 0) {
-      const metaStr = await callGroq([
+      const metaStr = await callOpenRouter([
         { role: "system", content: "You generate SEO meta descriptions. Return ONLY a JSON object with a 'meta_description' string property." },
         { role: "user", content: `Create an SEO meta description for a blog titled: "${h1}" about "${main_keyword}". STRICTLY 140-160 characters. Include the primary keyword and a robust Call-to-Action. Make it highly attractive for click-through rate. Return ONLY valid JSON: {"meta_description": "..."}` },
-      ], GROQ_MODELS.title);
+      ], OPENROUTER_MODELS.title);
       try {
         const parsed = JSON.parse(metaStr.match(/\{[\s\S]*\}/)?.[0] || metaStr);
         metaDescription = parsed.meta_description || "";
@@ -227,7 +224,7 @@ async function generateBlog(supabase: any, contentId: string, userId: string, in
         metaDescription = metaStr.replace(/[{}]/g, "").replace(/"meta_description":\s*/is, "").trim();
       }
     } else {
-      const titleAndMetaStr = await callGroq([
+      const titleAndMetaStr = await callOpenRouter([
         { role: "system", content: "You generate SEO blog titles and meta descriptions. Return ONLY a JSON object with 'title' and 'meta_description' string properties." },
         {
           role: "user", content: `Create an SEO title and meta description for the primary keyword: "${main_keyword}".
@@ -235,7 +232,7 @@ STRICT RULES:
 - SEO TITLE: Include the primary keyword near the beginning. Use power words. Keep length between 50-60 characters. Make engaging and click-worthy.
 - META DESCRIPTION: Include primary keyword, a call-to-action, attractive for CTR, strictly 140-160 characters.
 - Return ONLY valid JSON format: {"title": "...", "meta_description": "..."}` },
-      ], GROQ_MODELS.title);
+      ], OPENROUTER_MODELS.title);
 
       try {
         let cleanJsonStr = titleAndMetaStr.match(/\{[\s\S]*\}/)?.[0] || titleAndMetaStr;
@@ -260,7 +257,7 @@ STRICT RULES:
     });
 
     // 2. INTRODUCTION
-    const intro = await callGroq([
+    const intro = await callOpenRouter([
       { role: "system", content: dynamicSystemPrompt },
       {
         role: "user", content: `Write the INTRODUCTION for a blog titled "${title.trim()}" about the primary keyword: "${main_keyword}".${secondaryKw ? ` Secondary Keywords: ${secondaryKw}.` : ""} Tone: ${tone}.
@@ -273,7 +270,7 @@ SEO & AEO OPTIMIZATION RULES FOR INTRO:
 - Paragraphs must be 2-4 sentences max.
 - Write naturally with transition words. 
 - Return JUST the introduction body content. No heading. Do NOT duplicate the title.` },
-    ], GROQ_MODELS.section, Math.round(dist.introWords * 1.5) + 100);
+    ], OPENROUTER_MODELS.section, Math.round(dist.introWords * 1.5) + 100);
 
     completed++;
 
@@ -301,7 +298,7 @@ SEO & AEO OPTIMIZATION RULES FOR INTRO:
 
     // 3. H2 SECTIONS
     for (let i = 0; i < h2s.length; i++) {
-      const h2Content = await callGroq([
+      const h2Content = await callOpenRouter([
         { role: "system", content: dynamicSystemPrompt },
         {
           role: "user", content: `Write the body content for the section heading "${h2s[i]}" for an SEO blog about "${main_keyword}".${secondaryKw ? ` Secondary Keywords: ${secondaryKw}.` : ""} Tone: ${tone}.
@@ -312,7 +309,7 @@ CONTENT GUIDELINES:
 - AEO Optimization: When addressing questions or steps, use a direct Answer Paragraph, bullet lists, or numbered steps. Use Definition-style structures for featured snippets.
 - Readability: Sentences under 20 words on average. Paragraphs 2-4 sentences. 
 - Format: Utilize markdown formatting (bolding), lists for clarity. Do NOT include the section heading itself in the output. Just the content.` },
-      ], GROQ_MODELS.section, Math.round(dist.h2Words * 1.5) + 100);
+      ], OPENROUTER_MODELS.section, Math.round(dist.h2Words * 1.5) + 100);
 
       completed++;
 
@@ -326,7 +323,7 @@ CONTENT GUIDELINES:
     // 4. H3 SECTIONS (removed as per instruction)
 
     // 5. CONCLUSION + FAQs (combined into one call for speed)
-    const closingContent = await callGroq([
+    const closingContent = await callOpenRouter([
       { role: "system", content: dynamicSystemPrompt },
       {
         role: "user", content: `Write the "Key Takeaways" AND "FAQ Section" for the SEO blog "${title.trim()}" about "${main_keyword}". Tone: ${tone}.
@@ -358,7 +355,7 @@ SEO & AEO RULES:
 - Target readability level 8th-10th grade. No passive voice. 
 - Use semantic variations of the primary keyword in the Q&As.
 - Keep answers structured with clear explanations. Use bold for key terms.` },
-    ], GROQ_MODELS.faq, Math.round((dist.conclusionWords + dist.faqWords) * 1.5) + 200);
+    ], OPENROUTER_MODELS.faq, Math.round((dist.conclusionWords + dist.faqWords) * 1.5) + 200);
 
     completed++;
     // Strip out any ## Conclusion if the model hallucinated it anyway

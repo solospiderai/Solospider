@@ -13,9 +13,9 @@ serve(async (req) => {
         const authHeader = req.headers.get("Authorization");
         const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
         const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-        const groqKey = Deno.env.get("GROQ_API_KEY");
+        const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
 
-        if (!groqKey) throw new Error("GROQ_API_KEY not configured");
+        if (!openrouterKey) throw new Error("OPENROUTER_API_KEY not configured");
 
         // Verify user auth
         const anonClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY")!, {
@@ -53,15 +53,17 @@ serve(async (req) => {
 
         const currentContent = content.generated_content || "";
 
-        // Call Groq to refine the content based on the user's prompt
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // Call OpenRouter to refine the content based on the user's prompt
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${groqKey}`,
+                Authorization: `Bearer ${openrouterKey}`,
                 "Content-Type": "application/json",
+                "HTTP-Referer": "https://solospider.ai",
+                "X-Title": "SoloSpider",
             },
             body: JSON.stringify({
-                model: "llama-3.1-8b-instant",
+                model: "meta-llama/llama-3.1-8b-instruct",
                 messages: [
                     {
                         role: "system",
@@ -79,7 +81,7 @@ serve(async (req) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`Groq error: ${errorText}`);
+            throw new Error(`OpenRouter error: ${errorText}`);
         }
 
         const data = await response.json();

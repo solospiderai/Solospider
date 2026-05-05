@@ -16,8 +16,8 @@ serve(async (req) => {
       });
     }
 
-    const groqKey = Deno.env.get("GROQ_API_KEY");
-    if (!groqKey) throw new Error("GROQ_API_KEY not configured");
+    const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
+    if (!openrouterKey) throw new Error("OPENROUTER_API_KEY not configured");
 
     const prompt = `Create an SEO title for the keyword: "${keyword}".
 STRICT RULES:
@@ -30,14 +30,16 @@ STRICT RULES:
 - No clickbait, no all-caps, no complex words
 - Return ONLY the title text, nothing else, no quotes.`;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${groqKey}`,
+        Authorization: `Bearer ${openrouterKey}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "https://solospider.ai",
+        "X-Title": "SoloSpider",
       },
       body: JSON.stringify({
-        model: "llama-3.1-8b-instant",
+        model: "meta-llama/llama-3.1-8b-instruct",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 100,
         temperature: 0.7,
@@ -46,7 +48,7 @@ STRICT RULES:
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Groq error: ${errorText}`);
+      throw new Error(`OpenRouter error: ${errorText}`);
     }
 
     const data = await response.json();
