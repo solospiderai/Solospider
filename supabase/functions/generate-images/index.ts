@@ -41,7 +41,7 @@ async function generatePrompt(topic: string, context: string): Promise<string> {
     }
 }
 
-// Generate image via Pollinations AI and upload to Supabase Storage
+// Generate image via Pollinations AI and return URL directly to bypass worker compute/memory limits
 async function generateAndUpload(
     supabase: any, prompt: string, fileName: string, width: number, height: number
 ): Promise<string | null> {
@@ -50,34 +50,7 @@ async function generateAndUpload(
     try {
         const encodedPrompt = encodeURIComponent(prompt);
         const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&nologo=true`;
-        
-        const res = await fetch(url);
-
-        if (!res.ok) {
-            console.error(`Pollinations error ${res.status}`);
-            return null;
-        }
-
-        const imageData = await res.arrayBuffer();
-        const uint8Array = new Uint8Array(imageData);
-        console.log(`Got image blob: ${uint8Array.byteLength} bytes`);
-
-        // Upload to Supabase Storage
-        const { data, error } = await supabase.storage
-            .from("blog-images")
-            .upload(fileName, uint8Array, {
-                contentType: "image/jpeg",
-                upsert: true,
-            });
-
-        if (error) {
-            console.error("Storage upload error:", JSON.stringify(error));
-            return null;
-        }
-
-        const { data: { publicUrl } } = supabase.storage.from("blog-images").getPublicUrl(data.path);
-        console.log(`Uploaded: ${publicUrl}`);
-        return publicUrl;
+        return url;
     } catch (e) {
         console.error("generateAndUpload error:", e);
         return null;
@@ -138,7 +111,7 @@ async function generateImagesForContent(supabase: any, contentId: string, userId
         const h = heading.toLowerCase();
         if (h.includes("conclusion") || h.includes("faq") || h.includes("frequently")) continue;
 
-        await sleep(3000); // rate limiting
+        await sleep(500); // reduced sleep since we are not doing heavy uploads
 
         const sectionPrompt = await generatePrompt(heading, main_keyword);
         const slug = heading.replace(/\s+/g, "_").replace(/[^a-z0-9_]/gi, "").slice(0, 40);
