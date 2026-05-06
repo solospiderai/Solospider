@@ -177,17 +177,24 @@ serve(async (req) => {
             );
         }
 
-        // Respond immediately, generate in background
-        const generationPromise = generateImagesForContent(supabase, contentId, userId);
-        const edgeRuntime = (globalThis as any).EdgeRuntime;
-        if (edgeRuntime?.waitUntil) {
-            edgeRuntime.waitUntil(generationPromise);
-        } else {
-            generationPromise.catch(err => console.error("Background generation failed:", err));
-        }
+        // Respond synchronously to ensure background task completes without worker termination
+        console.log("Running image generation synchronously...");
+        await generateImagesForContent(supabase, contentId, userId);
+
+        // Fetch count to confirm
+        const { count, error: countError } = await supabase
+            .from("blog_images")
+            .select("id", { count: "exact", head: true })
+            .eq("content_id", contentId)
+            .eq("user_id", userId);
 
         return new Response(
-            JSON.stringify({ success: true, message: "Image generation started", contentId }),
+            JSON.stringify({ 
+                success: true, 
+                message: "Image generation complete", 
+                contentId,
+                count: count || 0
+            }),
             { headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
     } catch (e) {
