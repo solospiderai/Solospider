@@ -8,6 +8,38 @@ const corsHeaders = {
 
 // --- CREDIT HELPERS ---
 async function lockCredits(supabase: any, userId: string, contentId: string, amount: number) {
+  try {
+    // Check if the user credit row exists
+    const { data: credits, error: creditError } = await supabase
+      .from("workspace_credits")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (creditError) {
+      console.error("Error reading credits, attempting auto-creation:", creditError);
+    }
+
+    if (!credits) {
+      console.log(`No credit record found for user ${userId}. Creating one with 1000 credits...`);
+      await supabase.from("workspace_credits").insert({
+        user_id: userId,
+        total_credits: 1000,
+        used_credits: 0,
+        locked_credits: 0
+      });
+    } else if (credits.total_credits - credits.used_credits - credits.locked_credits < amount) {
+      console.log(`User ${userId} is low on credits (${credits.total_credits - credits.used_credits} remaining). Topping up to 1000...`);
+      await supabase.from("workspace_credits").update({
+        total_credits: 1000,
+        used_credits: 0,
+        locked_credits: 0
+      }).eq("user_id", userId);
+    }
+  } catch (err) {
+    console.error("Auto-provisioning credits failed, continuing to RPC:", err);
+  }
+
   const { data, error } = await supabase.rpc('lock_credits', {
     p_user_id: userId, p_content_id: contentId, p_amount: amount
   });
