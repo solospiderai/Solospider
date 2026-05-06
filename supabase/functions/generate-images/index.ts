@@ -41,12 +41,47 @@ async function generatePrompt(topic: string, context: string): Promise<string> {
     }
 }
 
-// Generate image via Fireworks AI (DISABLED)
+// Generate image via Pollinations AI and upload to Supabase Storage
 async function generateAndUpload(
     supabase: any, prompt: string, fileName: string, width: number, height: number
 ): Promise<string | null> {
-    console.warn("Image generation is currently disabled.");
-    return null;
+    console.log(`Generating image via Pollinations AI: ${prompt.substring(0, 60)}...`);
+
+    try {
+        const encodedPrompt = encodeURIComponent(prompt);
+        const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&nologo=true`;
+        
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            console.error(`Pollinations error ${res.status}`);
+            return null;
+        }
+
+        const imageData = await res.arrayBuffer();
+        const uint8Array = new Uint8Array(imageData);
+        console.log(`Got image blob: ${uint8Array.byteLength} bytes`);
+
+        // Upload to Supabase Storage
+        const { data, error } = await supabase.storage
+            .from("blog-images")
+            .upload(fileName, uint8Array, {
+                contentType: "image/jpeg",
+                upsert: true,
+            });
+
+        if (error) {
+            console.error("Storage upload error:", JSON.stringify(error));
+            return null;
+        }
+
+        const { data: { publicUrl } } = supabase.storage.from("blog-images").getPublicUrl(data.path);
+        console.log(`Uploaded: ${publicUrl}`);
+        return publicUrl;
+    } catch (e) {
+        console.error("generateAndUpload error:", e);
+        return null;
+    }
 }
 
 // Main generation logic

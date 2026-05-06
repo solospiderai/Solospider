@@ -20,10 +20,33 @@ serve(async (req) => {
     const body = await req.json();
     const { type, prompt: userPrompt, brandName, brandDescription } = body;
 
-    // ── 1. IMAGE GENERATION (DISABLED) ─────────────────────────
+    // ── 1. HIGH-QUALITY IMAGE GENERATION (POLLINATIONS) ─────────────────────────
     if (type === "image") {
-      return new Response(JSON.stringify({ error: "Image generation is currently disabled." }), {
-        status: 400,
+      console.log("Generating high-quality image via Pollinations...");
+      const encodedPrompt = encodeURIComponent(userPrompt);
+      const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
+      
+      const res = await fetch(url);
+
+      if (!res.ok) {
+        throw new Error(`Pollinations error: ${res.status}`);
+      }
+
+      const imageData = await res.arrayBuffer();
+      const fileName = `social/${Date.now()}.jpg`;
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from("blog-images") // Reusing existing bucket
+        .upload(fileName, new Uint8Array(imageData), {
+          contentType: "image/jpeg",
+          upsert: true,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage.from("blog-images").getPublicUrl(uploadData.path);
+      return new Response(JSON.stringify({ imageUrl: publicUrl }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
