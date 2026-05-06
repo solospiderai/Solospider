@@ -35,7 +35,6 @@ const ImageGallery = ({ contentId, userId }: ImageGalleryProps) => {
             .from("blog_images" as any)
             .select("*")
             .eq("content_id", contentId)
-            .eq("user_id", userId)
             .order("created_at", { ascending: true }) as any);
 
         if (!error && data) {

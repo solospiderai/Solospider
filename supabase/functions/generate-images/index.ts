@@ -65,7 +65,6 @@ async function generateImagesForContent(supabase: any, contentId: string, userId
         .from("content_items")
         .select("main_keyword, h2_list, generated_content")
         .eq("id", contentId)
-        .eq("user_id", userId)
         .single();
 
     if (fetchError || !content) {
@@ -168,7 +167,7 @@ serve(async (req) => {
 
         // Verify content exists
         const { data: content, error: fetchError } = await supabase
-            .from("content_items").select("id").eq("id", contentId).eq("user_id", userId).single();
+            .from("content_items").select("id").eq("id", contentId).single();
 
         if (fetchError || !content) {
             return new Response(
