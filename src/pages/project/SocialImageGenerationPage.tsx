@@ -21,6 +21,8 @@ export function SocialImageGenerationPage() {
   const [imageUrl, setImageUrl] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [addLogo, setAddLogo] = useState(true);
+  const [platform, setPlatform] = useState("instagram");
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -30,7 +32,7 @@ export function SocialImageGenerationPage() {
 
     setGenerating(true);
     try {
-      const url = await generateHighQualityImage(prompt);
+      const url = await generateHighQualityImage(prompt, project?.id, platform, addLogo);
       setImageUrl(url);
       setHistory([url, ...history.slice(0, 5)]);
       toast.success("Elite visual asset synthesized");
@@ -107,15 +109,45 @@ export function SocialImageGenerationPage() {
         {/* Left: Generation Control */}
         <div className="lg:col-span-4 space-y-8">
           <div className="glass rounded-[2.5rem] p-8 space-y-8 shadow-2xl shadow-primary/5">
-            <div className="space-y-4">
-              <Label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3">
-                <Wand2 className="h-4 w-4 text-primary" /> Visual Directive
-              </Label>
+            <div className="space-y-6">
+              <div className="flex items-center justify-between px-1">
+                <Label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3">
+                  <Wand2 className="h-4 w-4 text-primary" /> Visual Directive
+                </Label>
+                <div className="flex items-center gap-2">
+                   <span className="text-[9px] font-black text-primary uppercase tracking-widest mr-1">Brand Logo</span>
+                   <button 
+                      onClick={() => setAddLogo(!addLogo)}
+                      className={`w-8 h-4 rounded-full transition-all relative ${addLogo ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-slate-200'}`}
+                   >
+                      <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all shadow-sm ${addLogo ? 'left-4.5' : 'left-0.5'}`} />
+                   </button>
+                </div>
+              </div>
+
+              {/* Platform Selector */}
+              <div className="flex flex-wrap gap-2">
+                {["instagram", "x", "linkedin", "facebook"].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPlatform(p)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all",
+                      platform === p 
+                        ? "bg-primary text-white border-primary shadow-lg shadow-primary/20" 
+                        : "bg-white border-line text-slate-400 hover:border-line/80"
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Engineer a high-end visual concept..."
-                className="w-full min-h-[180px] rounded-[2rem] border-line bg-white/70 p-8 text-[15px] font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all premium-shadow-sm"
+                className="w-full min-h-[160px] rounded-[2rem] border-line bg-white/70 p-6 text-[14px] font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all premium-shadow-sm"
               />
             </div>
  
@@ -133,7 +165,7 @@ export function SocialImageGenerationPage() {
               )}
             </Button>
  
-            <div className="pt-4 space-y-4">
+            <div className="pt-2 space-y-4">
                 <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Neural Presets</h4>
                 <div className="flex flex-wrap gap-2">
                     {["Minimalist", "Hyper-Realistic", "Cinematic", "Cyber-B2B"].map(s => (

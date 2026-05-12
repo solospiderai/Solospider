@@ -19,7 +19,25 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const body = await req.json();
     const action = body.action || "ideas";
-    const { type, prompt: userPrompt, brandName, brandDescription } = body;
+    const { type, prompt: userPrompt, brandName, brandDescription, projectId, platform, addLogo } = body;
+
+    // Fetch Brand Intelligence if projectId is provided
+    let brandLogo = null;
+    let brandTagline = null;
+    if (projectId) {
+      console.log("Fetching Brand Intelligence for project:", projectId);
+      const { data: projectData } = await supabase
+        .from("projects")
+        .select("brand_logo_url, brand_tagline, brand_description, name")
+        .eq("id", projectId)
+        .single();
+      
+      if (projectData) {
+        brandLogo = projectData.brand_logo_url;
+        brandTagline = projectData.brand_tagline;
+        console.log("Brand Intelligence synced:", projectData.name);
+      }
+    }
 
     // ── 1. IMAGE GENERATION ──────────────────────────────────────────────────
     if (type === "image") {
@@ -42,14 +60,26 @@ serve(async (req) => {
               messages: [
                 {
                   role: "system",
-                  content: "You are a world-class prompt engineer for AI image generators (DALL-E 3, Flux). Your goal is to take a simple social media post idea and turn it into a highly detailed, visually stunning, professional image generation prompt. Focus on lighting, composition, style (premium/modern), and ensuring NO text or garbled letters are generated. Output ONLY the final enhanced prompt text."
+                  content: `You are a world-class visual director and prompt engineer for high-end marketing assets. 
+                  Your goal is to transform a simple post idea into a precise visual directive for Flux 1.1 Pro.
+                  
+                  STRATEGY:
+                  - Do not generate "pretty pictures". Generate "Marketing Graphics".
+                  - Structure: Use a clear hierarchy. Subject, Background, Lighting, and Composition.
+                  - Branding: The brand name is "${brandName}". Tagline: "${brandTagline || ""}".
+                  - Layout: ${addLogo ? "Reserve the top-left corner for a professional logo placement. Describe a clean, integrated logo area." : "Full bleed composition."}
+                  - Platform: ${platform || "Instagram"}. Ensure the composition works for this medium.
+                  - Quality: Photorealistic, cinematic, high-contrast, premium B2B aesthetic.
+                  - Constraint: Ensure NO garbled text. Describe the scene so well that Flux understands the context.
+                  
+                  Output ONLY the final enhanced prompt text.`
                 },
                 {
                   role: "user",
-                  content: `Enhance this for a high-end social media graphic: "${userPrompt}"`
+                  content: `Engineer a high-converting marketing visual for: "${userPrompt}"\nContext: ${brandDescription}`
                 }
               ],
-              max_tokens: 200,
+              max_tokens: 300,
             }),
           });
 
@@ -80,7 +110,8 @@ serve(async (req) => {
               model: "black-forest-labs/flux-1.1-pro",
               prompt: enhancedPrompt,
               n: 1,
-              size: "1024x1024",
+              size: platform === "twitter" || platform === "x" ? "1280x720" : 
+                    platform === "linkedin" || platform === "facebook" ? "1200x630" : "1024x1024",
             }),
           });
 

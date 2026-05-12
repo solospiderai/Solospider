@@ -261,10 +261,21 @@ export async function generatePollinationsImageUrl(prompt: string, width = 1080,
   return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&nologo=true`;
 }
 
-export async function generateHighQualityImage(prompt: string): Promise<string> {
+export async function generateHighQualityImage(
+  prompt: string, 
+  projectId?: string, 
+  platform?: string, 
+  addLogo?: boolean
+): Promise<string> {
   try {
     const { data, error } = await supabase.functions.invoke("generate-social-post", {
-      body: { type: "image", prompt },
+      body: { 
+        type: "image", 
+        prompt, 
+        projectId, 
+        platform, 
+        addLogo 
+      },
     });
 
     if (!error && data && data.imageUrl) {

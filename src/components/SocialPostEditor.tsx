@@ -47,6 +47,8 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
   const [generatingCaption, setGeneratingCaption] = useState(false);
   const [imageVariants, setImageVariants] = useState<string[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"]);
+  const [addLogo, setAddLogo] = useState(true);
+  const [activePlatform, setActivePlatform] = useState<string>("instagram");
 
   const { projects } = useActiveProject();
   const project = projects?.find((p) => p.id === projectId);
@@ -81,7 +83,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
     }
     setGeneratingImage(true);
     try {
-      const url = await generateHighQualityImage(imagePrompt);
+      const url = await generateHighQualityImage(imagePrompt, projectId, activePlatform, addLogo);
       setImageUrl(url);
       setImageVariants([url]);
       toast.success("Visual asset generated");
@@ -100,10 +102,14 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
     setGeneratingMulti(true);
     setImageVariants([]);
     try {
-      // Generate 4 images in parallel
+      // Generate 4 images in parallel with platform and logo awareness
       const promises = Array.from({ length: 4 }, (_, i) =>
-        generateHighQualityImage(`${imagePrompt}, variation ${i + 1}, unique composition, different angle`)
-          .catch(() => null)
+        generateHighQualityImage(
+          `${imagePrompt}, variation ${i + 1}`,
+          projectId,
+          activePlatform,
+          addLogo
+        ).catch(() => null)
       );
       const results = (await Promise.all(promises)).filter(Boolean) as string[];
       if (results.length === 0) throw new Error("No images generated");
@@ -314,9 +320,20 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
-                  <ImageIcon className="h-3.5 w-3.5" /> Visual Intelligence
-                </Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
+                    <ImageIcon className="h-3.5 w-3.5" /> Visual Intelligence
+                  </Label>
+                  <div className="flex items-center gap-2">
+                     <span className="text-[9px] font-black text-primary uppercase tracking-widest mr-2">Brand Logo Aware</span>
+                     <button 
+                        onClick={() => setAddLogo(!addLogo)}
+                        className={`w-10 h-5 rounded-full transition-all relative ${addLogo ? 'bg-primary shadow-lg shadow-primary/30' : 'bg-slate-200'}`}
+                     >
+                        <div className={`absolute top-1 w-3 h-3 rounded-full bg-white transition-all shadow-sm ${addLogo ? 'left-6' : 'left-1'}`} />
+                     </button>
+                  </div>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Input
                     value={imagePrompt}
@@ -402,7 +419,10 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
                     return (
                       <button
                         key={id}
-                        onClick={() => togglePlatform(id)}
+                        onClick={() => {
+                          togglePlatform(id);
+                          setActivePlatform(id);
+                        }}
                         className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
                           active
                             ? "border-primary/30 bg-primary/5 text-primary"
