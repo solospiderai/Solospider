@@ -109,7 +109,7 @@ export function SocialCalendarPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl font-black text-ink tracking-tight">Social <span className="grad-text">Calendar</span></h1>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">
             {posts.filter((p: any) => p.status === "scheduled").length} SCHEDULED ·{" "}
             {posts.filter((p: any) => p.status === "published").length} PUBLISHED ·{" "}
             {unscheduledPosts.length} DRAFTS
@@ -135,7 +135,7 @@ export function SocialCalendarPage() {
 
       {/* Legend */}
       <div className="flex items-center gap-6 pl-1">
-        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500"><span className="h-2 w-2 rounded-full border border-line bg-bg" /> Draft</span>
+        <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-600"><span className="h-2 w-2 rounded-full border border-line bg-bg" /> Draft</span>
         <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary"><span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_rgba(144,37,242,0.5)]" /> Scheduled</span>
         <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22d3ee]"><span className="h-2 w-2 rounded-full bg-[#22d3ee]" /> Published</span>
       </div>

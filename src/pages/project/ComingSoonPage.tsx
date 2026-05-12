@@ -24,7 +24,7 @@ export function ComingSoonPage({ title, description, icon: Icon, features }: Com
             Neural Roadmap Active
         </span>
         <h1 className="text-5xl font-black text-ink tracking-tighter">{title}</h1>
-        <p className="text-slate-500 text-sm font-bold uppercase tracking-widest max-w-md mx-auto leading-relaxed">
+        <p className="text-slate-600 text-sm font-bold uppercase tracking-widest max-w-md mx-auto leading-relaxed">
             {description}
         </p>
       </div>

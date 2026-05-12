@@ -143,17 +143,27 @@ serve(async (req) => {
       });
     }
 
-    // ── 2. IDEAS / CAPTION GENERATION ────────────────────────────────────────
-    if (action === "ideas" || action === "caption" || action === "draft") {
+    // ── 2. IDEAS / CAPTION / SINGLE POST GENERATION ─────────────────────────
+    if (action === "ideas" || action === "caption" || action === "draft" || action === "single_post") {
       let systemPrompt = "";
       let userMessage = "";
 
       if (action === "ideas") {
         systemPrompt = "You are an elite social media strategist. Generate 5 creative post ideas in JSON array format.";
         userMessage = `Brand: ${brandName}\nDescription: ${brandDescription}\nGenerate JSON with fields: hook, caption, hashtags, type.`;
+      } else if (action === "single_post") {
+        systemPrompt = "You are an expert social media copywriter and visual director. Generate a complete high-converting social media post in JSON format.";
+        userMessage = `Brand: ${brandName}\nDescription: ${brandDescription}\nGoal: ${body.goal || "Engagement"}\nTone: ${body.tone || "Engaging"}\nPrompt/Context: ${userPrompt}\n\nReturn JSON with exactly these fields:\n- "hook": a powerful opening line\n- "caption": the full body copy\n- "hashtags": array of 15 relevant hashtags\n- "imagePrompt": a detailed visual directive for image generation`;
       } else {
         systemPrompt = "You are an expert social media copywriter.";
         userMessage = userPrompt || "Write a caption.";
+      }
+
+      if (!openrouterKey) {
+        return new Response(JSON.stringify({ error: "Missing OPENROUTER_API_KEY environment variable" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       const llmRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -161,6 +171,8 @@ serve(async (req) => {
         headers: {
           Authorization: `Bearer ${openrouterKey}`,
           "Content-Type": "application/json",
+          "HTTP-Referer": "https://solospider.ai",
+          "X-Title": "Solospider AI",
         },
         body: JSON.stringify({
           model: "anthropic/claude-opus-4.7",
@@ -168,13 +180,38 @@ serve(async (req) => {
             { role: "system", content: systemPrompt },
             { role: "user", content: userMessage },
           ],
+          response_format: { type: "json_object" }
         }),
       });
 
       if (llmRes.ok) {
         const llmData = await llmRes.json();
         const content = llmData.choices?.[0]?.message?.content || "";
+        
+        // If it's a single post or ideas, we expect JSON
+        if (action === "single_post" || action === "ideas") {
+           try {
+             const parsed = JSON.parse(content);
+             return new Response(JSON.stringify(parsed), {
+               headers: { ...corsHeaders, "Content-Type": "application/json" },
+             });
+           } catch (e) {
+             console.error("Failed to parse LLM JSON:", content);
+             // Fallback if JSON is garbled but content is there
+             return new Response(JSON.stringify({ caption: content, hashtags: [], hook: "", imagePrompt: userPrompt }), {
+               headers: { ...corsHeaders, "Content-Type": "application/json" },
+             });
+           }
+        }
+
         return new Response(JSON.stringify({ content }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      } else {
+        const errText = await llmRes.text();
+        console.error("OpenRouter LLM failed:", llmRes.status, errText);
+        return new Response(JSON.stringify({ error: `LLM Error: ${errText}` }), {
+          status: llmRes.status,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }

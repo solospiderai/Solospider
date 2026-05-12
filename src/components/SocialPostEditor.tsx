@@ -244,12 +244,12 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
                   <Layout className="h-6 w-6 text-primary" />
                   Campaign <span className="grad-text">Command Center</span>
                 </h2>
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mt-1">
+                <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mt-1">
                   Calibrate and deploy social media assets
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="h-8 rounded-xl border-line bg-white px-4 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <Badge variant="outline" className="h-8 rounded-xl border-line bg-white px-4 text-[10px] font-black uppercase tracking-widest text-slate-600">
                   V3 Engine Active
                 </Badge>
                 <Button variant="ghost" onClick={() => onOpenChange(false)} className="h-8 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest text-ink/50 hover:bg-red-50 hover:text-red-500">
@@ -263,7 +263,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
             <div className="p-8 space-y-10">
               <div className="space-y-4">
                 <div className="flex items-center justify-between gap-3">
-                  <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                  <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
                     <Send className="h-3.5 w-3.5" /> Narrative Blueprint
                   </Label>
                   <div className="flex items-center gap-2">
@@ -289,14 +289,14 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
                   <Hash className="h-3.5 w-3.5" /> Reach Optimization
                 </Label>
                 <div className="flex flex-wrap gap-2 mb-3 min-h-[40px] p-6 rounded-2xl bg-bg border border-line">
                   {(hashtags || []).map((h) => (
                     <Badge key={h} className="bg-white border-line text-ink hover:bg-primary/5 hover:text-primary transition-all px-4 py-2 rounded-xl text-[11px] font-black group">
                       #{h}
-                      <button onClick={() => setHashtags(hashtags.filter((tag) => tag !== h))} className="ml-2 opacity-30 group-hover:opacity-100 transition-opacity">x</button>
+                      <button onClick={() => setHashtags(hashtags.filter((tag) => tag !== h))} className="ml-2 opacity-50 group-hover:opacity-100 transition-opacity">x</button>
                     </Badge>
                   ))}
                   {(hashtags?.length || 0) === 0 && <span className="text-[11px] text-ink-2 font-bold italic opacity-40">Zero tags calibrated</span>}
@@ -314,7 +314,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
               </div>
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
                   <ImageIcon className="h-3.5 w-3.5" /> Visual Intelligence
                 </Label>
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -388,7 +388,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
 
               {/* Platform Selector */}
               <div className="space-y-3">
-                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-60">
+                <Label className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2 opacity-80">
                   <Layers className="h-3.5 w-3.5" /> Publish To Platforms
                 </Label>
                 <div className="flex flex-wrap gap-2">
@@ -423,7 +423,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
 
 
               <div className="space-y-4">
-                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                <Label className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-2">
                   <Clock className="h-3.5 w-3.5" /> Deployment Logistics
                 </Label>
                 <Input
@@ -448,7 +448,7 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
 
         <div className="hidden lg:flex w-[400px] flex-col bg-white">
           <div className="p-8 border-b border-line bg-slate-50/50">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-1">Live Intelligence</h3>
+            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-1">Live Intelligence</h3>
             <p className="text-sm font-bold text-ink">Mockup Calibration</p>
           </div>
           <div className="flex-1 p-8 flex items-center justify-center">
@@ -505,14 +505,14 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
                 <p className="text-[12px] text-ink font-medium leading-relaxed line-clamp-5 whitespace-pre-wrap">
                   {fullCaption || "Your brand narrative will materialize here..."}
                 </p>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest pt-2">V3 Neural Preview</p>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest pt-2">V3 Neural Preview</p>
               </div>
             </div>
           </div>
           <div className="p-8 border-t border-line bg-slate-50/50">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Operational</p>
+              <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">System Operational</p>
             </div>
           </div>
         </div>

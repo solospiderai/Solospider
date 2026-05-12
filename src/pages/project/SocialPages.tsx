@@ -338,7 +338,7 @@ export function SocialPostsPage() {
           <Instagram className="h-12 w-12 text-white" />
         </div>
         <h1 className="text-4xl font-black mb-4 text-ink tracking-tight">Connect Your <span className="grad-text">Instagram</span></h1>
-        <p className="text-ink-2 text-[16px] mb-12 leading-relaxed font-bold uppercase tracking-widest text-slate-500">
+        <p className="text-ink-2 text-[16px] mb-12 leading-relaxed font-bold uppercase tracking-widest text-slate-600">
             Audit your brand voice for AI calibration
         </p>
         <div className="w-full space-y-6">
@@ -377,7 +377,7 @@ export function SocialPostsPage() {
           </div>
         </div>
         <h2 className="text-2xl font-black text-ink mb-2">Synchronizing with Instagram</h2>
-        <p className="text-slate-500 text-[12px] font-bold uppercase tracking-[0.2em]">
+        <p className="text-slate-600 text-[12px] font-bold uppercase tracking-[0.2em]">
           Scoping content patterns, hashtags, and brand voice...
         </p>
       </div>
@@ -403,7 +403,7 @@ export function SocialPostsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-ink tracking-tight">Social <span className="grad-text">Intelligence</span> Hub</h1>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">
             Engineered Social Media Strategy for {project?.brand_name || project?.name || "Your Brand"}
           </p>
         </div>
@@ -446,14 +446,14 @@ export function SocialPostsPage() {
                         <h3 className="text-sm font-black text-ink uppercase tracking-widest flex items-center gap-2">
                             <Zap className="h-4 w-4 text-primary" /> Quick Blueprint
                         </h3>
-                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Instant Campaign Generation</p>
+                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Instant Campaign Generation</p>
                     </div>
                     <Badge className="bg-primary text-white text-[9px] px-3 py-1 rounded-lg">PRO ENGINE</Badge>
                 </div>
                 <div className="relative group">
                     <textarea 
                         placeholder="Draft your neural visual concept or campaign narrative..."
-                        className="w-full min-h-[120px] rounded-2xl border-line bg-white/80 p-6 text-sm font-bold text-ink leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all shadow-inner"
+                        className="w-full min-h-[120px] rounded-2xl border-line bg-white/80 p-6 text-sm font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all shadow-inner"
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
                                 setSelectedIdea({ hook: (e.target as HTMLTextAreaElement).value } as any);
@@ -506,15 +506,15 @@ export function SocialPostsPage() {
                         {profile.bio && <p className="text-[14px] text-ink line-clamp-2 mb-6 leading-relaxed font-bold opacity-80">{profile.bio}</p>}
                         <div className="flex gap-10">
                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Audience</p>
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Audience</p>
                                 <p className="text-xl font-black text-ink">{profile.followersCount}</p>
                             </div>
                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Assets</p>
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Assets</p>
                                 <p className="text-xl font-black text-ink">{profile.postsCount}</p>
                             </div>
                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calibration</p>
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Calibration</p>
                                 <p className="text-xl font-black text-primary">Elite</p>
                             </div>
                         </div>
@@ -543,7 +543,7 @@ export function SocialPostsPage() {
             {/* Content Portfolio */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Strategy Portfolio</h2>
+                    <h2 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Strategy Portfolio</h2>
                     <div className="flex gap-2">
                         <div className="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center">
                             <LayoutGrid className="h-4 w-4 text-slate-300" />
@@ -554,7 +554,7 @@ export function SocialPostsPage() {
                 {savedPosts.length === 0 ? (
                     <div className="text-center py-24 border border-dashed border-line rounded-[2.5rem] bg-bg/30">
                         <Sparkles className="h-12 w-12 mx-auto mb-6 text-primary opacity-20" />
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Zero scheduled assets detected</p>
+                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Zero scheduled assets detected</p>
                         <Button
                             variant="link"
                             className="text-primary font-black uppercase text-[10px] tracking-widest mt-4"
@@ -619,7 +619,7 @@ export function SocialPostsPage() {
                                 <div className="flex items-center justify-between pt-2 border-t border-line">
                                     <div className="flex items-center gap-2">
                                         <div className="h-6 w-6 rounded-md bg-slate-50 flex items-center justify-center text-[10px] font-black text-muted">#</div>
-                                        <span className="text-[10px] font-black text-slate-500 uppercase">{(post.hashtags?.length || 0)} Tags</span>
+                                        <span className="text-[10px] font-black text-slate-600 uppercase">{(post.hashtags?.length || 0)} Tags</span>
                                     </div>
                                     <div className="flex items-center gap-2">
                                       {post.scheduled_at && (
@@ -655,12 +655,12 @@ export function SocialPostsPage() {
         <div className="lg:col-span-4 space-y-10">
             <div className="glass rounded-[2.5rem] p-8 space-y-8">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">AI Intelligence</h3>
+                    <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">AI Intelligence</h3>
                     <Sparkles className="h-4 w-4 text-primary shadow-[0_0_10px_rgba(144,37,242,0.4)]" />
                 </div>
 
                 <div className="space-y-2 border border-line rounded-2xl p-4 bg-white/70">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Instagram Publisher API</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Instagram Publisher API</p>
                   <Input
                     type="password"
                     value={metaAccessToken}
@@ -761,7 +761,7 @@ export function SocialPostsPage() {
                         )}
                         <Button 
                             variant="ghost" 
-                            className="w-full text-[10px] font-black uppercase text-slate-500 tracking-widest hover:text-primary"
+                            className="w-full text-[10px] font-black uppercase text-slate-600 tracking-widest hover:text-primary"
                             onClick={handleGenerateIdeas}
                         >
                             <RefreshCw className="h-3 w-3 mr-2" /> Regenerate Logic
@@ -772,7 +772,7 @@ export function SocialPostsPage() {
                         <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
                             <BarChart2 className="h-7 w-7 text-muted/20" />
                         </div>
-                        <p className="text-[12px] text-slate-500 font-bold leading-relaxed">Connect your profile or initiate AI to see content opportunities.</p>
+                        <p className="text-[12px] text-slate-600 font-bold leading-relaxed">Connect your profile or initiate AI to see content opportunities.</p>
                         <Button
                             className="btn-grad text-white text-[10px] font-black uppercase tracking-widest px-8 rounded-xl"
                             onClick={handleGenerateIdeas}
@@ -785,7 +785,7 @@ export function SocialPostsPage() {
 
             {/* Profile Analytics Snapshot */}
             <div className="glass rounded-[2.5rem] p-8 space-y-6">
-                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Growth Metrics</h3>
+                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Growth Metrics</h3>
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -793,7 +793,7 @@ export function SocialPostsPage() {
                                 <Users className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Audience</p>
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-tighter">Audience</p>
                                 <p className="text-[15px] font-black text-ink">{profile?.followersCount || "—"}</p>
                             </div>
                         </div>
@@ -805,7 +805,7 @@ export function SocialPostsPage() {
                                 <Share2 className="h-5 w-5 text-pink" />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter">Velocity</p>
+                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-tighter">Velocity</p>
                                 <p className="text-[15px] font-black text-ink">{profile?.postsCount || "—"}</p>
                             </div>
                         </div>

@@ -91,7 +91,7 @@ export function SocialImageGenerationPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl font-black text-ink tracking-tight">AI <span className="grad-text">Vision</span> Studio</h1>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">
+          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] pl-1">
             Engineered Visual Assets for <span className="text-primary">{project?.brand_name || project?.name || "Your Brand"}</span>
           </p>
         </div>
@@ -108,14 +108,14 @@ export function SocialImageGenerationPage() {
         <div className="lg:col-span-4 space-y-8">
           <div className="glass rounded-[2.5rem] p-8 space-y-8 shadow-2xl shadow-primary/5">
             <div className="space-y-4">
-              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-3">
+              <Label className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-3">
                 <Wand2 className="h-4 w-4 text-primary" /> Visual Directive
               </Label>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Engineer a high-end visual concept..."
-                className="w-full min-h-[180px] rounded-[2rem] border-line bg-white/50 p-8 text-[15px] font-bold text-ink leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all premium-shadow-sm"
+                className="w-full min-h-[180px] rounded-[2rem] border-line bg-white/70 p-8 text-[15px] font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all premium-shadow-sm"
               />
             </div>
  
@@ -134,13 +134,13 @@ export function SocialImageGenerationPage() {
             </Button>
  
             <div className="pt-4 space-y-4">
-                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Neural Presets</h4>
+                <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Neural Presets</h4>
                 <div className="flex flex-wrap gap-2">
                     {["Minimalist", "Hyper-Realistic", "Cinematic", "Cyber-B2B"].map(s => (
                       <button 
                         key={s} 
                         onClick={() => setPrompt(prev => (prev ? prev + ", " : "") + s)}
-                        className="px-4 py-2 rounded-xl bg-white border border-line text-[10px] font-black text-ink uppercase tracking-widest hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all"
+                        className="px-4 py-2 rounded-xl bg-white border border-slate-200 text-[10px] font-black text-slate-700 uppercase tracking-widest hover:text-primary hover:border-primary/40 hover:bg-primary/5 transition-all shadow-sm"
                       >
                         {s}
                       </button>
@@ -151,7 +151,7 @@ export function SocialImageGenerationPage() {
 
           {/* History Snapshot */}
           <div className="rounded-[2.5rem] bg-panel border border-line p-8 space-y-6">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
                 <History className="h-4 w-4" /> Session History
             </h3>
             {history.length === 0 ? (
@@ -169,7 +169,7 @@ export function SocialImageGenerationPage() {
 
           {/* Creative Spark */}
           <div className="rounded-[2.5rem] bg-panel border border-line p-8 space-y-6">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+            <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
                 <Lightbulb className="h-4 w-4 text-yellow-500" /> Creative Spark
             </h3>
             <div className="space-y-4">
@@ -184,7 +184,7 @@ export function SocialImageGenerationPage() {
                   onClick={() => setPrompt(spark.desc)}
                 >
                   <p className="text-[11px] font-black text-ink uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">{spark.title}</p>
-                  <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{spark.desc}</p>
+                  <p className="text-[10px] text-slate-600 font-medium leading-relaxed">{spark.desc}</p>
                 </div>
               ))}
             </div>
@@ -216,11 +216,11 @@ export function SocialImageGenerationPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="text-center space-y-6 opacity-20 group-hover:opacity-30 transition-opacity">
-                        <div className="h-32 w-32 rounded-[2.5rem] border-2 border-dashed border-ink flex items-center justify-center mx-auto">
-                            <ImageIcon className="h-12 w-12" />
+                    <div className="text-center space-y-6 opacity-40 group-hover:opacity-60 transition-opacity">
+                        <div className="h-32 w-32 rounded-[2.5rem] border-2 border-dashed border-slate-400 flex items-center justify-center mx-auto bg-slate-50">
+                            <ImageIcon className="h-12 w-12 text-slate-400" />
                         </div>
-                        <p className="text-sm font-black uppercase tracking-[0.3em]">Neural Canvas Waiting</p>
+                        <p className="text-sm font-black uppercase tracking-[0.3em] text-slate-600">Neural Canvas Waiting</p>
                     </div>
                 )}
 
@@ -252,7 +252,7 @@ export function SocialImageGenerationPage() {
                             </div>
                         ))}
                     </div>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                         Neural Synthesis Active
                     </p>
                 </div>
