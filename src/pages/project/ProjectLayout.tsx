@@ -1,8 +1,9 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useActiveProject } from "@/hooks/useActiveProject";
 
 interface Project {
   id: string;
@@ -29,28 +30,42 @@ export function useProject() {
 }
 
 export function ProjectLayout({ children }: { children: ReactNode }) {
-  const { projectId } = useParams<{ projectId: string }>();
+  const { activeProjectId, isLoadingProjects, projects } = useActiveProject();
   const { user } = useAuth();
 
   const { data: project, isLoading, isError } = useQuery({
-    queryKey: ["project", projectId],
+    queryKey: ["project", activeProjectId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("projects")
         .select("*")
-        .eq("id", projectId!)
+        .eq("id", activeProjectId!)
         .eq("user_id", user!.id)
         .single();
       if (error) throw error;
       return data as Project;
     },
-    enabled: !!projectId && !!user,
+    enabled: !!activeProjectId && !!user,
   });
+
+  if (isLoadingProjects) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] gap-4 w-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading project workspace...</p>
+      </div>
+    );
+  }
+
+  if (!activeProjectId || projects.length === 0) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] gap-4 w-full">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary" />
+        <p className="text-muted-foreground font-medium animate-pulse">Loading project data...</p>
       </div>
     );
   }

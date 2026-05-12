@@ -58,9 +58,9 @@ export function ProjectOverviewPage() {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-10 reveal in">
+    <div className="p-8 max-w-5xl mx-auto space-y-10 ">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 reveal d1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 ">
         <div className="flex items-center gap-5">
           <div className="relative group">
             <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -90,7 +90,7 @@ export function ProjectOverviewPage() {
 
       {/* Brand description */}
       {project.brand_description && (
-        <div className="glass rounded-[2.5rem] p-10 reveal d2 border-primary/10 shadow-2xl shadow-primary/5">
+        <div className="glass rounded-[2.5rem] p-10 -primary/10 shadow-2xl shadow-primary/5">
           <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em] mb-4">Neural Brand Blueprint</p>
           <p className="text-base font-bold text-ink leading-relaxed">
             {project.brand_description}
@@ -99,7 +99,7 @@ export function ProjectOverviewPage() {
       )}
 
       {/* Quick access grid */}
-      <div className="reveal d3">
+      <div className="">
         <h2 className="text-[10px] font-black text-ink uppercase tracking-[0.3em] mb-8 pl-1 opacity-60">Strategic Command Modules</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {tabs.map((tab) => {

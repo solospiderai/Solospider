@@ -8,7 +8,7 @@ export const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     <div className="col-span-1 md:col-span-1">
                         <Link to="/" className="flex items-center space-x-2 mb-6">
-                            <img src="/assets/solospider-logo.png" alt="Solo Spider Logo" className="h-8 w-auto dark:invert" />
+                            <img src="/assets/solospider-logo.png" alt="Solo Spider Logo" className="h-8 w-auto" />
                         </Link>
                         <p className="text-muted-foreground text-sm mb-6 max-w-xs">
                             Win customers in the Agentic Web. Solo Spider identifies content that drives AI visibility and creates it for you automatically.

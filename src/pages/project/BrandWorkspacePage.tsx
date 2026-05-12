@@ -43,8 +43,8 @@ export function BrandWorkspacePage() {
   };
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-10 reveal in">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 reveal d1">
+    <div className="p-8 max-w-4xl mx-auto space-y-10 ">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 ">
         <div className="space-y-1">
           <h1 className="text-3xl font-black text-ink tracking-tight">Brand <span className="grad-text">Workspace</span></h1>
           <p className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60 pl-1">
@@ -61,7 +61,7 @@ export function BrandWorkspacePage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 reveal d2">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 ">
         {/* Sidebar Info */}
         <div className="lg:col-span-4 space-y-6">
           <div className="glass rounded-[2rem] p-8 flex flex-col items-center text-center space-y-6">

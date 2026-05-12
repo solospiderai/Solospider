@@ -1,9 +1,24 @@
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Sparkles, TrendingUp, Search, ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 
 export const HeroSection = () => {
+    const [heroUrl, setHeroUrl] = useState("");
+    const navigate = useNavigate();
+
+    const handleHeroSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!heroUrl) return;
+        let formattedUrl = heroUrl.trim();
+        if (!formattedUrl.startsWith("http")) {
+            formattedUrl = "https://" + formattedUrl;
+        }
+        sessionStorage.setItem("pendingSeoAuditUrl", formattedUrl);
+        navigate(`/auth?website=${encodeURIComponent(formattedUrl)}&intent=audit`);
+    };
+
     return (
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden bg-mesh">
             {/* Background Gradients */}
@@ -27,17 +42,20 @@ export const HeroSection = () => {
                     Help your team do more with less, without the cost of expensive agencies. Our expert AI marketing agents integrate into your existing workflow, helping you outperform and outscale the competition at a fraction of the cost.
                 </p>
 
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-                    <Link to="/auth">
-                        <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto rounded-full bg-[#00FF66] text-black hover:bg-[#00CC52] shadow-lg shadow-[#00FF66]/20 hover:shadow-[#00FF66]/40 hover:-translate-y-0.5 transition-all font-bold">
-                            Start Free
-                            <ArrowRight className="ml-2 h-5 w-5" />
-                        </Button>
-                    </Link>
-                    <Button size="lg" variant="outline" className="h-14 px-8 text-lg w-full sm:w-auto rounded-full border-white/20 hover:bg-white/10 transition-all">
-                        Book Demo
+                <form onSubmit={handleHeroSubmit} className="flex flex-col md:flex-row items-center justify-center gap-3 max-w-xl mx-auto w-full mb-16 bg-white/5 p-2 rounded-2xl border border-white/10 backdrop-blur-md shadow-2xl">
+                    <input 
+                        type="text" 
+                        placeholder="Enter your website URL (e.g. scalezix.com)" 
+                        value={heroUrl} 
+                        onChange={(e) => setHeroUrl(e.target.value)} 
+                        className="w-full bg-transparent border-0 px-5 py-4 text-white text-base focus:outline-none focus:ring-0 placeholder:text-slate-400"
+                        required
+                    />
+                    <Button type="submit" size="lg" className="h-14 px-8 text-base w-full md:w-auto rounded-xl bg-[#00FF66] text-black hover:bg-[#00CC52] shadow-lg shadow-[#00FF66]/20 hover:shadow-[#00FF66]/40 transition-all font-bold shrink-0">
+                        Run Free Audit
+                        <ArrowRight className="ml-2 h-5 w-5" />
                     </Button>
-                </div>
+                </form>
 
                 {/* Dashboard Mockup Header */}
                 <div className="relative max-w-6xl mx-auto">

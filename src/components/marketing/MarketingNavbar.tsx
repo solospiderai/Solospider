@@ -25,11 +25,11 @@ export const MarketingNavbar = () => {
       <div className="max-w-[1240px] mx-auto px-7">
         <div className="flex items-center justify-between h-[72px]">
           <Link to="/" className="flex items-center gap-2.5 font-display font-extrabold text-[20px] tracking-tight">
-            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[34px] w-auto block dark:invert" />
+            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[34px] w-auto block" />
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8 text-[14px] text-ink-2 font-medium">
+          <div className="hidden md:flex items-center gap-8 text-[14px] text-ink font-semibold">
             <Link to="/#features" className="hover:text-primary transition-colors">
               Features
             </Link>
@@ -48,7 +48,7 @@ export const MarketingNavbar = () => {
           </div>
           
           <div className="hidden md:flex items-center gap-[14px]">
-            <Link to="/auth" className="text-[14px] text-ink font-bold hover:text-primary transition-colors">
+            <Link to="/auth" className="text-[14px] text-ink font-extrabold hover:text-primary transition-colors">
               Log in
             </Link>
             <Link to="/auth" className="btn btn-grad px-6 py-2.5 h-auto text-xs">

@@ -41,18 +41,20 @@ import { KeywordResearchPage } from "@/pages/project/KeywordResearchPage";
 import { SocialPostsPage } from "@/pages/project/SocialPages";
 import { SocialCalendarPage } from "@/pages/project/SocialCalendarPage";
 import { SocialImageGenerationPage } from "@/pages/project/SocialImageGenerationPage";
+import { SocialAccountsPage } from "@/pages/project/SocialAccountsPage";
 import { ComingSoonPage } from "@/pages/project/ComingSoonPage";
 import { MetaAdsPage, MetaAdsAnalyticsPage, GoogleAdsPage, GoogleAdsAnalyticsPage } from "@/pages/project/AdsPages";
 import { SeoKeywordsPage, BacklinksPage } from "@/pages/project/SeoPages";
-import { AeoPromptGenerationPage, AeoAnalyticsPage, AeoVisibilityScorePage, AeoOpportunitiesPage } from "@/pages/project/AeoPages";
+import { AeoWorkspacePage } from "@/pages/project/AeoWorkspacePage";
 import { BrandWorkspacePage, CompetitorsPage } from "@/pages/project/BrandWorkspacePage";
 import { ProjectSettingsPage, ProjectIntegrationsPage } from "@/pages/project/ProjectSettingsPages";
+
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+    <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light" enableSystem={false} disableTransitionOnChange>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
@@ -87,47 +89,47 @@ const App = () => (
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />
 
-                {/* Project-scoped routes */}
-                <Route path="/project/:projectId" element={<ProjectLayout><ProjectOverviewPage /></ProjectLayout>} />
+                {/* Feature-First Routes */}
+                <Route path="/app/en/dashboard" element={<ProjectLayout><ProjectOverviewPage /></ProjectLayout>} />
 
                 {/* Content Creation */}
-                <Route path="/project/:projectId/keyword-research" element={<ProjectLayout><KeywordResearchPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/generate" element={<ProjectLayout><GeneratePage /></ProjectLayout>} />
-                <Route path="/project/:projectId/bulk-generate" element={<ProjectLayout><BulkGeneratePage /></ProjectLayout>} />
-                <Route path="/project/:projectId/manage-posts" element={<ProjectLayout><ManagePostsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/calendar" element={<ProjectLayout><CalendarPage /></ProjectLayout>} />
+                <Route path="/app/en/content/keyword-research" element={<ProjectLayout><KeywordResearchPage /></ProjectLayout>} />
+                <Route path="/app/en/content/generate" element={<ProjectLayout><GeneratePage /></ProjectLayout>} />
+                <Route path="/app/en/content/bulk-generate" element={<ProjectLayout><BulkGeneratePage /></ProjectLayout>} />
+                <Route path="/app/en/content/manage-posts" element={<ProjectLayout><ManagePostsPage /></ProjectLayout>} />
+                <Route path="/app/en/content/calendar" element={<ProjectLayout><CalendarPage /></ProjectLayout>} />
+                <Route path="/app/en/content/:id" element={<ProjectLayout><ContentViewPage /></ProjectLayout>} />
 
-                <Route path="/project/:projectId/social-posts" element={<ProjectLayout><SocialPostsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/social-image" element={<ProjectLayout><SocialImageGenerationPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/social-calendar" element={<ProjectLayout><SocialCalendarPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/social-reels" element={<ProjectLayout><ComingSoonPage title="Video / Reel Generation" description="Generate short-form video scripts and reels from your blog content." features={["AI Video Script","Reel Storyboard","Auto-captioning"]} /></ProjectLayout>} />
+                {/* Social Media */}
+                <Route path="/app/en/social/posts" element={<ProjectLayout><SocialPostsPage /></ProjectLayout>} />
+                <Route path="/app/en/social/image" element={<ProjectLayout><SocialImageGenerationPage /></ProjectLayout>} />
+                <Route path="/app/en/social/calendar" element={<ProjectLayout><SocialCalendarPage /></ProjectLayout>} />
+                <Route path="/app/en/social/reels" element={<ProjectLayout><ComingSoonPage title="Video / Reel Generation" description="Generate short-form video scripts and reels from your blog content." features={["AI Video Script", "Reel Storyboard", "Auto-captioning"]} /></ProjectLayout>} />
+                <Route path="/app/en/social/accounts" element={<ProjectLayout><SocialAccountsPage /></ProjectLayout>} />
 
                 {/* Performance Ads */}
-                <Route path="/project/:projectId/ads/meta" element={<ProjectLayout><MetaAdsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/ads/meta-analytics" element={<ProjectLayout><MetaAdsAnalyticsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/ads/google" element={<ProjectLayout><GoogleAdsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/ads/google-analytics" element={<ProjectLayout><GoogleAdsAnalyticsPage /></ProjectLayout>} />
+                <Route path="/app/en/ads/meta" element={<ProjectLayout><MetaAdsPage /></ProjectLayout>} />
+                <Route path="/app/en/ads/meta-analytics" element={<ProjectLayout><MetaAdsAnalyticsPage /></ProjectLayout>} />
+                <Route path="/app/en/ads/google" element={<ProjectLayout><GoogleAdsPage /></ProjectLayout>} />
+                <Route path="/app/en/ads/google-analytics" element={<ProjectLayout><GoogleAdsAnalyticsPage /></ProjectLayout>} />
 
                 {/* SEO */}
-                <Route path="/project/:projectId/seo/keywords" element={<ProjectLayout><SeoKeywordsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/seo/backlinks" element={<ProjectLayout><BacklinksPage /></ProjectLayout>} />
+                <Route path="/app/en/seo/keywords" element={<ProjectLayout><SeoKeywordsPage /></ProjectLayout>} />
+                <Route path="/app/en/seo/backlinks" element={<ProjectLayout><BacklinksPage /></ProjectLayout>} />
 
                 {/* AEO */}
-                <Route path="/project/:projectId/aeo/prompt-generation" element={<ProjectLayout><AeoPromptGenerationPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/aeo/analytics" element={<ProjectLayout><AeoAnalyticsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/aeo/visibility-score" element={<ProjectLayout><AeoVisibilityScorePage /></ProjectLayout>} />
-                <Route path="/project/:projectId/aeo/opportunities" element={<ProjectLayout><AeoOpportunitiesPage /></ProjectLayout>} />
+                <Route path="/app/en/aeo/prompt-generation" element={<ProjectLayout><AeoWorkspacePage pathKey="prompt-generation" /></ProjectLayout>} />
+                <Route path="/app/en/aeo/analytics" element={<ProjectLayout><AeoWorkspacePage pathKey="analytics" /></ProjectLayout>} />
+                <Route path="/app/en/aeo/visibility-score" element={<ProjectLayout><AeoWorkspacePage pathKey="visibility-score" /></ProjectLayout>} />
+                <Route path="/app/en/aeo/opportunities" element={<ProjectLayout><AeoWorkspacePage pathKey="opportunities" /></ProjectLayout>} />
 
                 {/* Brand */}
-                <Route path="/project/:projectId/brand" element={<ProjectLayout><BrandWorkspacePage /></ProjectLayout>} />
-                <Route path="/project/:projectId/competitors" element={<ProjectLayout><CompetitorsPage /></ProjectLayout>} />
+                <Route path="/app/en/brand" element={<ProjectLayout><BrandWorkspacePage /></ProjectLayout>} />
+                <Route path="/app/en/competitors" element={<ProjectLayout><CompetitorsPage /></ProjectLayout>} />
 
                 {/* Settings */}
-                <Route path="/project/:projectId/integrations" element={<ProjectLayout><ProjectIntegrationsPage /></ProjectLayout>} />
-                <Route path="/project/:projectId/settings" element={<ProjectLayout><ProjectSettingsPage /></ProjectLayout>} />
-
-                {/* Content view within project */}
-                <Route path="/project/:projectId/content/:id" element={<ProjectLayout><ContentViewPage /></ProjectLayout>} />
+                <Route path="/app/en/settings/integrations" element={<ProjectLayout><ProjectIntegrationsPage /></ProjectLayout>} />
+                <Route path="/app/en/settings/project" element={<ProjectLayout><ProjectSettingsPage /></ProjectLayout>} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

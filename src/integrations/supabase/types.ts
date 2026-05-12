@@ -41,6 +41,7 @@ export type Database = {
           details: string | null
           scheduled_date: string | null
           published_url: string | null
+          project_id: string
         }
         Insert: {
           created_at?: string
@@ -68,6 +69,7 @@ export type Database = {
           details?: string | null
           scheduled_date?: string | null
           published_url?: string | null
+          project_id: string
         }
         Update: {
           created_at?: string
@@ -95,6 +97,7 @@ export type Database = {
           details?: string | null
           scheduled_date?: string | null
           published_url?: string | null
+          project_id?: string
         }
         Relationships: []
       }

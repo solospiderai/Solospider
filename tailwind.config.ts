@@ -41,7 +41,7 @@ export default {
         },
         muted: {
           DEFAULT: "var(--muted)",
-          foreground: "var(--muted)",
+          foreground: "var(--muted-foreground)",
         },
         accent: {
           DEFAULT: "var(--accent)",

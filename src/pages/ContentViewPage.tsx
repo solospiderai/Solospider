@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useActiveProject } from "@/hooks/useActiveProject";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -88,6 +89,8 @@ function computeSEOScore(content: ContentItem) {
 
 const ContentViewPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { activeProjectId } = useActiveProject();
+  const projectId = activeProjectId;
   const { user } = useAuth();
   const [content, setContent] = useState<ContentItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -129,12 +132,15 @@ const ContentViewPage = () => {
 
   const fetchContent = useCallback(async () => {
     if (!id || !user) return;
-    const { data, error } = await supabase
+    let query = supabase
       .from("content_items")
       .select("*")
       .eq("id", id)
-      .eq("user_id", user.id)
-      .single();
+      .eq("user_id", user.id);
+    if (projectId) {
+      query = query.eq("project_id", projectId);
+    }
+    const { data, error } = await query.single();
 
     if (error) {
       toast.error("Failed to load content");
@@ -187,14 +193,17 @@ const ContentViewPage = () => {
       setSaving(false);
       return;
     }
-    const { error } = await supabase
+    let updateQuery = supabase
       .from("content_items")
       .update({
         generated_title: toTitleCase(editTitle),
         meta_description: editMetaDesc,
         generated_content: editContent
       })
-      .eq("id", content.id);
+      .eq("id", content.id)
+      .eq("user_id", user?.id);
+    if (projectId) updateQuery = updateQuery.eq("project_id", projectId);
+    const { error } = await updateQuery;
     if (error) toast.error("Failed to save");
     else {
       toast.success("Saved");
@@ -328,7 +337,13 @@ const ContentViewPage = () => {
           .getPublicUrl(fileName);
 
         // Update the content item with the new image url
-        await supabase.from("content_items").update({ featured_image_url: publicUrl } as any).eq("id", content.id);
+        let imageQuery = supabase
+          .from("content_items")
+          .update({ featured_image_url: publicUrl } as any)
+          .eq("id", content.id)
+          .eq("user_id", user?.id);
+        if (projectId) imageQuery = imageQuery.eq("project_id", projectId);
+        await imageQuery;
       }
 
       // 3. Publish to WP via Edge Function
@@ -365,14 +380,18 @@ const ContentViewPage = () => {
     if (!id) return;
     setRetrying(true);
     try {
-      const { error: updateError } = await supabase.from("content_items").update({
+      let retryQuery = supabase.from("content_items").update({
         status: "generating",
         sections_completed: 0,
         total_sections: null,
         current_section: null,
         generated_content: null,
         generated_title: null,
-      }).eq("id", id);
+      })
+        .eq("id", id)
+        .eq("user_id", user?.id);
+      if (projectId) retryQuery = retryQuery.eq("project_id", projectId);
+      const { error: updateError } = await retryQuery;
 
       if (updateError) throw updateError;
 

@@ -8,9 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { SocialPostEditor } from "@/components/SocialPostEditor";
 import { 
   Sparkles, ImageIcon, Loader2, Wand2, History, 
-  ArrowRight, Share2, Download, Zap, Layout
+  ArrowRight, Share2, Download, Zap, Layout, Lightbulb
 } from "lucide-react";
-import { generatePollinationsImageUrl } from "@/lib/social";
+import { generatePollinationsImageUrl, generateHighQualityImage } from "@/lib/social";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ export function SocialImageGenerationPage() {
 
     setGenerating(true);
     try {
-      const url = await generatePollinationsImageUrl(prompt);
+      const url = await generateHighQualityImage(prompt);
       setImageUrl(url);
       setHistory([url, ...history.slice(0, 5)]);
       toast.success("Elite visual asset synthesized");
@@ -41,13 +41,57 @@ export function SocialImageGenerationPage() {
     }
   };
 
+  const handleDownloadImage = async () => {
+    if (!imageUrl) {
+      toast.error("Generate an image first");
+      return;
+    }
+
+    try {
+      const response = await fetch(imageUrl);
+      if (!response.ok) throw new Error("Unable to fetch generated image");
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const safeName = (project?.brand_name || project?.name || "solospider")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      link.href = objectUrl;
+      link.download = `${safeName}-social-asset-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      toast.success("Image downloaded");
+    } catch {
+      // Fallback for CORS/remote restrictions: open image in new tab so user can save manually.
+      window.open(imageUrl, "_blank", "noopener,noreferrer");
+      toast.success("Opened image in new tab");
+    }
+  };
+
+  if (editorOpen) {
+    return (
+      <SocialPostEditor
+        open={editorOpen}
+        onOpenChange={setEditorOpen}
+        projectId={project?.id || ""}
+        idea={null}
+        existingPost={{ image_prompt: prompt, image_url: imageUrl, platform: "instagram" } as any}
+        onSaved={() => toast.success("Asset integrated into campaign schedule!")}
+      />
+    );
+  }
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-10 reveal in">
+    <div className="p-8 max-w-7xl mx-auto space-y-10">
+
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 reveal d1">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1">
           <h1 className="text-4xl font-black text-ink tracking-tight">AI <span className="grad-text">Vision</span> Studio</h1>
-          <p className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60 pl-1">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] pl-1">
             Engineered Visual Assets for <span className="text-primary">{project?.brand_name || project?.name || "Your Brand"}</span>
           </p>
         </div>
@@ -61,10 +105,10 @@ export function SocialImageGenerationPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Left: Generation Control */}
-        <div className="lg:col-span-4 space-y-8 reveal d2">
+        <div className="lg:col-span-4 space-y-8">
           <div className="glass rounded-[2.5rem] p-8 space-y-8 shadow-2xl shadow-primary/5">
             <div className="space-y-4">
-              <Label className="text-[10px] font-black text-ink uppercase tracking-[0.2em] flex items-center gap-3 opacity-60">
+              <Label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-3">
                 <Wand2 className="h-4 w-4 text-primary" /> Visual Directive
               </Label>
               <textarea
@@ -90,7 +134,7 @@ export function SocialImageGenerationPage() {
             </Button>
  
             <div className="pt-4 space-y-4">
-                <h4 className="text-[10px] font-black text-ink uppercase tracking-[0.2em] opacity-60">Neural Presets</h4>
+                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Neural Presets</h4>
                 <div className="flex flex-wrap gap-2">
                     {["Minimalist", "Hyper-Realistic", "Cinematic", "Cyber-B2B"].map(s => (
                       <button 
@@ -107,7 +151,7 @@ export function SocialImageGenerationPage() {
 
           {/* History Snapshot */}
           <div className="rounded-[2.5rem] bg-panel border border-line p-8 space-y-6">
-            <h3 className="text-[10px] font-black text-ink uppercase tracking-[0.2em] flex items-center gap-2 opacity-70">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
                 <History className="h-4 w-4" /> Session History
             </h3>
             {history.length === 0 ? (
@@ -122,10 +166,33 @@ export function SocialImageGenerationPage() {
                 </div>
             )}
           </div>
+
+          {/* Creative Spark */}
+          <div className="rounded-[2.5rem] bg-panel border border-line p-8 space-y-6">
+            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                <Lightbulb className="h-4 w-4 text-yellow-500" /> Creative Spark
+            </h3>
+            <div className="space-y-4">
+              {[
+                { title: "Dynamic Product", desc: "A product shot in mid-air with liquid metal splashes." },
+                { title: "Minimalist Brand", desc: "Monochrome aesthetic with deep shadows and sharp lines." },
+                { title: "Elite Office", desc: "Cinematic shot of a modern office at sunset." }
+              ].map((spark, i) => (
+                <div 
+                  key={i} 
+                  className="p-4 rounded-2xl bg-slate-50 border border-line cursor-pointer hover:border-primary/40 transition-all group"
+                  onClick={() => setPrompt(spark.desc)}
+                >
+                  <p className="text-[11px] font-black text-ink uppercase tracking-widest mb-1 group-hover:text-primary transition-colors">{spark.title}</p>
+                  <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{spark.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Right: Vision Preview */}
-        <div className="lg:col-span-8 reveal d3">
+        <div className="lg:col-span-8">
           <div className="rounded-[3rem] bg-panel border border-line premium-shadow overflow-hidden min-h-[600px] flex flex-col relative group">
             <div className="absolute top-8 left-8 z-10">
                 <Badge className="bg-panel/90 backdrop-blur-md text-ink border-line px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl">
@@ -139,7 +206,7 @@ export function SocialImageGenerationPage() {
                         <img src={imageUrl} alt="Generated" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-10">
                             <div className="flex gap-3">
-                                <Button className="h-12 flex-1 rounded-xl bg-bg text-ink font-black hover:bg-bg/80 border border-line">
+                                <Button className="h-12 flex-1 rounded-xl bg-bg text-ink font-black hover:bg-bg/80 border border-line" onClick={handleDownloadImage}>
                                     <Download className="h-4 w-4 mr-2" /> DOWNLOAD
                                 </Button>
                                 <Button className="h-12 flex-1 rounded-xl btn-grad text-white font-black" onClick={() => setEditorOpen(true)}>
@@ -185,7 +252,7 @@ export function SocialImageGenerationPage() {
                             </div>
                         ))}
                     </div>
-                    <p className="text-[10px] font-black text-ink uppercase tracking-widest opacity-60">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
                         Neural Synthesis Active
                     </p>
                 </div>
@@ -198,15 +265,6 @@ export function SocialImageGenerationPage() {
           </div>
         </div>
       </div>
-
-      <SocialPostEditor
-        open={editorOpen}
-        onOpenChange={setEditorOpen}
-        projectId={project?.id || ""}
-        idea={null}
-        existingPost={{ image_prompt: prompt, image_url: imageUrl, platform: "instagram" }}
-        onSaved={() => toast.success("Asset integrated into campaign schedule!")}
-      />
     </div>
   );
 }

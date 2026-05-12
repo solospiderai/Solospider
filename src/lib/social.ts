@@ -15,6 +15,17 @@ export interface InstagramProfile {
   recentHashtags: string[];
 }
 
+type InstagramUserData = {
+  username?: string;
+  full_name?: string;
+  biography?: string;
+  profile_pic_url_hd?: string;
+  profile_pic_url?: string;
+  edge_followed_by?: { count?: number };
+  edge_owner_to_timeline_media?: { count?: number };
+  is_private?: boolean;
+};
+
 function extractHashtags(text: string): string[] {
   const matches = text.match(/#[\w]+/g) || [];
   return [...new Set(matches)].slice(0, 30);
@@ -39,7 +50,7 @@ export async function fetchInstagramProfile(handleOrUrl: string): Promise<Instag
     const html: string = data.contents || "";
 
     // Try to extract JSON data embedded in the page
-    let profileData: any = {};
+    let profileData: InstagramUserData = {};
 
     // Method 1: try _sharedData JSON
     const sharedDataMatch = html.match(/window\._sharedData\s*=\s*({.+?});<\/script>/);
@@ -50,7 +61,9 @@ export async function fetchInstagramProfile(handleOrUrl: string): Promise<Instag
         if (user) {
           profileData = user;
         }
-      } catch {}
+      } catch (err) {
+        console.warn("Failed to parse _sharedData payload", err);
+      }
     }
 
     // Method 2: try __additionalDataLoaded JSON
@@ -59,7 +72,9 @@ export async function fetchInstagramProfile(handleOrUrl: string): Promise<Instag
       if (additionalMatch) {
         try {
           profileData = JSON.parse(additionalMatch[1]);
-        } catch {}
+        } catch (err) {
+          console.warn("Failed to parse additional user payload", err);
+        }
       }
     }
 
@@ -132,6 +147,21 @@ export interface PostIdea {
   hook: string;
 }
 
+export interface GeneratedSocialPost {
+  hook: string;
+  caption: string;
+  hashtags: string[];
+  imagePrompt: string;
+}
+
+function normalizeHashtags(hashtags: unknown): string[] {
+  if (!Array.isArray(hashtags)) return [];
+  return hashtags
+    .map((tag) => String(tag).replace(/^#/, "").trim())
+    .filter(Boolean)
+    .slice(0, 30);
+}
+
 export async function generatePostIdeas(params: {
   brandName: string;
   brandDescription: string;
@@ -162,14 +192,18 @@ Make captions authentic, engaging, and platform-native. Mix the types across the
 
   try {
     const { data, error } = await supabase.functions.invoke("generate-social-post", {
-      body: params,
+      body: { action: "ideas", ...params },
     });
 
     if (error) throw error;
     if (data && Array.isArray(data)) {
       return data.map((idea, i) => ({
-        ...idea,
-        id: idea.id || `idea_${i + 1}`,
+        id: String(idea.id || `idea_${i + 1}`),
+        type: (idea.type || "educational") as PostIdea["type"],
+        hook: String(idea.hook || ""),
+        caption: String(idea.caption || ""),
+        hashtags: normalizeHashtags(idea.hashtags),
+        imagePrompt: String(idea.imagePrompt || idea.image_prompt || ""),
       }));
     }
 
@@ -219,19 +253,67 @@ Make captions authentic, engaging, and platform-native. Mix the types across the
 // Image generation via Pollinations AI
 // ────────────────────────────────────────────────────────────────────────────
 
-export function generatePollinationsImageUrl(prompt: string, width = 1080, height = 1080): string {
+export async function generatePollinationsImageUrl(prompt: string, width = 1080, height = 1080): Promise<string> {
   const encodedPrompt = encodeURIComponent(
     `${prompt}, instagram post, professional photography, high quality, 4K`
   );
+  // Pollinations handles the generation on-the-fly and returns the image stream
   return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&nologo=true`;
 }
 
 export async function generateHighQualityImage(prompt: string): Promise<string> {
+  try {
+    const { data, error } = await supabase.functions.invoke("generate-social-post", {
+      body: { type: "image", prompt },
+    });
+
+    if (!error && data && data.imageUrl) {
+      return data.imageUrl;
+    }
+    
+    console.warn("Edge function returned error or no URL:", error);
+  } catch (err) {
+    console.warn("Edge function invocation failed:", err);
+  }
+  
+  // Direct Pollinations fallback with unique seed
+  const encodedPrompt = encodeURIComponent(
+    `${prompt}, no text overlay, no words, concept digital art, vibrant colors, high detail, 4K`
+  );
+  return `https://image.pollinations.ai/prompt/${encodedPrompt}?model=flux&width=1024&height=1024&nologo=true&seed=${Date.now() % 9999999}`;
+}
+
+export async function generateSocialPostDraft(params: {
+  brandName: string;
+  brandDescription?: string;
+  platform?: "instagram";
+  goal?: string;
+  tone?: string;
+  prompt?: string;
+  includeHashtags?: boolean;
+}): Promise<GeneratedSocialPost> {
   const { data, error } = await supabase.functions.invoke("generate-social-post", {
-    body: { type: "image", prompt },
+    body: {
+      action: "single_post",
+      platform: params.platform || "instagram",
+      brandName: params.brandName,
+      brandDescription: params.brandDescription || "",
+      goal: params.goal || "",
+      tone: params.tone || "engaging",
+      prompt: params.prompt || "",
+      includeHashtags: params.includeHashtags ?? true,
+    },
   });
 
   if (error) throw error;
-  if (data && data.imageUrl) return data.imageUrl;
-  throw new Error("Failed to generate image URL");
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid response while generating social post");
+  }
+
+  return {
+    hook: String(data.hook || ""),
+    caption: String(data.caption || ""),
+    hashtags: normalizeHashtags(data.hashtags),
+    imagePrompt: String(data.imagePrompt || data.image_prompt || params.prompt || ""),
+  };
 }

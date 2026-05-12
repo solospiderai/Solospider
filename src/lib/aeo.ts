@@ -1,6 +1,8 @@
+import { supabase } from "@/integrations/supabase/client";
+
 // ─────────────────────────────────────────────────────────────────
-// AEO Analysis Engine — uses Pollinations AI to simulate how a
-// brand ranks across AI-powered search engines
+// AEO Analysis Engine — uses OpenRouter LLMs via Supabase Edge
+// function so API keys stay server-side.
 // ─────────────────────────────────────────────────────────────────
 
 export interface AeoProvider {
@@ -45,83 +47,15 @@ export async function runAeoAnalysis(params: {
   topics: string[];
   brandDescription?: string;
 }): Promise<AeoAnalysisResult> {
-  const { website, brandName, topics, brandDescription } = params;
-
-  const prompt = `You are an AEO (Answer Engine Optimization) expert analyst. Analyze how the brand "${brandName}" (website: ${website}) ranks in AI-powered search engines.
-
-Brand Description: ${brandDescription || "Not provided"}
-Topics to analyze: ${topics.join(", ")}
-
-Return ONLY a valid JSON object with this exact structure:
-{
-  "overallScore": <number 0-100>,
-  "providers": [
-    {
-      "id": "chatgpt",
-      "name": "ChatGPT",
-      "score": <number 0-100>,
-      "status": <"high"|"medium"|"low">,
-      "mentions": <estimated monthly brand mentions>,
-      "insight": "<specific insight about this brand on ChatGPT, 1-2 sentences>"
-    },
-    {
-      "id": "gemini",
-      "name": "Google Gemini",
-      "score": <number 0-100>,
-      "status": <"high"|"medium"|"low">,
-      "mentions": <number>,
-      "insight": "<insight>"
-    },
-    {
-      "id": "claude",
-      "name": "Claude",
-      "score": <number 0-100>,
-      "status": <"high"|"medium"|"low">,
-      "mentions": <number>,
-      "insight": "<insight>"
-    },
-    {
-      "id": "perplexity",
-      "name": "Perplexity",
-      "score": <number 0-100>,
-      "status": <"high"|"medium"|"low">,
-      "mentions": <number>,
-      "insight": "<insight>"
-    }
-  ],
-  "categoryScores": [
-    { "category": "<topic from the list>", "score": <0-100>, "trend": <"up"|"down"|"stable"> }
-  ],
-  "recommendations": [
-    {
-      "priority": <"high"|"medium"|"low">,
-      "title": "<short title>",
-      "description": "<what the problem is>",
-      "action": "<specific action to take>"
-    }
-  ],
-  "promptSuggestions": [
-    {
-      "topic": "<topic>",
-      "prompt": "<an optimized prompt/question that would make AI engines cite this brand>",
-      "rationale": "<why this prompt would help>"
-    }
-  ]
-}
-
-Generate 3-5 category scores, 4-6 recommendations, 3-5 prompt suggestions. Make scores realistic and varied. Base insights on the brand name, website, and topics provided.`;
+  const { website, brandName, topics } = params;
 
   try {
-    const encoded = encodeURIComponent(prompt);
-    const res = await fetch(
-      `https://text.pollinations.ai/${encoded}?model=openai&json=true`,
-      { method: "GET" }
-    );
-    const text = await res.text();
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error("No JSON found");
-    const result = JSON.parse(jsonMatch[0]);
-    return result as AeoAnalysisResult;
+    const { data, error } = await supabase.functions.invoke("generate-aeo-analysis", {
+      body: params,
+    });
+    if (error) throw error;
+    if (!data || typeof data !== "object") throw new Error("Invalid AEO response");
+    return data as AeoAnalysisResult;
   } catch (e) {
     console.error("AEO analysis error:", e);
     // Deterministic fallback based on brand name

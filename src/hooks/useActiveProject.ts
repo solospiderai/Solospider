@@ -1,21 +1,13 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useProjects, Project } from "./useProjects";
-
-const STORAGE_KEY = "fupilot_active_project_id";
+import { useWorkspaceStore } from "@/stores/workspaceStore";
 
 export function useActiveProject() {
   const { projects, isLoadingProjects } = useProjects();
-  const [activeProjectId, setActiveProjectIdState] = useState<string | null>(
-    () => localStorage.getItem(STORAGE_KEY)
-  );
+  const { activeProjectId, setActiveProject } = useWorkspaceStore();
 
   const setActiveProjectId = (id: string | null) => {
-    setActiveProjectIdState(id);
-    if (id) {
-      localStorage.setItem(STORAGE_KEY, id);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+    setActiveProject(id);
   };
 
   // Auto-select first project if nothing selected and projects loaded

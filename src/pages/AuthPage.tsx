@@ -7,17 +7,23 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const website = params.get("website");
+    if (website) {
+      sessionStorage.setItem("pendingSeoAuditUrl", website);
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -51,9 +57,6 @@ const AuthPage = () => {
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: {
-              phone: phone
-            }
           },
         });
         if (error) throw error;
@@ -92,7 +95,7 @@ const AuthPage = () => {
         
         <div className="max-w-md text-center relative z-10">
           <div className="flex items-center justify-center mb-8">
-            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[42px] w-auto dark:invert dark:brightness-200" />
+            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[42px] w-auto" />
           </div>
           <p className="text-lg text-ink-2">
             Hire Autonomy. Not a team. The autonomous execution layer for every business on earth.
@@ -102,12 +105,9 @@ const AuthPage = () => {
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-8 bg-bg relative">
-        <div className="absolute top-8 right-8">
-          <ThemeToggle />
-        </div>
         <div className="w-full max-w-sm">
           <div className="flex items-center mb-6 lg:hidden">
-            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[34px] w-auto dark:invert dark:brightness-200" />
+            <img src="/assets/solospider-logo.png" alt="Solo Spider" className="h-[34px] w-auto" />
           </div>
           <h2 className="font-display text-[26px] font-bold tracking-tight text-ink mb-1">
             {isLogin ? "Welcome back" : "Create your account"}
@@ -168,19 +168,7 @@ const AuthPage = () => {
                   minLength={6}
                 />
               </div>
-              {!isLogin && (
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+91 82000XXXXX"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                </div>
-              )}
+
               <Button type="submit" className="w-full" disabled={loading || googleLoading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {isLogin ? "Sign In" : "Sign Up"}

@@ -26,3 +26,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local QA artifacts
+scratch/
+.agents/
+graphify-out/
+scripts/
+test-image.js
+test-storage.js
+supabase/.temp/

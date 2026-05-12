@@ -29,7 +29,7 @@ export const LandingNavbar = () => {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Link to="/" className="flex items-center space-x-2">
-                        <img src="/assets/solospider-logo.png" alt="Solo Spider Logo" className="h-8 w-auto dark:invert" />
+                        <img src="/assets/solospider-logo.png" alt="Solo Spider Logo" className="h-8 w-auto" />
                     </Link>
                 </div>
 

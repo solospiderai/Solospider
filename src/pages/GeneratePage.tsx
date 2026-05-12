@@ -14,10 +14,13 @@ import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { useActiveProject } from "@/hooks/useActiveProject";
 
 const GeneratePage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { activeProjectId, activeProject } = useActiveProject();
+  const projectId = activeProjectId;
   const [loading, setLoading] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
 
@@ -59,6 +62,11 @@ const GeneratePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const effectiveProjectId = projectId || activeProjectId;
+    if (!effectiveProjectId) {
+      toast.error("Please select a project first.");
+      return;
+    }
     if (!mainKeyword || !h1) {
       toast.error("Please fill required fields (Keyword, Title)");
       return;
@@ -94,6 +102,7 @@ const GeneratePage = () => {
 
       const { data, error } = await supabase.from("content_items").insert({
         user_id: user!.id,
+        project_id: effectiveProjectId,
         main_keyword: mainKeyword.trim(),
         secondary_keywords: secondaryKeywords ? secondaryKeywords.split(",").map(k => k.trim()) : [],
         word_count_target: wc,
@@ -120,7 +129,7 @@ const GeneratePage = () => {
       }).catch((err: any) => console.error("Generation invoke error:", err));
 
       toast.success("Generation started!");
-      navigate(`/content/${data.id}`);
+      navigate(`/app/en/content/${data.id}`);
     } catch (err: any) {
       toast.error(err.message || "Failed to start generation");
     } finally {
@@ -222,13 +231,13 @@ const GeneratePage = () => {
         </div>
 
         {/* Core Settings */}
-        <div className="p-6 rounded-xl border bg-card/40 space-y-4">
-          <h3 className="font-bold text-lg flex items-center gap-2">Core Settings</h3>
+        <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 space-y-5">
+          <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">Core Settings</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Language</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Language</Label>
               <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="English (US)">English (US)</SelectItem>
                   <SelectItem value="English (UK)">English (UK)</SelectItem>
@@ -236,9 +245,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Article Type</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Article Type</Label>
               <Select value={articleType} onValueChange={setArticleType}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Standard Blog Post">Standard Blog Post</SelectItem>
                   <SelectItem value="How-to Guide">How-to Guide</SelectItem>
@@ -247,9 +256,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Article Size</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Article Size</Label>
               <Select value={articleSize} onValueChange={setArticleSize}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Small (500-1000 words)">Small (500-1000 words)</SelectItem>
                   <SelectItem value="Medium (1000-1500 words)">Medium (1000-1500 words)</SelectItem>
@@ -258,9 +267,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Research Level</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Research Level</Label>
               <Select value={researchLevel} onValueChange={setResearchLevel}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Standard AI Search">Standard AI Search - 1 Cr</SelectItem>
                   <SelectItem value="In-Depth Search">In-Depth Search - 2 Cr</SelectItem>
@@ -269,9 +278,9 @@ const GeneratePage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Tone of Voice</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Tone of Voice</Label>
               <Select value={tone} onValueChange={setTone}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="None">None</SelectItem>
                   <SelectItem value="Professional">Professional</SelectItem>
@@ -281,9 +290,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Point of View</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Point of View</Label>
               <Select value={pointOfView} onValueChange={setPointOfView}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="None">None</SelectItem>
                   <SelectItem value="First Person (I/We)">First Person (I/We)</SelectItem>
@@ -293,9 +302,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Text Readability</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Text Readability</Label>
               <Select value={textReadability} onValueChange={setTextReadability}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="None">None</SelectItem>
                   <SelectItem value="7th Grade">7th Grade (Simple)</SelectItem>
@@ -304,9 +313,9 @@ const GeneratePage = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-sm text-muted-foreground">Target Country</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Target Country</Label>
               <Select value={targetCountry} onValueChange={setTargetCountry}>
-                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="bg-white border-slate-300 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="United States">United States</SelectItem>
                   <SelectItem value="United Kingdom">United Kingdom</SelectItem>
@@ -319,26 +328,26 @@ const GeneratePage = () => {
         </div>
 
         {/* Image Settings */}
-        <div className="rounded-xl border bg-card/40 overflow-hidden">
-          <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row items-center gap-3">
-            <div className="h-10 w-10 flex-shrink-0 bg-primary/10 rounded-lg flex items-center justify-center">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 overflow-hidden">
+          <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center gap-3">
+            <div className="h-12 w-12 flex-shrink-0 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center">
               <ImageIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold flex items-center gap-2">Image Settings <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">BETA</Badge></h3>
-              <p className="text-xs text-muted-foreground font-medium">Configure visual assets for your publication</p>
+              <h3 className="font-black text-slate-900 flex items-center gap-2 text-base">Image Settings <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-primary/10 text-primary border border-primary/25 font-bold">BETA</Badge></h3>
+              <p className="text-xs text-slate-800 font-semibold">Configure visual assets for your publication</p>
             </div>
           </div>
-          <div className="p-8 text-center bg-muted/10">
-            <div className="max-w-md mx-auto space-y-3 text-left">
-              <Label className="text-sm font-semibold">Custom Featured Image <span className="font-normal text-muted-foreground">(Optional)</span></Label>
+          <div className="p-8 text-center bg-white">
+            <div className="max-w-md mx-auto space-y-3.5 text-left">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Custom Featured Image <span className="font-normal text-slate-500 font-semibold">(Optional)</span></Label>
               <Input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setSelectedImageFile(e.target.files?.[0] || null)}
-                className="cursor-pointer bg-card"
+                className="cursor-pointer bg-white border-slate-300"
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
                 Upload a custom image to be used as the featured image for the blog. If left empty, an AI image can be generated depending on your plan.
               </p>
             </div>
@@ -347,15 +356,15 @@ const GeneratePage = () => {
 
         {/* ICP */}
         <div className="space-y-2">
-          <Label className="font-bold flex items-center gap-2">Ideal Customer Profile (ICP) <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-primary border-primary">New</Badge></Label>
+          <Label className="font-black flex items-center gap-2 text-slate-900">Ideal Customer Profile (ICP) <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 text-primary border-primary bg-primary/5 font-bold">New</Badge></Label>
           <div className="flex flex-col sm:flex-row gap-4">
             <Textarea
               value={icp}
               onChange={(e) => setIcp(e.target.value)}
               placeholder="e.g., Marketing managers at B2B SaaS companies with 50-200 employees..."
-              className="bg-card min-h-[80px] flex-1"
+              className="bg-white border-slate-300 min-h-[80px] flex-1 font-semibold"
             />
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 sm:w-[350px] flex items-start gap-3 text-xs text-muted-foreground">
+            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 sm:w-[350px] flex items-start gap-3.5 text-xs text-slate-800 font-semibold leading-relaxed shadow-sm shadow-slate-100">
               <Fingerprint className="h-4 w-4 shrink-0 text-primary" />
               <p>Define your ideal customer profile to tailor content tone, examples, and language that resonates with your target audience.</p>
             </div>
@@ -364,87 +373,87 @@ const GeneratePage = () => {
 
         {/* Brand Voice */}
         <div className="space-y-2">
-          <Label className="font-bold flex items-center gap-2">Brand Voice</Label>
+          <Label className="font-black flex items-center gap-2 text-slate-900">Brand Voice</Label>
           <div className="flex flex-col sm:flex-row gap-4 items-start">
             <Select value={brandVoice} onValueChange={setBrandVoice}>
-              <SelectTrigger className="bg-card w-full sm:w-[250px]"><SelectValue placeholder="No brand kits found" /></SelectTrigger>
+              <SelectTrigger className="bg-white border-slate-300 w-full sm:w-[250px] font-semibold"><SelectValue placeholder="No brand kits found" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">No brand kits found</SelectItem>
               </SelectContent>
             </Select>
-            <div className="bg-primary/5 border border-primary/20 rounded-lg py-2 px-4 flex-1 flex items-center gap-2 text-xs text-muted-foreground">
+            <div className="bg-primary/5 border border-primary/20 rounded-xl py-3 px-4 flex-1 flex items-center gap-2.5 text-xs text-slate-800 font-semibold leading-relaxed shadow-sm shadow-slate-100">
               <Fingerprint className="h-4 w-4 shrink-0 text-primary" />
               <p>Create unique styles and tones for different situations using Brand Voice. Select a Brand Kit to apply it directly to the content.</p>
             </div>
           </div>
           <div className="pt-2">
-            <p className="text-xs font-semibold text-muted-foreground mb-2">* Note: You have no active Brand Kits for this workspace.</p>
-            <Button variant="outline" className="h-8 text-xs" onClick={() => navigate('/brand-identity')}>Go to Brand Identity</Button>
+            <p className="text-xs font-bold text-slate-600 mb-2">* Note: You have no active Brand Kits for this workspace.</p>
+            <Button variant="outline" className="h-9 text-xs font-bold border-slate-300" onClick={() => navigate('/brand-identity')}>Go to Brand Identity</Button>
           </div>
         </div>
 
         {/* Structure Settings */}
-        <div className="p-6 rounded-xl border bg-card/40 space-y-4">
-          <h3 className="font-bold text-lg">Structure Settings</h3>
+        <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 space-y-5">
+          <h3 className="font-black text-lg text-slate-900">Structure Settings</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Table of Contents</Label>
-              <button type="button" onClick={() => setStructToc(!structToc)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structToc ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structToc ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Table of Contents</Label>
+              <button type="button" onClick={() => setStructToc(!structToc)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structToc ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structToc ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Conclusion</Label>
-              <button type="button" onClick={() => setStructConclusion(!structConclusion)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structConclusion ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structConclusion ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Conclusion</Label>
+              <button type="button" onClick={() => setStructConclusion(!structConclusion)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structConclusion ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structConclusion ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Tables</Label>
-              <button type="button" onClick={() => setStructTables(!structTables)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structTables ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structTables ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Tables</Label>
+              <button type="button" onClick={() => setStructTables(!structTables)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structTables ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structTables ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">H3 Headings</Label>
-              <button type="button" onClick={() => setStructH3(!structH3)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structH3 ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structH3 ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">H3 Headings</Label>
+              <button type="button" onClick={() => setStructH3(!structH3)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structH3 ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structH3 ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Lists</Label>
-              <button type="button" onClick={() => setStructLists(!structLists)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structLists ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structLists ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Lists</Label>
+              <button type="button" onClick={() => setStructLists(!structLists)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structLists ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structLists ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Italics</Label>
-              <button type="button" onClick={() => setStructItalics(!structItalics)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structItalics ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structItalics ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Italics</Label>
+              <button type="button" onClick={() => setStructItalics(!structItalics)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structItalics ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structItalics ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Quotes</Label>
-              <button type="button" onClick={() => setStructQuotes(!structQuotes)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structQuotes ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structQuotes ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Quotes</Label>
+              <button type="button" onClick={() => setStructQuotes(!structQuotes)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structQuotes ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structQuotes ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Key Takeaways</Label>
-              <button type="button" onClick={() => setStructKeyTakeaways(!structKeyTakeaways)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structKeyTakeaways ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structKeyTakeaways ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Key Takeaways</Label>
+              <button type="button" onClick={() => setStructKeyTakeaways(!structKeyTakeaways)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structKeyTakeaways ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structKeyTakeaways ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">FAQ</Label>
-              <button type="button" onClick={() => setStructFaq(!structFaq)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structFaq ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structFaq ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">FAQ</Label>
+              <button type="button" onClick={() => setStructFaq(!structFaq)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structFaq ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structFaq ? "Yes" : "No"}
               </button>
             </div>
-            <div className="flex flex-col gap-1.5 border-b pb-2">
-              <Label className="text-sm text-muted-foreground">Bold</Label>
-              <button type="button" onClick={() => setStructBold(!structBold)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                <CheckCircle2 className={`h-4 w-4 rounded-full ${structBold ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structBold ? "Yes" : "No"}
+            <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+              <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Bold</Label>
+              <button type="button" onClick={() => setStructBold(!structBold)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                <CheckCircle2 className={`h-4 w-4 rounded-full ${structBold ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structBold ? "Yes" : "No"}
               </button>
             </div>
           </div>

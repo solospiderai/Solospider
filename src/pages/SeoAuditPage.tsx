@@ -1,9 +1,26 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MarketingNavbar } from "@/components/marketing/MarketingNavbar";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { useReveal } from "@/hooks/useReveal";
 
 const SeoAuditPage = () => {
   useReveal();
+  const navigate = useNavigate();
+  const [url, setUrl] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url) return;
+    
+    let formattedUrl = url.trim();
+    if (!formattedUrl.startsWith("http")) {
+      formattedUrl = "https://" + formattedUrl;
+    }
+    
+    sessionStorage.setItem("pendingSeoAuditUrl", formattedUrl);
+    navigate("/auth");
+  };
 
   return (
     <div className="min-h-screen bg-bg-2 text-ink">
@@ -22,14 +39,16 @@ const SeoAuditPage = () => {
             
             <div className="bg-white rounded-3xl p-8 max-w-2xl mx-auto border border-line shadow-sm">
               <h3 className="font-display text-[20px] font-bold tracking-tight text-ink mb-6">Enter Your URL to Start</h3>
-              <form className="flex flex-col gap-4">
+              <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                 <input 
                   type="url" 
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://yourwebsite.com" 
                   className="w-full bg-bg-2 border border-line rounded-xl px-4 py-4 text-ink focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                   required
                 />
-                <button type="button" className="btn btn-grad w-full justify-center py-4 text-[15px]">
+                <button type="submit" className="btn btn-grad w-full justify-center py-4 text-[15px]">
                   Run SEO Audit
                 </button>
               </form>

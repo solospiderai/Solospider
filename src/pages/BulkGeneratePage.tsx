@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Loader2, Plus, Sparkles, Image as ImageIcon, CheckCircle2, Layers, Fingerprint, Trash2 } from "lucide-react";
+import { useActiveProject } from "@/hooks/useActiveProject";
 
 interface BulkTopic {
     id: string;
@@ -21,6 +22,8 @@ interface BulkTopic {
 const BulkGeneratePage = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { activeProjectId } = useActiveProject();
+    const projectId = activeProjectId;
     const [loading, setLoading] = useState(false);
     const [generatingTitleFor, setGeneratingTitleFor] = useState<string | null>(null);
     const [integrations, setIntegrations] = useState<any[]>([]);
@@ -123,6 +126,12 @@ const BulkGeneratePage = () => {
 
         setLoading(true);
         try {
+            const effectiveProjectId = projectId || activeProjectId;
+            if (!effectiveProjectId) {
+                toast.error("Please select a project first.");
+                setLoading(false);
+                return;
+            }
             let wc = 1200;
             if (articleSize.includes("Small")) wc = 800;
             if (articleSize.includes("Medium")) wc = 1300;
@@ -132,6 +141,7 @@ const BulkGeneratePage = () => {
             const insertPromises = validTopics.map(topic => {
                 return supabase.from("content_items").insert({
                     user_id: user!.id,
+                    project_id: effectiveProjectId,
                     main_keyword: topic.keyword.trim(),
                     secondary_keywords: secondaryKeywords ? secondaryKeywords.split(",").map(k => k.trim()) : [],
                     word_count_target: wc,
@@ -159,7 +169,7 @@ const BulkGeneratePage = () => {
             });
 
             toast.success(`${validTopics.length} posts queued for generation!`);
-            navigate(`/dashboard`);
+            navigate(`/app/en/content/manage-posts`);
         } catch (err: any) {
             toast.error(err.message || "Bulk generation failed");
         } finally {
@@ -195,19 +205,19 @@ const BulkGeneratePage = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
 
                 {/* Create Multiple Posts Table */}
-                <div className="border border-sidebar-border bg-card/40 rounded-xl overflow-hidden">
-                    <div className="p-4 border-b bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="border border-slate-200 bg-white rounded-2xl overflow-hidden shadow-sm shadow-slate-100">
+                    <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div>
-                            <h3 className="font-bold">Create Multiple Posts</h3>
-                            <p className="text-xs text-muted-foreground">Add topics to generate articles in bulk</p>
+                            <h3 className="font-black text-slate-900 text-base">Create Multiple Posts</h3>
+                            <p className="text-xs text-slate-800 font-semibold">Add topics to generate articles in bulk</p>
                         </div>
-                        <div className="flex items-center gap-2 text-xs">
-                            <span className="text-muted-foreground whitespace-nowrap pt-2">Translate all keywords to:</span>
+                        <div className="flex items-center gap-2.5 text-xs">
+                            <span className="text-slate-700 font-bold whitespace-nowrap">Translate all keywords to:</span>
                             <Select value={globalLanguage} onValueChange={(val) => {
                                 setGlobalLanguage(val);
                                 setTopics(topics.map(t => ({ ...t, language: val })));
                             }}>
-                                <SelectTrigger className="w-[140px] h-8 text-xs bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-[140px] h-9 text-xs bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="English (US)">English (US)</SelectItem>
                                     <SelectItem value="English (UK)">English (UK)</SelectItem>
@@ -218,9 +228,9 @@ const BulkGeneratePage = () => {
                         </div>
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-5">
                         {/* Table Header */}
-                        <div className="grid grid-cols-12 gap-3 mb-2 px-2 text-xs font-black text-ink uppercase tracking-wider">
+                        <div className="grid grid-cols-12 gap-3 mb-3 px-2 text-xs font-black text-slate-700 uppercase tracking-wider">
                             <div className="col-span-1 text-center">#</div>
                             <div className="col-span-4">Main Keyword</div>
                             <div className="col-span-7">Title & Actions</div>
@@ -230,7 +240,7 @@ const BulkGeneratePage = () => {
                         <div className="space-y-3">
                             {topics.map((topic, index) => (
                                 <div key={topic.id} className="grid grid-cols-12 gap-3 items-center">
-                                    <div className="col-span-1 text-center text-sm font-medium text-muted-foreground">
+                                    <div className="col-span-1 text-center text-sm font-bold text-slate-800">
                                         {index + 1}
                                     </div>
                                     <div className="col-span-4">
@@ -238,7 +248,7 @@ const BulkGeneratePage = () => {
                                             placeholder="Your keyword"
                                             value={topic.keyword}
                                             onChange={(e) => updateTopic(topic.id, 'keyword', e.target.value)}
-                                            className="bg-background h-10"
+                                            className="bg-white border-slate-300 h-10 font-semibold text-slate-900"
                                         />
                                     </div>
                                     <div className="col-span-7 flex gap-2 items-center">
@@ -246,7 +256,7 @@ const BulkGeneratePage = () => {
                                             placeholder="Title will auto-generate if empty, or type here"
                                             value={topic.title}
                                             onChange={(e) => updateTopic(topic.id, 'title', e.target.value)}
-                                            className="bg-background h-10 flex-1 border-line focus:border-primary/40"
+                                            className="bg-white h-10 flex-1 border-slate-300 font-semibold text-slate-900 focus:border-primary/40"
                                         />
                                         <Button
                                             type="button"
@@ -258,7 +268,7 @@ const BulkGeneratePage = () => {
                                             {generatingTitleFor === topic.id ? "..." : "Generate"}
                                         </Button>
                                         {topics.length > 1 && (
-                                            <button type="button" onClick={() => removeTopic(topic.id)} className="text-ink-2 hover:text-red-500 p-2 transition-colors">
+                                            <button type="button" onClick={() => removeTopic(topic.id)} className="text-slate-800 hover:text-red-500 p-2 transition-colors">
                                                 <Trash2 className="h-4 w-4" />
                                             </button>
                                         )}
@@ -275,13 +285,13 @@ const BulkGeneratePage = () => {
                 </div>
 
                 {/* Core Settings */}
-                <div className="p-6 rounded-xl border bg-card/40 space-y-4">
-                    <h3 className="font-bold text-lg flex items-center gap-2">Core Settings <span className="text-xs text-muted-foreground font-normal ml-2 tracking-normal">(applies to all generated posts)</span></h3>
+                <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 space-y-5">
+                    <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">Core Settings <span className="text-xs text-slate-600 font-semibold ml-2 tracking-normal">(applies to all generated posts)</span></h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Article Type</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Article Type</Label>
                             <Select value={articleType} onValueChange={setArticleType}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Standard Blog Post">Standard Blog Post</SelectItem>
                                     <SelectItem value="How-to Guide">How-to Guide</SelectItem>
@@ -290,9 +300,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Article Size</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Article Size</Label>
                             <Select value={articleSize} onValueChange={setArticleSize}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Small (500-1000 words)">Small (500-1000 words)</SelectItem>
                                     <SelectItem value="Medium (1000-1500 words)">Medium (1000-1500 words)</SelectItem>
@@ -301,9 +311,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Research Level</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Research Level</Label>
                             <Select value={researchLevel} onValueChange={setResearchLevel}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="Standard AI Search">Standard AI Search</SelectItem>
                                     <SelectItem value="In-Depth Search">In-Depth Search</SelectItem>
@@ -311,9 +321,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Target Country</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Target Country</Label>
                             <Select value={targetCountry} onValueChange={setTargetCountry}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="United States">United States</SelectItem>
                                     <SelectItem value="United Kingdom">United Kingdom</SelectItem>
@@ -323,9 +333,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Tone of Voice</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Tone of Voice</Label>
                             <Select value={tone} onValueChange={setTone}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="None">None</SelectItem>
                                     <SelectItem value="Professional">Professional</SelectItem>
@@ -335,9 +345,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Point of View</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Point of View</Label>
                             <Select value={pointOfView} onValueChange={setPointOfView}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="None">None</SelectItem>
                                     <SelectItem value="First Person (I/We)">First Person (I/We)</SelectItem>
@@ -347,9 +357,9 @@ const BulkGeneratePage = () => {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label className="text-sm text-muted-foreground">Text Readability</Label>
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Text Readability</Label>
                             <Select value={textReadability} onValueChange={setTextReadability}>
-                                <SelectTrigger className="bg-background"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="bg-white border-slate-300 font-semibold"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="None">None</SelectItem>
                                     <SelectItem value="7th Grade">7th Grade (Simple)</SelectItem>
@@ -360,74 +370,73 @@ const BulkGeneratePage = () => {
                     </div>
                 </div>
 
-                {/* Rest of the settings are the same Layout as Single Post... Skipping Image, ICP etc to focus on Structure for brevity, but bringing them back */}
 
                 {/* Structure Settings */}
-                <div className="p-6 rounded-xl border bg-card/40 space-y-4">
-                    <h3 className="font-bold text-lg">Structure Settings</h3>
+                <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 space-y-5">
+                    <h3 className="font-black text-lg text-slate-900">Structure Settings</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">Conclusion</Label>
-                            <button type="button" onClick={() => setStructConclusion(!structConclusion)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structConclusion ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structConclusion ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Conclusion</Label>
+                            <button type="button" onClick={() => setStructConclusion(!structConclusion)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structConclusion ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structConclusion ? "Yes" : "No"}
                             </button>
                         </div>
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">Tables</Label>
-                            <button type="button" onClick={() => setStructTables(!structTables)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structTables ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structTables ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Tables</Label>
+                            <button type="button" onClick={() => setStructTables(!structTables)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structTables ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structTables ? "Yes" : "No"}
                             </button>
                         </div>
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">H3 Headings</Label>
-                            <button type="button" onClick={() => setStructH3(!structH3)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structH3 ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structH3 ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">H3 Headings</Label>
+                            <button type="button" onClick={() => setStructH3(!structH3)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structH3 ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structH3 ? "Yes" : "No"}
                             </button>
                         </div>
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">Lists</Label>
-                            <button type="button" onClick={() => setStructLists(!structLists)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structLists ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structLists ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Lists</Label>
+                            <button type="button" onClick={() => setStructLists(!structLists)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structLists ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structLists ? "Yes" : "No"}
                             </button>
                         </div>
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">Italics</Label>
-                            <button type="button" onClick={() => setStructItalics(!structItalics)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structItalics ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structItalics ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Italics</Label>
+                            <button type="button" onClick={() => setStructItalics(!structItalics)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structItalics ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structItalics ? "Yes" : "No"}
                             </button>
                         </div>
-                        <div className="flex flex-col gap-1.5 border-b pb-2">
-                            <Label className="text-sm text-muted-foreground">Quotes</Label>
-                            <button type="button" onClick={() => setStructQuotes(!structQuotes)} className="flex items-center gap-2 text-sm font-medium w-full text-left">
-                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structQuotes ? "text-primary bg-primary/10" : "text-muted-foreground"}`} /> {structQuotes ? "Yes" : "No"}
+                        <div className="flex flex-col gap-1.5 border-b border-slate-100 pb-2">
+                            <Label className="text-xs font-bold uppercase tracking-wider text-slate-700">Quotes</Label>
+                            <button type="button" onClick={() => setStructQuotes(!structQuotes)} className="flex items-center gap-2 text-sm font-bold w-full text-left text-slate-800 mt-1">
+                                <CheckCircle2 className={`h-4 w-4 rounded-full ${structQuotes ? "text-primary bg-primary/10" : "text-slate-400"}`} /> {structQuotes ? "Yes" : "No"}
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {/* Global Links */}
-                <div className="p-6 rounded-xl border bg-card/40 space-y-4">
-                    <h3 className="font-bold text-lg flex items-center gap-2">Global Links <span className="text-xs text-muted-foreground font-normal ml-2 tracking-normal">(applies to all generated posts)</span></h3>
+                <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100 space-y-5">
+                    <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">Global Links <span className="text-xs text-slate-600 font-semibold ml-2 tracking-normal">(applies to all generated posts)</span></h3>
                     <div className="space-y-2 mt-2">
-                        <Label className="font-bold flex items-center gap-2">Internal Links <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">Optional</Badge></Label>
-                        <p className="text-xs text-muted-foreground">Provide comma-separated URLs or topics. The AI will weave these into all articles.</p>
+                        <Label className="font-black flex items-center gap-2 text-slate-900">Internal Links <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-slate-100 border border-slate-200 font-bold text-slate-800">Optional</Badge></Label>
+                        <p className="text-xs text-slate-600 font-semibold">Provide comma-separated URLs or topics. The AI will weave these into all articles.</p>
                         <Textarea
                             value={internalLinks}
                             onChange={(e) => setInternalLinks(e.target.value)}
                             placeholder="https://mysite.com/about, /pricing, https://mysite.com/blog/seo"
-                            className="bg-card min-h-[60px]"
+                            className="bg-white border-slate-300 min-h-[60px] font-semibold text-slate-900"
                         />
                     </div>
                 </div>
 
                 {/* Global Featured Image */}
-                <div className="p-6 rounded-xl border bg-card/40">
+                <div className="p-6 rounded-2xl border border-slate-200 bg-white shadow-sm shadow-slate-100">
                     <div className="flex items-center justify-between">
                         <div className="space-y-0.5">
-                            <Label className="text-base font-bold flex items-center gap-2">
-                                <ImageIcon className="h-4 w-4 text-primary" /> Generate Featured Images <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">Optional</Badge>
+                            <Label className="text-base font-black text-slate-900 flex items-center gap-2">
+                                <ImageIcon className="h-4 w-4 text-primary" /> Generate Featured Images <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 bg-slate-100 border border-slate-200 font-bold text-slate-800">Optional</Badge>
                             </Label>
-                            <p className="text-xs text-muted-foreground">Automatically fetch and attach a relevant Unsplash image to all WordPress posts.</p>
+                            <p className="text-xs text-slate-600 font-semibold">Automatically fetch and attach a relevant Unsplash image to all WordPress posts.</p>
                         </div>
                         <button
                             type="button"
@@ -441,16 +450,16 @@ const BulkGeneratePage = () => {
 
                 {/* Auto-Publish to Website */}
                 <div className="space-y-2 pb-6">
-                    <Label className="font-bold flex items-center gap-2">Auto-Publish to Website</Label>
-                    <div className="border bg-card rounded-lg p-4 text-sm mt-2">
-                        <Label className="text-xs font-semibold block mb-1">Select Target Website(s)</Label>
+                    <Label className="font-black flex items-center gap-2 text-slate-900">Auto-Publish to Website</Label>
+                    <div className="border border-slate-200 bg-white rounded-2xl p-5 shadow-sm mt-2">
+                        <Label className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2">Select Target Website(s)</Label>
                         {activeWpCount === 0 ? (
-                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 p-2.5 rounded text-xs text-amber-800">
-                                No verified integrations available. Please setup integrations in <span className="font-semibold text-primary cursor-pointer" onClick={() => navigate('/integrations')}>integrations here</span>.
+                            <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-800 font-semibold">
+                                No verified integrations available. Please setup integrations in <span className="font-bold text-primary cursor-pointer hover:underline" onClick={() => navigate('/integrations')}>integrations here</span>.
                             </div>
                         ) : (
                             <Select value={autoPublishTarget} onValueChange={setAutoPublishTarget}>
-                                <SelectTrigger className="w-full sm:w-[350px] bg-background"><SelectValue placeholder="Select WordPress Integration" /></SelectTrigger>
+                                <SelectTrigger className="w-full sm:w-[350px] bg-white border-slate-300 font-semibold"><SelectValue placeholder="Select WordPress Integration" /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="none">Do not auto-publish</SelectItem>
                                     {integrations.filter(i => i.platform === "wordpress").map(i => (

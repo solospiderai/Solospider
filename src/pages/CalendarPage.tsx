@@ -21,6 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useActiveProject } from "@/hooks/useActiveProject";
 
 interface ContentItem {
     id: string;
@@ -33,6 +34,8 @@ interface ContentItem {
 
 const CalendarPage = () => {
     const { user } = useAuth();
+    const { activeProjectId } = useActiveProject();
+    const projectId = activeProjectId;
     const [currentDate, setCurrentDate] = useState(new Date());
     const [items, setItems] = useState<ContentItem[]>([]);
     const [loading, setLoading] = useState(true);
@@ -41,6 +44,8 @@ const CalendarPage = () => {
     useEffect(() => {
         const fetchItems = async () => {
             if (!user) return;
+            const effectiveProjectId = projectId || activeProjectId;
+            if (!effectiveProjectId) return;
             setLoading(true);
 
             const start = startOfMonth(currentDate);
@@ -52,7 +57,8 @@ const CalendarPage = () => {
             const { data, error } = await supabase
                 .from('content_items')
                 .select('id, main_keyword, created_at, scheduled_date, status, generated_title')
-                .eq('user_id', user.id);
+                .eq('user_id', user.id)
+                .eq('project_id', effectiveProjectId);
 
             if (!error && data) {
                 setItems(data as unknown as ContentItem[]);
@@ -61,7 +67,7 @@ const CalendarPage = () => {
         };
 
         fetchItems();
-    }, [user, currentDate]);
+    }, [user, currentDate, projectId, activeProjectId]);
 
     const nextMonth = () => setCurrentDate(addMonths(currentDate, 1));
     const prevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -82,13 +88,19 @@ const CalendarPage = () => {
 
     const updateItemDate = async (id: string, newDate: Date | undefined) => {
         if (!newDate) return;
+        const effectiveProjectId = projectId || activeProjectId;
+        if (!effectiveProjectId) return;
         setUpdatingId(id);
         const dateStr = newDate.toISOString();
 
         // Optimistic UI update
         setItems(prevItems => prevItems.map(i => i.id === id ? { ...i, scheduled_date: dateStr } : i));
 
-        const { error } = await supabase.from('content_items').update({ scheduled_date: dateStr } as any).eq('id', id);
+        const { error } = await supabase
+            .from('content_items')
+            .update({ scheduled_date: dateStr } as any)
+            .eq('id', id)
+            .eq('project_id', effectiveProjectId);
         if (error) {
             toast.error("Failed to reschedule post.");
         } else {
@@ -117,7 +129,7 @@ const CalendarPage = () => {
                         </Button>
                     </div>
                     <Button asChild>
-                        <Link to="/generate" className="gap-2">
+                        <Link to="/app/en/content/generate" className="gap-2">
                             <Plus className="h-4 w-4" /> Schedule Post
                         </Link>
                     </Button>
@@ -186,7 +198,7 @@ const CalendarPage = () => {
 
                                                     <div className="flex justify-end pt-2">
                                                         <Button asChild size="sm" className="w-full">
-                                                            <Link to={`/content/${item.id}`}>Manage Content <ArrowRight className="h-4 w-4 ml-2" /></Link>
+                                                            <Link to={`/app/en/content/${item.id}`}>Manage Content <ArrowRight className="h-4 w-4 ml-2" /></Link>
                                                         </Button>
                                                     </div>
                                                 </div>

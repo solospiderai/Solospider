@@ -38,7 +38,20 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white text-ink selection:bg-primary/20 selection:text-ink overflow-x-hidden font-sans">
+    <div
+      className="min-h-screen bg-white text-ink selection:bg-primary/20 selection:text-ink overflow-x-hidden font-sans"
+      style={
+        {
+          "--bg": "#ffffff",
+          "--bg-2": "#f8f6ff",
+          "--panel": "#ffffff",
+          "--line": "#e5e7eb",
+          "--ink": "#000000",
+          "--ink-2": "#0f172a",
+          "--muted": "#334155",
+        } as React.CSSProperties
+      }
+    >
       <MarketingNavbar />
 
       <main>
@@ -92,18 +105,18 @@ const Index = () => {
               Now live — The AI marketing OS for agencies & creators
             </span>
             <h1 className="text-5xl md:text-[80px] leading-[1.05] my-7 hero-fade hero-d1">
-              Replace Your Entire<br />
+              <span className="text-ink">Replace Your Entire</span><br />
               <span className="grad-text">Digital Marketing Team</span><br />
-              With One Tool
+              <span className="text-ink">With One Tool</span>
             </h1>
-            <p className="text-[20px] text-ink-2 max-w-[760px] mx-auto mb-9 leading-relaxed hero-fade hero-d2">
+            <p className="text-[20px] text-ink max-w-[760px] mx-auto mb-9 leading-relaxed hero-fade hero-d2">
               Solo Spider automates everything your marketing team does — blogs, social media, SEO, and AI search visibility. One subscription. No agency retainer. No hiring headache.
             </p>
             <div className="flex justify-center gap-3.5 flex-wrap mb-5.5 hero-fade hero-d3">
               <Link to="/auth" className="btn btn-grad">Start for Free →</Link>
               <Link to="#how" className="btn btn-ghost">See How It Works</Link>
             </div>
-            <div className="flex justify-center gap-5.5 flex-wrap text-[13px] text-muted hero-fade hero-d4">
+            <div className="flex justify-center gap-5.5 flex-wrap text-[13px] text-ink-2 hero-fade hero-d4">
               <span className="flex items-center gap-2">No credit card required</span>
               <span className="flex items-center gap-2 before:content-['·'] before:text-muted">Free plan available</span>
               <span className="flex items-center gap-2 before:content-['·'] before:text-muted">Set up in 5 minutes</span>
@@ -116,7 +129,7 @@ const Index = () => {
               <div className="text-center text-[13px] text-muted mb-6 tracking-wide">
                 Trusted by 2,000+ agencies, freelancers, and solo founders
               </div>
-              <div className="flex justify-center items-center gap-12 flex-wrap text-ink-2 font-display font-semibold text-lg opacity-55">
+              <div className="flex justify-center items-center gap-12 flex-wrap text-ink-2 font-display font-semibold text-lg opacity-80">
                 <span className="italic">Loomstack</span>
                 <span>NORTHWIND</span>
                 <span className="font-extrabold">PEAK CO</span>
