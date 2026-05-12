@@ -436,106 +436,136 @@ export function SocialPostsPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-8 space-y-10">
-            {/* Quick Post Blueprint (Direct Creation) - Always Universal */}
-            <div className="glass rounded-[2.5rem] p-8 space-y-6 border-primary/20 bg-primary/5 shadow-2xl shadow-primary/5">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                        <h3 className="text-sm font-black text-ink uppercase tracking-widest flex items-center gap-2">
-                            <Zap className="h-4 w-4 text-primary" /> Quick Blueprint
-                        </h3>
-                        <p className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Instant Campaign Generation</p>
-                    </div>
-                    <Badge className="bg-primary text-white text-[9px] px-3 py-1 rounded-lg">PRO ENGINE</Badge>
-                </div>
-                <div className="relative group">
-                    <textarea 
-                        placeholder="Draft your neural visual concept or campaign narrative..."
-                        className="w-full min-h-[120px] rounded-2xl border-line bg-white/80 p-6 text-sm font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all shadow-inner"
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                                setSelectedIdea({ hook: (e.target as HTMLTextAreaElement).value } as any);
-                                setEditorOpen(true);
-                            }
-                        }}
-                    />
-                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">CMD + ENTER TO LAUNCH</p>
-                    </div>
-                </div>
-                <div className="flex gap-3">
-                    <Button 
-                        className="flex-1 h-12 btn-grad text-white font-black rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
-                        onClick={() => setEditorOpen(true)}
-                    >
-                        <Sparkles className="h-4 w-4 mr-2" /> OPEN COMMAND CENTER
-                    </Button>
-                </div>
+      {/* Unified Elite Neural Engine */}
+      <div className="glass rounded-[32px] p-10 border border-primary/20 bg-primary/5 shadow-2xl shadow-primary/5 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+          <Zap className="h-32 w-32 text-primary" />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-3xl font-black text-ink tracking-tight flex items-center gap-3">
+                <Sparkles className="h-7 w-7 text-primary" /> Elite <span className="grad-text">Neural Engine</span>
+              </h3>
+              <p className="text-[12px] text-slate-600 font-bold uppercase tracking-[0.2em]">Engineer your next viral campaign from concept to high-fidelity visual asset.</p>
+            </div>
+            
+            <div className="relative group/input">
+              <textarea 
+                placeholder="Describe your neural concept (e.g. A thread on AI security for Fintech founders)..."
+                className="w-full min-h-[140px] rounded-2xl border-line bg-white/80 p-6 text-sm font-bold text-ink placeholder:text-slate-400 leading-relaxed resize-none focus:bg-white focus:border-primary/40 transition-all shadow-inner"
+                onChange={(e) => setIgInput(e.target.value)}
+              />
+              <div className="absolute bottom-4 right-4 opacity-0 group-hover/input:opacity-100 transition-opacity">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Type to begin blueprint</p>
+              </div>
             </div>
 
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button 
+                className="flex-1 h-14 btn-grad text-white font-black rounded-xl shadow-xl shadow-primary/20 hover:scale-[1.02] transition-all"
+                onClick={() => {
+                  setSelectedIdea({ hook: igInput } as any);
+                  setEditorOpen(true);
+                }}
+              >
+                LAUNCH COMMAND CENTER
+              </Button>
+              <Button 
+                variant="outline"
+                className="h-14 px-6 rounded-xl border-line bg-white font-black text-[10px] uppercase tracking-widest hover:bg-primary/5 hover:text-primary transition-all flex items-center gap-2"
+                onClick={() => {
+                   // Navigate to a "Vision Studio" mode or just set editor to image mode
+                   setSelectedIdea({ hook: igInput || "New Visual Concept", type: "product" } as any);
+                   setEditorOpen(true);
+                }}
+              >
+                <ImageIcon className="h-4 w-4" /> VISION ONLY
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-center space-y-8 border-l border-primary/10 pl-12">
+             <div className="space-y-4">
+               <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">Autonomous Intelligence</h4>
+               <p className="text-[11px] text-slate-500 font-medium leading-relaxed">Let SoloSpider scan your brand DNA and audience signals to auto-generate a high-performing content strategy.</p>
+             </div>
+             
+             <div className="flex flex-col gap-4">
+                <Button
+                  className="h-16 btn-grad-dark text-white font-black rounded-xl shadow-2xl shadow-primary/30 hover:scale-[1.05] transition-all group"
+                  onClick={handleGenerateIdeas}
+                  disabled={generatingIdeas}
+                >
+                  {generatingIdeas ? (
+                    <Loader2 className="h-5 w-5 animate-spin mr-3" />
+                  ) : (
+                    <Zap className="h-5 w-5 mr-3 group-hover:rotate-12 transition-transform" />
+                  )}
+                  INITIATE NEURAL SCAN
+                </Button>
+                
+                <div className="flex items-center gap-6 px-4">
+                   <div className="flex -space-x-3">
+                      {[1,2,3,4].map(i => (
+                        <div key={i} className="h-8 w-8 rounded-full border-2 border-white bg-slate-200" />
+                      ))}
+                   </div>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Trusted by 2,400+ Elite Operators</p>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Dashboard Area */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-8 space-y-10">
             {/* Profile Dashboard Card */}
-            {profile ? (
-                <>
-                <div className="glass rounded-[2.5rem] p-8 flex items-start gap-8 hover:border-primary/20 transition-all group">
+            {profile && (
+                <div className="glass rounded-[2.5rem] p-8 flex flex-col md:flex-row items-center gap-8 hover:border-primary/20 transition-all group">
                     <div className="relative shrink-0">
                         {profile.profilePicUrl ? (
                         <img
                             src={profile.profilePicUrl}
                             alt={profile.handle}
-                            className="h-24 w-24 rounded-[2rem] object-cover border-4 border-bg shadow-2xl transition-transform duration-500 group-hover:scale-105"
+                            className="h-20 w-20 rounded-[2rem] object-cover border-4 border-bg shadow-2xl transition-transform duration-500 group-hover:scale-105"
                             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
                         />
                         ) : (
-                        <div className="h-24 w-24 rounded-[2rem] btn-grad flex items-center justify-center text-4xl font-black text-white shadow-lg">
+                        <div className="h-20 w-20 rounded-[2rem] btn-grad flex items-center justify-center text-3xl font-black text-white shadow-lg">
                             {profile.handle.charAt(0).toUpperCase()}
                         </div>
                         )}
-                        <div className="absolute -bottom-2 -right-2 h-9 w-9 rounded-2xl btn-grad flex items-center justify-center border-4 border-bg shadow-xl">
-                            <Instagram className="h-4 w-4 text-white" />
+                        <div className="absolute -bottom-1 -right-1 h-8 w-8 rounded-xl btn-grad flex items-center justify-center border-4 border-bg shadow-xl">
+                            <Instagram className="h-3.5 w-3.5 text-white" />
                         </div>
                     </div>
-                    <div className="flex-1 min-w-0 pt-2">
-                        <div className="flex items-center gap-3 mb-3">
-                            <h3 className="font-black text-2xl text-ink tracking-tight">@{profile.handle}</h3>
-                            <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[9px] font-black uppercase tracking-widest border border-primary/20">
+                    <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-3 mb-2">
+                            <h3 className="font-black text-xl text-ink tracking-tight">@{profile.handle}</h3>
+                            <div className="px-3 py-1 rounded-full bg-primary/10 text-primary text-[8px] font-black uppercase tracking-widest border border-primary/20">
                                 Neural Sync Active
                             </div>
                         </div>
-                        {profile.bio && <p className="text-[14px] text-ink line-clamp-2 mb-6 leading-relaxed font-bold opacity-80">{profile.bio}</p>}
-                        <div className="flex gap-10">
+                        <div className="flex gap-8">
                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Audience</p>
-                                <p className="text-xl font-black text-ink">{profile.followersCount}</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Audience</p>
+                                <p className="text-lg font-black text-ink">{profile.followersCount}</p>
                             </div>
                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Assets</p>
-                                <p className="text-xl font-black text-ink">{profile.postsCount}</p>
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Calibration</p>
-                                <p className="text-xl font-black text-primary">Elite</p>
+                                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Calibration</p>
+                                <p className="text-lg font-black text-primary">Elite</p>
                             </div>
                         </div>
                     </div>
-                </div>
-                </>
-            ) : (
-                <div className="rounded-[2.5rem] bg-ink text-bg p-10 flex flex-col md:flex-row items-center gap-10 justify-between premium-shadow relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32" />
-                    <div className="relative z-10 space-y-4">
-                        <h3 className="font-black text-3xl tracking-tight">Generate <span className="text-primary">Elite</span> Content</h3>
-                        <p className="text-[12px] text-bg/60 max-w-sm font-bold uppercase tracking-widest leading-loose">
-                            AI-driven content strategies calibrated for your audience velocity.
-                        </p>
-                    </div>
                     <Button
-                        className="relative z-10 shrink-0 h-16 px-10 btn-grad text-lg font-black rounded-2xl shadow-2xl shadow-primary/40 hover:scale-[1.05] active:scale-[0.95] transition-all"
-                        onClick={handleGenerateIdeas}
-                        disabled={generatingIdeas}
+                      variant="outline"
+                      className="h-12 px-6 rounded-xl border-line text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+                      onClick={() => { setStep("connect"); setIgInput(""); }}
                     >
-                        <Sparkles className="h-6 w-6 mr-3" /> INITIATE AI
+                      Sync New Channel
                     </Button>
                 </div>
             )}
@@ -651,81 +681,71 @@ export function SocialPostsPage() {
             </div>
         </div>
 
-        {/* Sidebar: AI Tactical Insights */}
-        <div className="lg:col-span-4 space-y-10">
-            <div className="glass rounded-[2.5rem] p-8 space-y-8">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em]">AI Intelligence</h3>
-                    <Sparkles className="h-4 w-4 text-primary shadow-[0_0_10px_rgba(144,37,242,0.4)]" />
+        {/* Right Sidebar - AI Intelligence & Publisher */}
+        <div className="lg:col-span-4 space-y-8">
+            <div className="glass rounded-[2.5rem] p-8 space-y-8 shadow-2xl shadow-primary/5">
+                <div className="space-y-2">
+                    <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] flex items-center gap-2">
+                        <Bot className="h-4 w-4" /> AI Intelligence
+                    </h3>
+                    <p className="text-[11px] text-slate-500 font-medium pl-6">Deep scan results & publisher connectivity.</p>
                 </div>
 
-                <div className="space-y-2 border border-line rounded-2xl p-4 bg-white/70">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-600">Instagram Publisher API</p>
-                  <Input
-                    type="password"
-                    value={metaAccessToken}
-                    onChange={(e) => setMetaAccessToken(e.target.value)}
-                    placeholder="Meta access token"
-                    className="h-10 rounded-xl"
-                  />
-                  <Input
-                    value={metaIgUserId}
-                    onChange={(e) => setMetaIgUserId(e.target.value)}
-                    placeholder="Instagram User ID (numeric)"
-                    className="h-10 rounded-xl"
-                  />
-                  <Button
-                    variant="outline"
-                    className="w-full h-9 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                    onClick={handleSavePublisherConnection}
-                    disabled={savingPublisher}
-                  >
-                    {savingPublisher ? "Saving..." : "Save Publisher Connection"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full h-9 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                    onClick={() => runPublisherHealthCheck(metaAccessToken, metaIgUserId)}
-                    disabled={testingPublisher || !metaAccessToken.trim() || !metaIgUserId.trim()}
-                  >
-                    {testingPublisher ? "Testing..." : "Test Publisher Connection"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full h-9 rounded-xl text-[10px] font-black uppercase tracking-widest"
-                    onClick={handleRefreshPublisherToken}
-                    disabled={refreshingPublisherToken}
-                  >
-                    {refreshingPublisherToken ? "Refreshing..." : "Refresh Publisher Token"}
-                  </Button>
-                  <p className={cn(
-                    "text-[10px]",
-                    publisherHealth === "ok" ? "text-emerald-600" :
-                    publisherHealth === "error" ? "text-red-600" : "text-muted-foreground"
-                  )}>
-                    {publisherHealthMessage || "Connection status not tested yet"}
-                  </p>
-                  {savedAccount?.token_expires_at && (
-                    <p className="text-[10px] text-muted-foreground">
-                      Token expires: {new Date(savedAccount.token_expires_at).toLocaleString()}
-                    </p>
-                  )}
-                  {savedAccount?.connection_status && (
-                    <p className={cn(
-                      "text-[10px] font-semibold",
-                      savedAccount.connection_status === "connected" ? "text-emerald-600" :
-                      savedAccount.connection_status === "expired" ? "text-amber-600" :
-                      savedAccount.connection_status === "error" ? "text-red-600" : "text-slate-600"
-                    )}>
-                      Connection: {savedAccount.connection_status}
-                    </p>
-                  )}
-                  {(savedAccount?.last_publish_status || savedAccount?.last_publish_error) && (
-                    <p className="text-[10px] text-muted-foreground">
-                      Status: {savedAccount.last_publish_status || "unknown"}
-                      {savedAccount.last_publish_error ? ` · ${savedAccount.last_publish_error}` : ""}
-                    </p>
-                  )}
+                {/* Publisher Settings Section */}
+                <div className="p-6 rounded-[2rem] bg-slate-50 border border-line space-y-4">
+                   <h4 className="text-[10px] font-black text-ink uppercase tracking-widest">Instagram Publisher API</h4>
+                   <div className="space-y-2">
+                      <Input
+                        placeholder="Meta access token"
+                        value={metaAccessToken}
+                        onChange={(e) => setMetaAccessToken(e.target.value)}
+                        className="bg-white border-line rounded-xl h-12 text-xs"
+                      />
+                      <Input
+                        placeholder="Instagram User ID (numeric)"
+                        value={metaIgUserId}
+                        onChange={(e) => setMetaIgUserId(e.target.value)}
+                        className="bg-white border-line rounded-xl h-12 text-xs"
+                      />
+                   </div>
+                   <div className="grid grid-cols-1 gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-10 rounded-xl font-bold uppercase text-[9px] tracking-widest border-slate-300"
+                        onClick={handleSavePublisherConnection}
+                        disabled={savingPublisher}
+                      >
+                        {savingPublisher ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save Publisher Connection"}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-10 rounded-xl font-bold uppercase text-[9px] tracking-widest border-slate-300"
+                        onClick={() => runPublisherHealthCheck(metaAccessToken, metaIgUserId)}
+                        disabled={testingPublisher}
+                      >
+                        {testingPublisher ? <Loader2 className="h-3 w-3 animate-spin" /> : "Test Publisher Connection"}
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-10 rounded-xl font-bold uppercase text-[9px] tracking-widest border-slate-300"
+                        onClick={handleRefreshPublisherToken}
+                        disabled={refreshingPublisherToken}
+                      >
+                        {refreshingPublisherToken ? <Loader2 className="h-3 w-3 animate-spin" /> : "Refresh Publisher Token"}
+                      </Button>
+                   </div>
+                   <div className="pt-2 px-1">
+                      <p className="text-[9px] text-slate-500 uppercase tracking-widest font-black flex items-center gap-2">
+                         <div className={cn("h-1.5 w-1.5 rounded-full", 
+                            publisherHealth === "ok" ? "bg-emerald-500" : 
+                            publisherHealth === "error" ? "bg-red-500" : "bg-slate-300"
+                         )} />
+                         {publisherHealthMessage || "Connection status not tested yet"}
+                      </p>
+                   </div>
                 </div>
 
                 {step === "ideas" ? (
@@ -770,7 +790,7 @@ export function SocialPostsPage() {
                 ) : (
                     <div className="space-y-6 text-center py-10">
                         <div className="h-16 w-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-4">
-                            <BarChart2 className="h-7 w-7 text-muted/20" />
+                            <Bot className="h-7 w-7 text-muted/20" />
                         </div>
                         <p className="text-[12px] text-slate-600 font-bold leading-relaxed">Connect your profile or initiate AI to see content opportunities.</p>
                         <Button

@@ -102,7 +102,7 @@ const App = () => (
 
                 {/* Social Media */}
                 <Route path="/app/en/social/posts" element={<ProjectLayout><SocialPostsPage /></ProjectLayout>} />
-                <Route path="/app/en/social/image" element={<ProjectLayout><SocialImageGenerationPage /></ProjectLayout>} />
+                <Route path="/app/en/social/image-generation" element={<ProjectLayout><SocialImageGenerationPage /></ProjectLayout>} />
                 <Route path="/app/en/social/calendar" element={<ProjectLayout><SocialCalendarPage /></ProjectLayout>} />
                 <Route path="/app/en/social/reels" element={<ProjectLayout><ComingSoonPage title="Video / Reel Generation" description="Generate short-form video scripts and reels from your blog content." features={["AI Video Script", "Reel Storyboard", "Auto-captioning"]} /></ProjectLayout>} />
                 <Route path="/app/en/social/accounts" element={<ProjectLayout><SocialAccountsPage /></ProjectLayout>} />

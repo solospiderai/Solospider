@@ -83,7 +83,6 @@ const AppSidebar = () => {
       color: "text-pink",
       items: [
         { to: "/app/en/social/posts", label: "Post Creation", icon: Share2 },
-        { to: "/app/en/social/image", label: "Image Generation", icon: ImageIcon },
         { to: "/app/en/social/calendar", label: "Scheduling Calendar", icon: Calendar },
         { to: "/app/en/social/accounts", label: "Connected Accounts", icon: Link2 },
         { to: "/app/en/social/reels", label: "Video / Reel Generation", icon: Video, badge: "Soon" },
