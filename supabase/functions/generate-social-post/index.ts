@@ -99,10 +99,16 @@ OUTPUT ONLY THE FINAL CONSTRUCTED PROMPT FOR THE IMAGE MODEL.`
           if (directorRes.ok) {
             const data = await directorRes.json();
             finalBrief = data.choices?.[0]?.message?.content || userPrompt;
-            console.log("Pro Art Brief:", finalBrief);
+            console.log("Senior Art Brief:", finalBrief);
+          } else {
+            const errorText = await directorRes.text();
+            console.error("OpenRouter Error:", errorText);
+            // Robust fallback: Inject Senior Art Director design tokens into the raw prompt
+            finalBrief = `Premium modern social media advertisement for ${brandName}. Subject: ${userPrompt}. Style: Modern SaaS branding, Swiss-inspired layout, asymmetric balance, Behance-quality composition, high-end digital agency aesthetic. Mood: Professional, conversion-focused.`;
           }
         } catch (e) {
           console.error("Art Director failure:", e);
+          finalBrief = `Premium modern social media advertisement for ${brandName}. Subject: ${userPrompt}. Style: Modern SaaS branding, Swiss-inspired layout, asymmetric balance, Behance-quality composition, high-end digital agency aesthetic. Mood: Professional, conversion-focused.`;
         }
 
         try {
