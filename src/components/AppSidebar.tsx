@@ -69,7 +69,6 @@ const AppSidebar = () => {
       icon: FileText,
       color: "text-primary",
       items: [
-        { to: "/app/en/content/keyword-research", label: "Keyword Research", icon: Search },
         { to: "/app/en/content/generate", label: "Single Post Creation", icon: Edit },
         { to: "/app/en/content/bulk-generate", label: "Bulk Post Creation", icon: Layers },
         { to: "/app/en/content/manage-posts", label: "Manage Blog Posts", icon: List },
