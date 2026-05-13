@@ -11,7 +11,8 @@ import { toast } from "sonner";
 import {
   Instagram, Sparkles, Save, Loader2,
   Image as ImageIcon, Hash, Layout, History, Send, Clock,
-  Facebook, Linkedin, Twitter, Layers, CheckSquare, Square
+  Facebook, Linkedin, Twitter, Youtube, Layers, CheckSquare, Square,
+  Music, MessageCircle, Cloud, MapPin, Store, CheckCircle2, Info
 } from "lucide-react";
 import { generateHighQualityImage, generateSocialPostDraft, PostIdea } from "@/lib/social";
 
@@ -87,8 +88,9 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
       setImageUrl(url);
       setImageVariants([url]);
       toast.success("Visual asset generated");
-    } catch {
-      toast.error("Failed to generate asset");
+    } catch (err: any) {
+      console.error("Image Gen Error:", err);
+      toast.error(err.message || "Failed to generate asset. Check API settings.");
     } finally {
       setGeneratingImage(false);
     }
@@ -414,26 +416,39 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
                     { id: "facebook", label: "Facebook", Icon: Facebook, color: "bg-blue-600" },
                     { id: "linkedin", label: "LinkedIn", Icon: Linkedin, color: "bg-sky-600" },
                     { id: "twitter", label: "Twitter/X", Icon: Twitter, color: "bg-gray-800" },
-                  ].map(({ id, label, Icon, color }) => {
+                    { id: "tiktok", label: "TikTok", Icon: Music, color: "bg-black", soon: true },
+                    { id: "threads", label: "Threads", Icon: MessageCircle, color: "bg-neutral-800", soon: true },
+                    { id: "bluesky", label: "Bluesky", Icon: Cloud, color: "bg-sky-500", soon: true },
+                    { id: "youtube", label: "YouTube", Icon: Youtube, color: "bg-red-600", soon: true },
+                    { id: "pinterest", label: "Pinterest", Icon: MapPin, color: "bg-red-500", soon: true },
+                    { id: "gmb", label: "Google Business", Icon: Store, color: "bg-blue-500", soon: true },
+                  ].map(({ id, label, Icon, color, soon }) => {
                     const active = selectedPlatforms.includes(id);
                     return (
                       <button
                         key={id}
+                        disabled={soon}
                         onClick={() => {
+                          if (soon) return;
                           togglePlatform(id);
                           setActivePlatform(id);
                         }}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
-                          active
-                            ? "border-primary/30 bg-primary/5 text-primary"
-                            : "border-line text-muted-foreground hover:border-line/80 hover:bg-slate-50"
+                        className={`relative flex items-center gap-2 px-3 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest transition-all ${
+                          soon 
+                            ? "border-line bg-slate-50 text-slate-400 opacity-70 cursor-not-allowed"
+                            : active
+                              ? "border-primary/30 bg-primary/5 text-primary"
+                              : "border-line text-muted-foreground hover:border-line/80 hover:bg-slate-50"
                         }`}
                       >
-                        <div className={`w-4 h-4 rounded-sm ${active ? color : "bg-muted/30"} flex items-center justify-center`}>
+                        <div className={`w-4 h-4 rounded-sm ${active || soon ? color : "bg-muted/30"} flex items-center justify-center ${soon ? 'grayscale opacity-50' : ''}`}>
                           <Icon className="h-2.5 w-2.5 text-white" />
                         </div>
                         {label}
-                        {active ? <CheckSquare className="h-3 w-3" /> : <Square className="h-3 w-3 opacity-40" />}
+                        {!soon && (active ? <CheckSquare className="h-3 w-3" /> : <Square className="h-3 w-3 opacity-40" />)}
+                        {soon && (
+                           <span className="absolute -top-2 -right-2 bg-amber-400 text-amber-950 px-1.5 py-0.5 rounded-md text-[8px] font-black shadow-sm">SOON</span>
+                        )}
                       </button>
                     );
                   })}
@@ -494,9 +509,18 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     onError={(e) => {
                       const target = e.currentTarget;
-                      if (!target.dataset.retried) {
-                        target.dataset.retried = "1";
-                        target.src = imageUrl + (imageUrl.includes("?") ? "&" : "?") + `_retry=${Date.now()}`;
+                      if (target.dataset.error) return; // Prevent infinite recursion/duplicates
+                      target.dataset.error = "true";
+                      target.style.display = 'none';
+                      const container = target.parentNode as HTMLElement;
+                      if (container) {
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = "flex flex-col items-center gap-2 p-6 text-center";
+                        errorDiv.innerHTML = `
+                          <div class="text-[10px] font-black text-red-500 uppercase tracking-widest">Asset Failed to Load</div>
+                          <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">The storage bucket 'social_assets' may be missing or private.</div>
+                        `;
+                        container.appendChild(errorDiv);
                       }
                     }}
                   />
@@ -530,9 +554,48 @@ export function SocialPostEditor({ open, onOpenChange, projectId, idea, existing
             </div>
           </div>
           <div className="p-8 border-t border-line bg-slate-50/50">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-6">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></div>
               <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">System Operational</p>
+            </div>
+            
+            {/* Workspace Limits Widget */}
+            <div className="space-y-4">
+               <div className="flex items-center justify-between">
+                  <h4 className="text-[10px] font-black text-ink uppercase tracking-widest flex items-center gap-2">
+                     <Layers className="h-3.5 w-3.5 text-primary" /> Workspace Limits
+                  </h4>
+                  <Badge variant="outline" className="text-[8px] bg-primary/10 text-primary border-primary/20 uppercase">Pro Tier</Badge>
+               </div>
+               <div className="space-y-3 bg-white border border-line rounded-2xl p-5 shadow-sm">
+                  {[
+                     { label: "Scheduled Posts / Channel", val: "10", desc: "Refill anytime" },
+                     { label: "Content Ideas", val: "100", desc: "AI Generations" },
+                     { label: "User Accounts", val: "1", desc: "Seat Active" },
+                  ].map((stat, i) => (
+                     <div key={i} className="flex items-center justify-between">
+                        <div>
+                           <p className="text-[11px] font-bold text-ink">{stat.label}</p>
+                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{stat.desc}</p>
+                        </div>
+                        <span className="text-xs font-black text-primary bg-primary/5 px-2 py-1 rounded-lg border border-primary/10">{stat.val}</span>
+                     </div>
+                  ))}
+                  
+                  <div className="pt-3 mt-3 border-t border-line space-y-2">
+                     {[
+                        "AI Assistant Active",
+                        "Basic Analytics",
+                        "Community Inbox",
+                        "World-class Support"
+                     ].map((feat, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                           <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{feat}</span>
+                        </div>
+                     ))}
+                  </div>
+               </div>
             </div>
           </div>
         </div>

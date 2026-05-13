@@ -14,6 +14,9 @@ interface Project {
   brand_description: string | null;
   brand_logo_url: string | null;
   og_image_url: string | null;
+  industry: string | null;
+  brand_palette: string[] | null;
+  brand_style: string | null;
   created_at: string;
 }
 
