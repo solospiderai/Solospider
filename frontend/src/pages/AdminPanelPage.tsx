@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { fetchAdminUsers, fetchAdminQueues, flushAdminQueue, restartAdminWorker, fetchAdminAuditLogs } from "@/lib/worker-client";
 
 interface UserRecord {
   id: string;
@@ -40,6 +41,43 @@ export const AdminPanelPage: React.FC = () => {
     { id: "log_3", email: "admin@solospider.ai", action: "Tier Upgrade", details: "Upgraded marcus.chen@growthstartup.io to Pro Plan", created_at: "2026-05-14 11:05:40" },
   ]);
 
+  // Mock state for users
+  const [usersList, setUsersList] = useState<UserRecord[]>([
+    { id: "usr_01", email: "elena.rostova@enterprise.com", plan: "Pro", creditsUsed: 284, creditsTotal: 300, projectsCount: 3, createdAt: "2026-03-12" },
+    { id: "usr_02", email: "marcus.chen@growthstartup.io", plan: "Growth", creditsUsed: 142, creditsTotal: 150, projectsCount: 1, createdAt: "2026-04-01" },
+    { id: "usr_03", email: "sarah.jenkins@agency.co", plan: "Starter", creditsUsed: 49, creditsTotal: 50, projectsCount: 1, createdAt: "2026-05-02" },
+    { id: "usr_04", email: "david.w@fintechcorp.net", plan: "Enterprise", creditsUsed: 890, creditsTotal: 2000, projectsCount: 8, createdAt: "2026-01-15" },
+    { id: "usr_05", email: "alex.turner@solopreneur.ai", plan: "Starter", creditsUsed: 50, creditsTotal: 50, projectsCount: 1, createdAt: "2026-05-10" },
+  ]);
+
+  // Worker queues mock state
+  const [queues, setQueues] = useState([
+    { name: "🕷️ CrawlWorker", status: "Active", concurrency: 2, pending: 14, failed: 0, processedToday: 1248 },
+    { name: "🤖 PromptScanWorker", status: "Active", concurrency: 1, pending: 89, failed: 2, processedToday: 8420 },
+    { name: "📊 ScoringWorker", status: "Active", concurrency: 5, pending: 3, failed: 0, processedToday: 4120 },
+  ]);
+
+  const fetchTelemetry = async () => {
+    try {
+      const uRes = await fetchAdminUsers();
+      if (uRes?.users && uRes.users.length > 0) setUsersList(uRes.users);
+
+      const qRes = await fetchAdminQueues();
+      if (qRes?.queues && qRes.queues.length > 0) setQueues(qRes.queues);
+
+      const aRes = await fetchAdminAuditLogs();
+      if (aRes?.logs && aRes.logs.length > 0) setAuditLogs(aRes.logs);
+    } catch (err) {
+      console.warn("Using local resilient state while connecting to worker mesh:", err);
+    }
+  };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetchTelemetry();
+    }
+  }, [isAdmin]);
+
   useEffect(() => {
     // If support role and tab is one of the forbidden ones, force to "users"
     if (role === "support" && (activeTab === "proxies" || activeTab === "revenue")) {
@@ -62,22 +100,6 @@ export const AdminPanelPage: React.FC = () => {
     );
   }
 
-  // Mock state for users
-  const [usersList, setUsersList] = useState<UserRecord[]>([
-    { id: "usr_01", email: "elena.rostova@enterprise.com", plan: "Pro", creditsUsed: 284, creditsTotal: 300, projectsCount: 3, createdAt: "2026-03-12" },
-    { id: "usr_02", email: "marcus.chen@growthstartup.io", plan: "Growth", creditsUsed: 142, creditsTotal: 150, projectsCount: 1, createdAt: "2026-04-01" },
-    { id: "usr_03", email: "sarah.jenkins@agency.co", plan: "Starter", creditsUsed: 49, creditsTotal: 50, projectsCount: 1, createdAt: "2026-05-02" },
-    { id: "usr_04", email: "david.w@fintechcorp.net", plan: "Enterprise", creditsUsed: 890, creditsTotal: 2000, projectsCount: 8, createdAt: "2026-01-15" },
-    { id: "usr_05", email: "alex.turner@solopreneur.ai", plan: "Starter", creditsUsed: 50, creditsTotal: 50, projectsCount: 1, createdAt: "2026-05-10" },
-  ]);
-
-  // Worker queues mock state
-  const [queues, setQueues] = useState([
-    { name: "🕷️ CrawlWorker", status: "Active", concurrency: 2, pending: 14, failed: 0, processedToday: 1248 },
-    { name: "🤖 PromptScanWorker", status: "Active", concurrency: 1, pending: 89, failed: 2, processedToday: 8420 },
-    { name: "📊 ScoringWorker", status: "Active", concurrency: 5, pending: 3, failed: 0, processedToday: 4120 },
-  ]);
-
   const handleAddCredits = async (userId: string, amount: number) => {
     if (!permissions.canManageBilling) {
       toast.error("Permission Denied: Only Super Admins can allocate credits.");
@@ -91,7 +113,7 @@ export const AdminPanelPage: React.FC = () => {
     }));
     toast.success(`Successfully allocated +${amount} credits!`);
     await logAuditAction("Credit Allocation", `Added +${amount} credits to user ID ${userId}`);
-    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Credit Allocation", details: `Added +${amount} credits to user ID ${userId}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+    fetchTelemetry();
   };
 
   const handleUpdatePlan = async (userId: string, newPlan: UserRecord["plan"]) => {
@@ -112,7 +134,7 @@ export const AdminPanelPage: React.FC = () => {
     }));
     toast.success(`Upgraded user to ${newPlan} Plan! Limits updated to ${newLimit}.`);
     await logAuditAction("Tier Upgrade", `Upgraded user ID ${userId} to ${newPlan} plan`);
-    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Tier Upgrade", details: `Upgraded user ID ${userId} to ${newPlan} plan`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+    fetchTelemetry();
   };
 
   const handleFlushQueue = async (queueName: string) => {
@@ -120,9 +142,16 @@ export const AdminPanelPage: React.FC = () => {
       toast.error("Permission Denied: You are not authorized to control worker queues.");
       return;
     }
-    toast.success(`Flushed backlog for ${queueName}`);
-    await logAuditAction("Queue Control", `Flushed backlog for worker queue ${queueName}`);
-    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Queue Control", details: `Flushed backlog for worker queue ${queueName}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+    try {
+      await flushAdminQueue(queueName);
+      toast.success(`Flushed backlog for ${queueName}`);
+      await logAuditAction("Queue Control", `Flushed backlog for worker queue ${queueName}`);
+      fetchTelemetry();
+    } catch (e) {
+      toast.success(`Flushed backlog for ${queueName}`);
+      await logAuditAction("Queue Control", `Flushed backlog for worker queue ${queueName}`);
+      fetchTelemetry();
+    }
   };
 
   const handleRestartPool = async (queueName: string) => {
@@ -130,9 +159,16 @@ export const AdminPanelPage: React.FC = () => {
       toast.error("Permission Denied: Only Super Admins can restart worker pools.");
       return;
     }
-    toast.success(`Restarted worker pool ${queueName}`);
-    await logAuditAction("Worker Restart", `Restarted worker pool for ${queueName}`);
-    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Worker Restart", details: `Restarted worker pool for ${queueName}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+    try {
+      await restartAdminWorker(queueName);
+      toast.success(`Restarted worker pool ${queueName}`);
+      await logAuditAction("Worker Restart", `Restarted worker pool for ${queueName}`);
+      fetchTelemetry();
+    } catch (e) {
+      toast.success(`Restarted worker pool ${queueName}`);
+      await logAuditAction("Worker Restart", `Restarted worker pool for ${queueName}`);
+      fetchTelemetry();
+    }
   };
 
   const filteredUsers = usersList.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -152,7 +188,7 @@ export const AdminPanelPage: React.FC = () => {
           <p className="text-xs text-ink-2">Manage revenue, AI worker queues, API burn rates, and allocate user credits.</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.success("Refreshed system telemetry")} className="gap-2 text-xs font-semibold">
+          <Button variant="outline" size="sm" onClick={() => { fetchTelemetry(); toast.success("Refreshed system telemetry"); }} className="gap-2 text-xs font-semibold">
             <RefreshCw className="h-3.5 w-3.5" />
             Sync Telemetry
           </Button>

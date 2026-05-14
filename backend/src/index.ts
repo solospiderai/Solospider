@@ -7,6 +7,7 @@ import { router } from "./router.js";
 import { startCrawlWorker } from "./workers/crawl.worker.js";
 import { startPromptScanWorker } from "./workers/prompt-scan.worker.js";
 import { startScoringWorker } from "./workers/scoring.worker.js";
+import { startPipelineOrchestrator } from "./workers/orchestrator.js";
 import { scoringQueue } from "./queues.js";
 import { supabase } from "./lib/supabase.js";
 
@@ -24,6 +25,9 @@ app.use(router);
 const crawlWorker      = startCrawlWorker();
 const promptScanWorker = startPromptScanWorker();
 const scoringWorker    = startScoringWorker();
+
+// ── Initialize Autonomous Pipeline Orchestrator ──────────────────────────────
+startPipelineOrchestrator(crawlWorker, promptScanWorker);
 
 // ── Cron: auto-recompute GEO scores every 6 hours ───────────────────────────
 cron.schedule("0 */6 * * *", async () => {

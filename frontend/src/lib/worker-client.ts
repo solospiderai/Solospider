@@ -83,4 +83,35 @@ export async function checkWorkerHealth(): Promise<boolean> {
   }
 }
 
+// ── Admin Telemetry API ─────────────────────────────────────────────────────
+
+export async function fetchAdminUsers(): Promise<{ users: any[] }> {
+  if (!workerAvailable()) throw new Error("WORKER_NOT_CONFIGURED");
+  const res = await fetch(`${WORKER_URL}/api/admin/users`, { headers: { "x-worker-secret": WORKER_SECRET ?? "" } });
+  if (!res.ok) throw new Error("Failed to fetch admin users");
+  return res.json();
+}
+
+export async function fetchAdminQueues(): Promise<{ queues: any[] }> {
+  if (!workerAvailable()) throw new Error("WORKER_NOT_CONFIGURED");
+  const res = await fetch(`${WORKER_URL}/api/admin/queues`, { headers: { "x-worker-secret": WORKER_SECRET ?? "" } });
+  if (!res.ok) throw new Error("Failed to fetch admin queues");
+  return res.json();
+}
+
+export async function flushAdminQueue(queueName: string): Promise<any> {
+  return workerPost("/api/admin/queues/flush", { queueName });
+}
+
+export async function restartAdminWorker(queueName: string): Promise<any> {
+  return workerPost("/api/admin/queues/restart", { queueName });
+}
+
+export async function fetchAdminAuditLogs(): Promise<{ logs: any[] }> {
+  if (!workerAvailable()) throw new Error("WORKER_NOT_CONFIGURED");
+  const res = await fetch(`${WORKER_URL}/api/admin/audit`, { headers: { "x-worker-secret": WORKER_SECRET ?? "" } });
+  if (!res.ok) throw new Error("Failed to fetch audit logs");
+  return res.json();
+}
+
 export { workerAvailable };
