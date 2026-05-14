@@ -1,0 +1,454 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .root { padding: 1rem 0; }
+  h2.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+  .page-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 20px; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tab { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); cursor: pointer; color: var(--color-text-secondary); background: transparent; transition: all .15s; }
+  .tab.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* OVERVIEW */
+  .flow { display: flex; flex-direction: column; gap: 10px; }
+  .step-row { display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: start; }
+  .step-num { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; margin-top: 2px; }
+  .step-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; cursor: pointer; transition: border-color .15s; }
+  .step-card:hover { border-color: var(--color-border-secondary); }
+  .step-card h3 { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .step-card p { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 500; }
+  .tag-blue { background: #E6F1FB; color: #0C447C; }
+  .tag-teal { background: #E1F5EE; color: #085041; }
+  .tag-amber { background: #FAEEDA; color: #633806; }
+  .tag-purple { background: #EEEDFE; color: #26215C; }
+  .tag-coral { background: #FAECE7; color: #4A1B0C; }
+  .tag-green { background: #EAF3DE; color: #173404; }
+  @media (prefers-color-scheme: dark) {
+    .tag-blue { background: #0C447C; color: #B5D4F4; }
+    .tag-teal { background: #085041; color: #9FE1CB; }
+    .tag-amber { background: #633806; color: #FAC775; }
+    .tag-purple { background: #26215C; color: #CECBF6; }
+    .tag-coral { background: #4A1B0C; color: #F5C4B3; }
+    .tag-green { background: #173404; color: #C0DD97; }
+  }
+  .arrow-down { text-align: center; font-size: 16px; color: var(--color-text-tertiary); margin: 0; }
+
+  /* MODULES grid */
+  .modules-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .mod-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; cursor: pointer; transition: border-color .15s; }
+  .mod-card:hover { border-color: var(--color-border-secondary); }
+  .mod-icon { font-size: 20px; margin-bottom: 8px; color: var(--color-text-secondary); }
+  .mod-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .mod-desc { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; }
+  .mod-badge { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 8px; margin-top: 6px; font-weight: 500; }
+
+  /* TECH STACK */
+  .stack-section { margin-bottom: 18px; }
+  .stack-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--color-text-tertiary); margin-bottom: 8px; }
+  .stack-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stack-pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); background: var(--color-background-secondary); }
+
+  /* DATA FLOW */
+  .flow-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 6px; }
+  .flow-box .fb-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .flow-box .fb-sub { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .flow-arrow { text-align: center; font-size: 14px; color: var(--color-text-tertiary); margin: 2px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .price-card { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px; }
+  .price-card.featured { border: 1.5px solid var(--color-border-info); }
+  .price-tier { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .price-amt { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 6px 0 10px; }
+  .price-amt span { font-size: 12px; color: var(--color-text-secondary); font-weight: 400; }
+  .price-feat { font-size: 11px; color: var(--color-text-secondary); line-height: 1.8; }
+  .feat-line::before { content: '✓ '; color: var(--color-text-success); }
+
+  @media (max-width: 480px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="root">
+  <h2 class="sr-only">Sitefire reverse-engineered system architecture — full breakdown of how the product works</h2>
+  <p class="page-title">Sitefire — Reverse Engineered Architecture</p>
+  <p class="page-sub">Full system breakdown: user flow → modules → data pipeline → tech stack → pricing model</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('overview')">User Flow</button>
+    <button class="tab" onclick="show('modules')">All Modules</button>
+    <button class="tab" onclick="show('dataflow')">Data Pipeline</button>
+    <button class="tab" onclick="show('tech')">Tech Stack</button>
+    <button class="tab" onclick="show('pricing')">Pricing Model</button>
+    <button class="tab" onclick="show('build')">Build Plan</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div id="panel-overview" class="panel active">
+    <div class="flow">
+      <div class="step-row">
+        <div class="step-num tag-blue">1</div>
+        <div class="step-card" onclick="sendPrompt('Explain the login and onboarding flow to build')">
+          <h3>Login & Onboarding</h3>
+          <p>User signs up → enters their website URL → Sitefire auto-generates a prompt set based on the website's topics (via sitemap crawl + Google Search Console).</p>
+          <div class="tags"><span class="tag tag-blue">Auth (Clerk/Auth.js)</span><span class="tag tag-teal">Sitemap Crawler</span><span class="tag tag-purple">GSC API</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-teal">2</div>
+        <div class="step-card" onclick="sendPrompt('How does the website crawling and analysis work?')">
+          <h3>Website Analysis Engine</h3>
+          <p>Crawls the user's sitemap → fetches all pages → extracts content, topics, tone of voice → builds a brand context object stored in DB. Also fetches GSC data for top queries.</p>
+          <div class="tags"><span class="tag tag-teal">Sitemap parser</span><span class="tag tag-teal">Web scraper</span><span class="tag tag-amber">GSC Integration</span><span class="tag tag-teal">NLP topic extraction</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-amber">3</div>
+        <div class="step-card" onclick="sendPrompt('How does the AI prompt monitoring system work?')">
+          <h3>AI Prompt Monitoring</h3>
+          <p>Runs tracked prompts across ChatGPT, Gemini, Perplexity, Claude, Grok. Records: brand mentioned?, brand cited?, URL cited?, competitor mentioned? Stores results with timestamps for trend tracking.</p>
+          <div class="tags"><span class="tag tag-amber">OpenAI API</span><span class="tag tag-amber">Gemini API</span><span class="tag tag-amber">Perplexity API</span><span class="tag tag-purple">Cron scheduler</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-purple">4</div>
+        <div class="step-card" onclick="sendPrompt('How does the source and citation analysis work?')">
+          <h3>Source & Citation Analytics</h3>
+          <p>For each AI answer: extracts citations, identifies top-cited domains/URLs, maps which of the user's own pages are cited, calculates share of voice vs competitors, spots content gaps.</p>
+          <div class="tags"><span class="tag tag-purple">Citation extractor</span><span class="tag tag-purple">Domain analyzer</span><span class="tag tag-blue">Gap detection</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-coral">5</div>
+        <div class="step-card" onclick="sendPrompt('How does the action generation and content creation work?')">
+          <h3>Agentic Action Engine (Spark)</h3>
+          <p>Diagnoses why brand is missing → recommends actions: Create Content, Improve Content, Earn Media, Engage UGC. Each action generates a full brief or a ready-to-publish article pushed to CMS.</p>
+          <div class="tags"><span class="tag tag-coral">LLM (Claude/GPT-4)</span><span class="tag tag-coral">Webflow API</span><span class="tag tag-coral">Framer API</span><span class="tag tag-amber">MCP Server</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-green">6</div>
+        <div class="step-card" onclick="sendPrompt('How does the analytics tracking layer work?')">
+          <h3>Analytics Tracking Layer</h3>
+          <p>3-layer measurement: (1) Prompt monitoring = synthetic visibility. (2) Cloudflare bot analytics = AI crawlers & fetchers. (3) GA4 referrals = human visitors from AI platforms. All combined into one dashboard.</p>
+          <div class="tags"><span class="tag tag-green">GA4 API</span><span class="tag tag-green">Cloudflare GraphQL</span><span class="tag tag-blue">AWS CloudFront</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div id="panel-modules" class="panel">
+    <div class="modules-grid">
+      <div class="mod-card" onclick="sendPrompt('How to build the AI visibility monitoring module?')">
+        <div class="mod-icon"><i class="ti ti-eye" aria-hidden="true"></i></div>
+        <div class="mod-title">AI Visibility Monitor</div>
+        <div class="mod-desc">Run prompts across 5+ AI models, record mentions, citations, position, share of voice.</div>
+        <span class="mod-badge tag-blue">Core</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the sitemap crawler and content analyzer?')">
+        <div class="mod-icon"><i class="ti ti-sitemap" aria-hidden="true"></i></div>
+        <div class="mod-title">Sitemap Crawler</div>
+        <div class="mod-desc">Parse sitemap.xml, crawl all pages, extract content, topics, headings, internal links.</div>
+        <span class="mod-badge tag-teal">Crawler</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the SEO analysis module with GSC integration?')">
+        <div class="mod-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></div>
+        <div class="mod-title">SEO + GSC Module</div>
+        <div class="mod-desc">Connect Google Search Console, pull top queries, impressions, clicks, avg position per URL.</div>
+        <span class="mod-badge tag-amber">Integration</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the GEO citation analysis engine?')">
+        <div class="mod-icon"><i class="ti ti-link" aria-hidden="true"></i></div>
+        <div class="mod-title">GEO Citation Analyzer</div>
+        <div class="mod-desc">Extract citations from AI answers, rank top domains, map fan-out sub-queries, detect gaps.</div>
+        <span class="mod-badge tag-purple">Analysis</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the AEO content gap detection?')">
+        <div class="mod-icon"><i class="ti ti-search" aria-hidden="true"></i></div>
+        <div class="mod-title">AEO Gap Detection</div>
+        <div class="mod-desc">Identify topics where competitors rank in AI answers but the user's brand doesn't appear.</div>
+        <span class="mod-badge tag-coral">AEO</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build AI content generation that gets cited?')">
+        <div class="mod-icon"><i class="ti ti-pencil" aria-hidden="true"></i></div>
+        <div class="mod-title">Content Generator</div>
+        <div class="mod-desc">Research top-cited content → generate brand-aware article → push to CMS as draft.</div>
+        <span class="mod-badge tag-coral">Action</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the CMS integration for Webflow and Framer?')">
+        <div class="mod-icon"><i class="ti ti-plug" aria-hidden="true"></i></div>
+        <div class="mod-title">CMS Integration</div>
+        <div class="mod-desc">Publish articles directly to Webflow CMS or Framer. User reviews and approves drafts.</div>
+        <span class="mod-badge tag-teal">Integration</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the GA4 AI referral tracking module?')">
+        <div class="mod-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="mod-title">Human Referral Tracker</div>
+        <div class="mod-desc">GA4 API: track sessions from chatgpt.com, perplexity.ai, etc. Landing pages, engagement, conversions.</div>
+        <span class="mod-badge tag-green">Analytics</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the AI bot analytics with Cloudflare?')">
+        <div class="mod-icon"><i class="ti ti-robot" aria-hidden="true"></i></div>
+        <div class="mod-title">Bot Traffic Analytics</div>
+        <div class="mod-desc">Cloudflare GraphQL: classify GPTBot, OAI-SearchBot, ChatGPT-User, PerplexityBot by page.</div>
+        <span class="mod-badge tag-green">Analytics</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the Spark AI assistant with MCP?')">
+        <div class="mod-icon"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+        <div class="mod-title">Spark AI Agent</div>
+        <div class="mod-desc">Personal SEO/GEO expert. MCP server so Claude & ChatGPT can access user's Sitefire data live.</div>
+        <span class="mod-badge tag-amber">Agent</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the competitor monitoring and benchmarking?')">
+        <div class="mod-icon"><i class="ti ti-trophy" aria-hidden="true"></i></div>
+        <div class="mod-title">Competitor Benchmarking</div>
+        <div class="mod-desc">Track share of voice: for each prompt, which brands appear and how often. Trend over time.</div>
+        <span class="mod-badge tag-purple">Competitive</span>
+      </div>
+      <div class="mod-card" onclick="sendPrompt('How to build the editorial media coverage module?')">
+        <div class="mod-icon"><i class="ti ti-news" aria-hidden="true"></i></div>
+        <div class="mod-title">Earn Media Module</div>
+        <div class="mod-desc">Find journalists covering your space, suggest data-driven pitch angles, track coverage acquired.</div>
+        <span class="mod-badge tag-blue">Action</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA FLOW -->
+  <div id="panel-dataflow" class="panel">
+    <div class="two-col">
+      <div>
+        <div class="stack-label">Input Pipeline</div>
+        <div class="flow-box"><div class="fb-title">User enters domain</div><div class="fb-sub">e.g. acme.com</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Sitemap fetch</div><div class="fb-sub">GET /sitemap.xml → parse all URLs</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Page crawl</div><div class="fb-sub">Fetch each page, extract: H1, body text, meta, schema</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Topic extraction</div><div class="fb-sub">LLM: identify brand's core topics + tone of voice</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">GSC import</div><div class="fb-sub">OAuth → pull top queries, CTR, impressions, page rankings</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Prompt generation</div><div class="fb-sub">Auto-create 50-300 prompts from topics + People Also Ask</div></div>
+      </div>
+      <div>
+        <div class="stack-label">Monitoring & Analysis Pipeline</div>
+        <div class="flow-box"><div class="fb-title">Scheduled prompt runs</div><div class="fb-sub">Cron: daily/weekly per AI model (ChatGPT, Gemini, Perplexity, Claude, Grok)</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Answer capture</div><div class="fb-sub">Store: full answer text, citations list, sources, timestamp, model</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Citation extraction</div><div class="fb-sub">Parse URLs from each answer → classify: own domain / competitor / 3rd party</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Visibility scoring</div><div class="fb-sub">Mention rate, citation rate, position rank, share of voice vs competitors</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Gap detection</div><div class="fb-sub">Topics where competitors cited but brand is absent → action queue</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-box"><div class="fb-title">Action brief generation</div><div class="fb-sub">LLM: research top-cited content → write full article → push to CMS API</div></div>
+      </div>
+    </div>
+    <div style="margin-top: 16px;">
+      <div class="stack-label">Tracking Layer (3 sources merged)</div>
+      <div class="two-col">
+        <div class="flow-box"><div class="fb-title">Cloudflare GraphQL API</div><div class="fb-sub">Bot user-agents → classify crawler type (training / search / user-fetcher) by URL path and timestamp</div></div>
+        <div class="flow-box"><div class="fb-title">GA4 Data API</div><div class="fb-sub">sessionSource = chatgpt.com / perplexity.ai → landing page, engagement rate, key events (conversions)</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TECH STACK -->
+  <div id="panel-tech" class="panel">
+    <div class="stack-section">
+      <div class="stack-label">Frontend</div>
+      <div class="stack-row">
+        <span class="stack-pill">Next.js 14 (App Router)</span>
+        <span class="stack-pill">React</span>
+        <span class="stack-pill">Tailwind CSS</span>
+        <span class="stack-pill">Framer Motion</span>
+        <span class="stack-pill">Recharts / D3</span>
+        <span class="stack-pill">Shadcn/ui</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Backend / API</div>
+      <div class="stack-row">
+        <span class="stack-pill">Node.js (Next.js API routes)</span>
+        <span class="stack-pill">tRPC or REST</span>
+        <span class="stack-pill">BullMQ (job queues)</span>
+        <span class="stack-pill">Cron (Vercel / Railway)</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">AI / LLM APIs</div>
+      <div class="stack-row">
+        <span class="stack-pill">OpenAI (ChatGPT)</span>
+        <span class="stack-pill">Google Gemini API</span>
+        <span class="stack-pill">Perplexity API</span>
+        <span class="stack-pill">Anthropic Claude API</span>
+        <span class="stack-pill">xAI Grok API</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Database & Storage</div>
+      <div class="stack-row">
+        <span class="stack-pill">PostgreSQL (Neon / Supabase)</span>
+        <span class="stack-pill">Prisma ORM</span>
+        <span class="stack-pill">Redis (caching)</span>
+        <span class="stack-pill">S3 (content storage)</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Crawling & Scraping</div>
+      <div class="stack-row">
+        <span class="stack-pill">Playwright / Puppeteer</span>
+        <span class="stack-pill">Cheerio (HTML parser)</span>
+        <span class="stack-pill">Axios</span>
+        <span class="stack-pill">xml2js (sitemap parser)</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Integrations</div>
+      <div class="stack-row">
+        <span class="stack-pill">Google OAuth 2.0 (GSC)</span>
+        <span class="stack-pill">GA4 Data API</span>
+        <span class="stack-pill">Cloudflare GraphQL API</span>
+        <span class="stack-pill">Webflow CMS API</span>
+        <span class="stack-pill">Framer CMS API</span>
+        <span class="stack-pill">MCP Server (Model Context Protocol)</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Auth & Payments</div>
+      <div class="stack-row">
+        <span class="stack-pill">Clerk or NextAuth</span>
+        <span class="stack-pill">Stripe (subscriptions)</span>
+      </div>
+    </div>
+    <div class="stack-section">
+      <div class="stack-label">Infra & Hosting</div>
+      <div class="stack-row">
+        <span class="stack-pill">Vercel (frontend)</span>
+        <span class="stack-pill">Railway / Render (workers)</span>
+        <span class="stack-pill">Upstash (Redis/cron)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div id="panel-pricing" class="panel">
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-tier">Lite</div>
+        <div class="price-amt">$249<span>/mo</span></div>
+        <div class="price-feat">
+          <div class="feat-line">150 prompts tracked</div>
+          <div class="feat-line">ChatGPT + Gemini + Perplexity</div>
+          <div class="feat-line">8 action briefs/month</div>
+          <div class="feat-line">3 generated articles/month</div>
+          <div class="feat-line">GSC integration</div>
+        </div>
+      </div>
+      <div class="price-card featured">
+        <div style="font-size:10px;padding:2px 8px;border-radius:8px;background:var(--color-background-info);color:var(--color-text-info);display:inline-block;margin-bottom:6px;font-weight:500;">Most popular</div>
+        <div class="price-tier">Pro</div>
+        <div class="price-amt">$499<span>/mo</span></div>
+        <div class="price-feat">
+          <div class="feat-line">300 prompts tracked</div>
+          <div class="feat-line">All AI models</div>
+          <div class="feat-line">18 action briefs/month</div>
+          <div class="feat-line">8 generated articles/month</div>
+          <div class="feat-line">CMS integration</div>
+          <div class="feat-line">Personal onboarding</div>
+        </div>
+      </div>
+      <div class="price-card">
+        <div class="price-tier">Enterprise</div>
+        <div class="price-amt">Custom</div>
+        <div class="price-feat">
+          <div class="feat-line">Unlimited prompts</div>
+          <div class="feat-line">Human in the loop</div>
+          <div class="feat-line">Custom CMS integrations</div>
+          <div class="feat-line">AI crawl + referral analytics</div>
+          <div class="feat-line">Dedicated Slack support</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px; padding:12px 16px; background:var(--color-background-secondary); border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-tertiary);">
+      <div class="stack-label" style="margin-bottom:6px;">Key Monetization Insight</div>
+      <p style="font-size:12px; color:var(--color-text-secondary); line-height:1.6;">The unit economics are built around <strong>prompt slots</strong> (150/300) and <strong>generated articles</strong> (3/8 per month). These are the natural consumption limits. API costs for running prompts across 5 models ~$0.01-0.05/prompt. At 300 prompts/day = ~$3-15/day in LLM costs. Article generation with research = ~$0.50-2/article. Margins are very healthy at $499/month.</p>
+    </div>
+  </div>
+
+  <!-- BUILD PLAN -->
+  <div id="panel-build" class="panel">
+    <div class="flow">
+      <div class="step-row">
+        <div class="step-num tag-blue">W1</div>
+        <div class="step-card" onclick="sendPrompt('Help me build the auth, onboarding and sitemap crawler for Week 1')">
+          <h3>Week 1 — Foundation</h3>
+          <p>Auth system (Clerk) → Domain input UI → Sitemap crawler → Page content extractor → Brand context DB schema → Basic dashboard shell.</p>
+          <div class="tags"><span class="tag tag-blue">Next.js</span><span class="tag tag-teal">Sitemap parser</span><span class="tag tag-blue">PostgreSQL</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-amber">W2</div>
+        <div class="step-card" onclick="sendPrompt('Help me build the AI prompt monitoring system for Week 2')">
+          <h3>Week 2 — AI Monitoring Core</h3>
+          <p>Prompt management UI → Run prompts against ChatGPT + Gemini + Perplexity → Store answers + citations → Mention/citation rate calculation → Basic visibility dashboard.</p>
+          <div class="tags"><span class="tag tag-amber">OpenAI API</span><span class="tag tag-amber">Gemini API</span><span class="tag tag-amber">Perplexity API</span><span class="tag tag-purple">BullMQ</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-purple">W3</div>
+        <div class="step-card" onclick="sendPrompt('Help me build citation analysis, gap detection and SEO module for Week 3')">
+          <h3>Week 3 — Analytics & Gap Detection</h3>
+          <p>Citation extractor → Top domains/URLs ranking → Competitor share-of-voice → Gap detection (missing topics) → GSC OAuth + data import → SEO + GEO combined dashboard.</p>
+          <div class="tags"><span class="tag tag-purple">Citation parser</span><span class="tag tag-amber">GSC API</span><span class="tag tag-purple">Gap analysis</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-coral">W4</div>
+        <div class="step-card" onclick="sendPrompt('Help me build the AI content generation and CMS push for Week 4')">
+          <h3>Week 4 — Content Actions</h3>
+          <p>Action brief generator → Full article writer (LLM, brand-aware) → Webflow CMS API push → Article review/approve UI → Stripe subscriptions + usage limits.</p>
+          <div class="tags"><span class="tag tag-coral">LLM pipeline</span><span class="tag tag-coral">Webflow API</span><span class="tag tag-blue">Stripe</span></div>
+        </div>
+      </div>
+      <div class="arrow-down">↓</div>
+      <div class="step-row">
+        <div class="step-num tag-green">W5</div>
+        <div class="step-card" onclick="sendPrompt('Help me build the Cloudflare and GA4 tracking integrations for Week 5')">
+          <h3>Week 5 — Tracking Layer</h3>
+          <p>Cloudflare GraphQL integration → Bot classification by user-agent → GA4 Data API → AI referral session tracking → 3-layer unified analytics dashboard → MCP server for Spark agent.</p>
+          <div class="tags"><span class="tag tag-green">Cloudflare API</span><span class="tag tag-green">GA4 API</span><span class="tag tag-amber">MCP</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>

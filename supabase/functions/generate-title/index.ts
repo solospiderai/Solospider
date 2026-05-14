@@ -5,11 +5,18 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+function fallbackTitle(keyword: string): string {
+  const cleanKeyword = keyword.trim().replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+  return `The Ultimate Guide to ${cleanKeyword}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  let keyword = "";
   try {
-    const { keyword } = await req.json();
+    const body = await req.json();
+    keyword = String(body.keyword || "").trim();
     if (!keyword) {
       return new Response(JSON.stringify({ error: "Missing keyword" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -17,8 +24,6 @@ serve(async (req) => {
     }
 
     const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
-    if (!openrouterKey) throw new Error("OPENROUTER_API_KEY not configured");
-
     const prompt = `Create an SEO title for the keyword: "${keyword}".
 STRICT RULES:
 - MUST contain the exact keyword "${keyword}" once
@@ -30,41 +35,72 @@ STRICT RULES:
 - No clickbait, no all-caps, no complex words
 - Return ONLY the title text, nothing else, no quotes.`;
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${openrouterKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://solospider.ai",
-        "X-Title": "SoloSpider",
-      },
-      body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 100,
-        temperature: 0.7,
-      }),
-    });
+    let title = "";
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`OpenRouter error: ${errorText}`);
+    // 1. Try OpenRouter if key is available
+    if (openrouterKey) {
+      try {
+        console.log("Calling OpenRouter for SEO Title...");
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openrouterKey}`,
+            "Content-Type": "application/json",
+            "HTTP-Referer": "https://solospider.ai",
+            "X-Title": "SoloSpider",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 100,
+            temperature: 0.7,
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          title = data.choices?.[0]?.message?.content || "";
+        } else {
+          console.warn("OpenRouter SEO Title failed, status:", response.status);
+        }
+      } catch (err) {
+        console.warn("OpenRouter SEO Title call failed:", err);
+      }
     }
 
-    const data = await response.json();
-    let title = data.choices?.[0]?.message?.content || "";
-    title = title.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/^["']|["']$/g, "").trim();
+    // 2. Try Pollinations AI text endpoint fallback
+    if (!title) {
+      try {
+        console.log("Calling Pollinations AI for SEO Title Fallback...");
+        const encodedPrompt = encodeURIComponent(`${prompt}\nReturn ONLY the plain title text.`);
+        const pollinationsUrl = `https://text.pollinations.ai/${encodedPrompt}?model=openai`;
+        
+        const res = await fetch(pollinationsUrl);
+        if (res.ok) {
+          title = await res.text();
+        }
+      } catch (err) {
+        console.warn("Pollinations AI SEO Title fallback failed:", err);
+      }
+    }
 
-    // Enforce Title Case fallback programmatically
-    title = title.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    // 3. Process or fall back programmatically
+    if (title) {
+      title = title.replace(/<think>[\s\S]*?<\/think>/g, "").replace(/^["']|["']$/g, "").trim();
+      title = title.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+    } else {
+      title = fallbackTitle(keyword);
+    }
 
     return new Response(JSON.stringify({ title }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (e) {
-    console.error("Generate title error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : "Unknown error";
+    console.error("SEO Title Generation critical error, serving safe fallback:", message);
+    const title = fallbackTitle(keyword || "Search Optimization");
+    return new Response(JSON.stringify({ title }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

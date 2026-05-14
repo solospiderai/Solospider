@@ -1,0 +1,1185 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.root{padding:1rem 0;font-family:var(--font-sans)}
+
+/* Nav */
+.flow-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:14px}
+.fn{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-secondary);cursor:pointer;color:var(--color-text-secondary);background:transparent;transition:all .15s;white-space:nowrap}
+.fn.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+
+.panel{display:none}.panel.active{display:block}
+
+/* Flow lane */
+.lane-title{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-tertiary);margin-bottom:12px}
+.flow-row{display:flex;align-items:flex-start;gap:0;flex-wrap:wrap}
+.step-wrap{display:flex;align-items:flex-start;gap:0}
+.step{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:10px 12px;min-width:130px;max-width:155px;cursor:pointer;transition:border-color .15s}
+.step:hover{border-color:var(--color-border-secondary)}
+.step-icon{font-size:16px;margin-bottom:5px;color:var(--color-text-secondary)}
+.step-label{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.4;margin-bottom:3px}
+.step-sub{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.step-tags{display:flex;flex-wrap:wrap;gap:3px;margin-top:6px}
+.tag{font-size:10px;padding:1px 6px;border-radius:8px;font-weight:500}
+.t-blue{background:#E6F1FB;color:#0C447C}.t-teal{background:#E1F5EE;color:#085041}
+.t-amber{background:#FAEEDA;color:#633806}.t-purple{background:#EEEDFE;color:#26215C}
+.t-coral{background:#FAECE7;color:#4A1B0C}.t-green{background:#EAF3DE;color:#173404}
+.t-red{background:#FCEBEB;color:#501313}.t-gray{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+@media (prefers-color-scheme: dark){
+  .t-blue{background:#0C447C;color:#B5D4F4}.t-teal{background:#085041;color:#9FE1CB}
+  .t-amber{background:#633806;color:#FAC775}.t-purple{background:#26215C;color:#CECBF6}
+  .t-coral{background:#4A1B0C;color:#F5C4B3}.t-green{background:#173404;color:#C0DD97}
+  .t-red{background:#501313;color:#F7C1C1}
+}
+
+/* Arrow */
+.arr{display:flex;align-items:center;padding:0 6px;color:var(--color-text-tertiary);font-size:14px;margin-top:18px;flex-shrink:0}
+.arr-d{display:flex;justify-content:center;color:var(--color-text-tertiary);font-size:14px;margin:8px 0}
+
+/* Decision diamond */
+.diamond-wrap{display:flex;justify-content:flex-start;margin:10px 0;gap:0}
+.diamond{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:4px;padding:7px 14px;font-size:11px;font-weight:500;color:var(--color-text-primary);transform:skewX(-8deg);white-space:nowrap}
+.diamond span{display:inline-block;transform:skewX(8deg)}
+.branch-row{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0}
+.branch-tag{font-size:10px;padding:2px 8px;border-radius:8px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+
+/* Section divider */
+.sec-div{border-top:0.5px solid var(--color-border-tertiary);margin:18px 0;padding-top:18px}
+
+/* State card */
+.state-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.state-head{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.state-body{font-size:11px;color:var(--color-text-secondary);line-height:1.6}
+.state-list{margin-top:6px;display:flex;flex-direction:column;gap:3px}
+.state-item{font-size:11px;color:var(--color-text-secondary);padding-left:12px;position:relative}
+.state-item::before{content:'→';position:absolute;left:0;color:var(--color-text-tertiary)}
+
+/* Two col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(max-width:500px){.two-col{grid-template-columns:1fr}}
+
+/* Screen mockup */
+.screen{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden}
+.screen-bar{background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary);padding:7px 12px;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%}
+.screen-body{padding:12px}
+.field{border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 10px;font-size:11px;color:var(--color-text-secondary);margin-bottom:7px;background:var(--color-background-primary)}
+.btn-primary{background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:6px;padding:7px 14px;font-size:11px;font-weight:500;width:100%;cursor:pointer;margin-top:4px}
+.btn-ghost{background:transparent;color:var(--color-text-secondary);border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 12px;font-size:11px;cursor:pointer;margin-top:4px;width:100%}
+.progress-bar-wrap{background:var(--color-background-secondary);border-radius:4px;height:4px;margin:8px 0}
+.progress-bar{height:4px;border-radius:4px;background:var(--color-text-primary)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.kpi-card{background:var(--color-background-secondary);border-radius:6px;padding:8px;text-align:center}
+.kpi-val{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.kpi-lbl{font-size:9px;color:var(--color-text-secondary);margin-top:2px}
+.mini-table{width:100%;border-collapse:collapse;font-size:10px}
+.mini-table th{text-align:left;color:var(--color-text-tertiary);font-weight:400;padding:4px 6px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.mini-table td{padding:5px 6px;color:var(--color-text-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.mini-table td:first-child{color:var(--color-text-primary);font-weight:500}
+.badge{font-size:9px;padding:1px 5px;border-radius:5px;font-weight:500}
+.b-g{background:#EAF3DE;color:#173404}.b-r{background:#FCEBEB;color:#501313}.b-a{background:#FAEEDA;color:#633806}
+@media (prefers-color-scheme: dark){.b-g{background:#173404;color:#C0DD97}.b-r{background:#501313;color:#F7C1C1}.b-a{background:#633806;color:#FAC775}}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.chip{font-size:10px;padding:2px 8px;border-radius:12px;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+</style>
+
+<div class="root">
+<h2 class="sr-only">Rankfire complete user flow — every module, screen, state, decision and transition mapped end to end</h2>
+
+<div class="flow-nav">
+  <button class="fn active" onclick="show('auth')">Auth & Onboarding</button>
+  <button class="fn" onclick="show('crawler')">Crawler & Analysis</button>
+  <button class="fn" onclick="show('monitoring')">AI Monitoring</button>
+  <button class="fn" onclick="show('citations')">Citation Analyzer</button>
+  <button class="fn" onclick="show('gaps')">Gap Detection</button>
+  <button class="fn" onclick="show('actions')">Content Actions</button>
+  <button class="fn" onclick="show('analytics')">Analytics Layer</button>
+  <button class="fn" onclick="show('billing')">Billing & Limits</button>
+  <button class="fn" onclick="show('retention')">Retention Loop</button>
+</div>
+
+<!-- AUTH & ONBOARDING -->
+<div id="p-auth" class="panel active">
+  <div class="lane-title">Module 01 — Auth & Onboarding</div>
+
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to build the landing page to signup conversion flow?')">
+        <div class="step-icon"><i class="ti ti-world" aria-hidden="true"></i></div>
+        <div class="step-label">Landing page</div>
+        <div class="step-sub">User sees hero, pricing, CTA "Start free trial"</div>
+        <div class="step-tags"><span class="tag t-gray">Public</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to build the signup form with Clerk?')">
+        <div class="step-icon"><i class="ti ti-user-plus" aria-hidden="true"></i></div>
+        <div class="step-label">Sign up</div>
+        <div class="step-sub">Email + password or Google OAuth via Clerk</div>
+        <div class="step-tags"><span class="tag t-blue">Clerk</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does email verification work in Clerk?')">
+        <div class="step-icon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="step-label">Email verify</div>
+        <div class="step-sub">Clerk sends 6-digit OTP; user confirms</div>
+        <div class="step-tags"><span class="tag t-blue">Clerk OTP</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What webhook fires when a new account is created?')">
+        <div class="step-icon"><i class="ti ti-database" aria-hidden="true"></i></div>
+        <div class="step-label">Account created</div>
+        <div class="step-sub">Clerk webhook → create accounts row + start trial</div>
+        <div class="step-tags"><span class="tag t-teal">Webhook</span><span class="tag t-teal">DB write</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to build the 5-step onboarding wizard?')">
+        <div class="step-icon"><i class="ti ti-wand" aria-hidden="true"></i></div>
+        <div class="step-label">Onboarding wizard</div>
+        <div class="step-sub">5-step guided setup; progress saved at each step</div>
+        <div class="step-tags"><span class="tag t-purple">5 steps</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">Onboarding wizard — step by step</div>
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-blue">Step 1/5</span> Enter website domain</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div></div>
+            <div class="screen-body">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px">Your website domain</div>
+              <div class="field">acme.com</div>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">We'll crawl your sitemap and build your AI visibility profile</div>
+              <div class="progress-bar-wrap"><div class="progress-bar" style="width:20%"></div></div>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">Step 1 of 5</div>
+              <button class="btn-primary">Continue →</button>
+            </div>
+          </div>
+          <div class="state-list" style="margin-top:8px">
+            <div class="state-item">Validate domain resolves via DNS</div>
+            <div class="state-item">Try HTTP HEAD to confirm site is live</div>
+            <div class="state-item">Create site record → status: initializing</div>
+            <div class="state-item">Queue: CRAWL_SITEMAP job fires immediately</div>
+          </div>
+        </div>
+
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-amber">Step 2/5</span> Connect Google Search Console</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div></div>
+            <div class="screen-body">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Google Search Console</div>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">Import your top organic queries to power AI prompt generation</div>
+              <div class="progress-bar-wrap"><div class="progress-bar" style="width:40%"></div></div>
+              <button class="btn-primary">Connect Google → OAuth popup</button>
+              <button class="btn-ghost">Skip for now</button>
+            </div>
+          </div>
+          <div class="state-list" style="margin-top:8px">
+            <div class="state-item">OAuth2 popup → scopes: webmasters.readonly</div>
+            <div class="state-item">On approval: exchange code → refresh_token</div>
+            <div class="state-item">Store token encrypted (AES-256-GCM)</div>
+            <div class="state-item">Show property selector if multiple properties</div>
+            <div class="state-item">Queue: IMPORT_GSC_DATA job</div>
+            <div class="state-item">On skip: proceed with null gsc token</div>
+          </div>
+        </div>
+
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-teal">Step 3/5</span> Connect GA4</div>
+          <div class="state-list">
+            <div class="state-item">OAuth2 → scopes: analytics.readonly</div>
+            <div class="state-item">Select correct GA4 property (show list)</div>
+            <div class="state-item">Store property_id in integrations table</div>
+            <div class="state-item">Skip: no GA4 data in analytics tab</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-purple">Step 4/5</span> Connect Cloudflare</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div></div>
+            <div class="screen-body">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Cloudflare API Token</div>
+              <div class="field">Paste your Cloudflare API token</div>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">Zone: acme.com — auto-detected ✓</div>
+              <div class="progress-bar-wrap"><div class="progress-bar" style="width:80%"></div></div>
+              <button class="btn-primary">Connect Cloudflare</button>
+              <button class="btn-ghost">Skip for now</button>
+            </div>
+          </div>
+          <div class="state-list" style="margin-top:8px">
+            <div class="state-item">Validate token: GET /user/tokens/verify</div>
+            <div class="state-item">Fetch zones → match domain → store zone_id</div>
+            <div class="state-item">Token requires: Zone:Analytics:Read permission</div>
+            <div class="state-item">Show permissions guide if token invalid</div>
+          </div>
+        </div>
+
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-coral">Step 5/5</span> Add competitors</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div></div>
+            <div class="screen-body">
+              <div style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">Your competitors</div>
+              <div class="field">competitor1.com</div>
+              <div class="field">competitor2.com</div>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:8px">+ Add competitor (up to 3 on Growth plan)</div>
+              <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+              <button class="btn-primary">Finish setup →</button>
+            </div>
+          </div>
+          <div class="state-list" style="margin-top:8px">
+            <div class="state-item">Validate each domain exists</div>
+            <div class="state-item">Store in site_competitors table</div>
+            <div class="state-item">Limit: 1 on Starter / 2 Growth / 3 Pro</div>
+            <div class="state-item">→ Redirect to dashboard with loading state</div>
+          </div>
+        </div>
+
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-green">Login flow (returning user)</span></div>
+          <div class="state-list">
+            <div class="state-item">Email + password → Clerk verifies</div>
+            <div class="state-item">Google OAuth → Clerk verifies</div>
+            <div class="state-item">Clerk issues JWT → stored in cookie</div>
+            <div class="state-item">Middleware reads JWT → attach account_id</div>
+            <div class="state-item">If onboarding incomplete → redirect /onboarding</div>
+            <div class="state-item">Else → redirect /overview (dashboard)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">Error & edge cases</div>
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-red">Error states</span></div>
+          <div class="state-list">
+            <div class="state-item">Domain doesn't resolve → "Domain not found. Check spelling."</div>
+            <div class="state-item">Domain returns 403 → "Site is blocking crawlers. We'll try anyway."</div>
+            <div class="state-item">No sitemap found → fallback to homepage crawl</div>
+            <div class="state-item">GSC property mismatch → show property picker</div>
+            <div class="state-item">Cloudflare token invalid → show permission guide link</div>
+            <div class="state-item">User refreshes mid-onboarding → resume from last completed step</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head"><span class="tag t-amber">Onboarding resume logic</span></div>
+          <div class="state-list">
+            <div class="state-item">On each step completion → save step to onboarding_state in DB</div>
+            <div class="state-item">On revisit → check onboarding_state.current_step</div>
+            <div class="state-item">Redirect to exact step user left on</div>
+            <div class="state-item">Show "Welcome back" toast with site domain</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CRAWLER -->
+<div id="p-crawler" class="panel">
+  <div class="lane-title">Module 02 — Sitemap Crawler & Page Analyzer</div>
+
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to build the sitemap crawler job?')">
+        <div class="step-icon"><i class="ti ti-sitemap" aria-hidden="true"></i></div>
+        <div class="step-label">Fetch sitemap.xml</div>
+        <div class="step-sub">Try /sitemap.xml, /sitemap_index.xml, robots.txt</div>
+        <div class="step-tags"><span class="tag t-teal">Axios</span><span class="tag t-teal">xml2js</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to parse and filter sitemap URLs?')">
+        <div class="step-icon"><i class="ti ti-filter" aria-hidden="true"></i></div>
+        <div class="step-label">Filter URLs</div>
+        <div class="step-sub">Remove images, PDFs, admin, UTM, feed URLs</div>
+        <div class="step-tags"><span class="tag t-teal">Max 500</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to crawl pages concurrently with Playwright?')">
+        <div class="step-icon"><i class="ti ti-browser" aria-hidden="true"></i></div>
+        <div class="step-label">Crawl each page</div>
+        <div class="step-sub">5 concurrent workers, 10s timeout per page</div>
+        <div class="step-tags"><span class="tag t-blue">Playwright</span><span class="tag t-blue">Cheerio</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What content fields do we extract from each page?')">
+        <div class="step-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div>
+        <div class="step-label">Extract content</div>
+        <div class="step-sub">Title, H1, headings, body (1500w), schema, links</div>
+        <div class="step-tags"><span class="tag t-purple">Cheerio</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does topic extraction with LLM work?')">
+        <div class="step-icon"><i class="ti ti-brain" aria-hidden="true"></i></div>
+        <div class="step-label">LLM topic extract</div>
+        <div class="step-sub">Batch all pages → extract topics, tone, audience</div>
+        <div class="step-tags"><span class="tag t-amber">GPT-4o</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">Crawl states & decisions</div>
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head"><i class="ti ti-arrow-fork" aria-hidden="true"></i> Sitemap discovery logic</div>
+          <div class="state-list">
+            <div class="state-item">Try: GET /sitemap.xml (most common)</div>
+            <div class="state-item">If 404 → try: GET /sitemap_index.xml</div>
+            <div class="state-item">If 404 → try: GET /robots.txt → look for "Sitemap:" directive</div>
+            <div class="state-item">If 404 → fallback: crawl homepage + extract &lt;nav&gt; href links</div>
+            <div class="state-item">If sitemap_index → fetch each child sitemap recursively</div>
+            <div class="state-item">If sitemap has &gt;500 URLs → sort by priority + lastmod DESC, take top 500</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head"><i class="ti ti-filters" aria-hidden="true"></i> URL filtering rules</div>
+          <div class="state-list">
+            <div class="state-item">EXCLUDE: *.jpg, *.png, *.pdf, *.css, *.js, *.xml</div>
+            <div class="state-item">EXCLUDE: /wp-admin/, /wp-login/, /.well-known/</div>
+            <div class="state-item">EXCLUDE: ?utm_*, ?ref=*, ?fbclid=* (tracking params)</div>
+            <div class="state-item">EXCLUDE: /feed/, /rss/, /amp/ (non-canonical)</div>
+            <div class="state-item">EXCLUDE: URLs from different domain (misconfig check)</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head"><i class="ti ti-alert-circle" aria-hidden="true"></i> Per-page error handling</div>
+          <div class="state-list">
+            <div class="state-item">HTTP 200 → crawl and extract content ✓</div>
+            <div class="state-item">HTTP 301/302 → follow redirect (max 3 hops)</div>
+            <div class="state-item">HTTP 403 → mark crawl_status: blocked; surface in UI</div>
+            <div class="state-item">HTTP 404 → mark crawl_status: failed; surface as crawl issue</div>
+            <div class="state-item">HTTP 429 → back off 30s, retry once; then mark failed</div>
+            <div class="state-item">Timeout (&gt;10s) → retry once after 30s; then mark failed</div>
+            <div class="state-item">JS-heavy page → Playwright renders JS before extract</div>
+            <div class="state-item">robots.txt Disallow → respect; skip URL; flag in UI</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head"><i class="ti ti-brain" aria-hidden="true"></i> LLM topic extraction output</div>
+          <div class="state-list">
+            <div class="state-item">Input: all page titles + H1s + first paragraph (batched)</div>
+            <div class="state-item">Output: primary_topics[ ], tone_of_voice, target_audience, value_prop</div>
+            <div class="state-item">Stored in brand_context table (1 row per site)</div>
+            <div class="state-item">Used immediately for prompt auto-generation</div>
+            <div class="state-item">Re-run on manual re-crawl or major content update</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">What the user sees during crawl</div>
+    <div class="two-col">
+      <div class="screen">
+        <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div><span style="font-size:10px;color:var(--color-text-secondary);margin-left:6px">Analyzing your site...</span></div>
+        <div class="screen-body">
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px"><span>Crawling sitemap</span><span>✓ Done</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px"><span>Reading 87 pages...</span><span>62 / 87</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:71%"></div></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px"><span>Extracting brand context</span><span>Queued</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:0%"></div></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px"><span>Generating 120 prompts</span><span>Queued</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:0%"></div></div>
+          </div>
+          <div style="margin-bottom:8px">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-secondary);margin-bottom:3px"><span>Running AI checks</span><span>Queued</span></div>
+            <div class="progress-bar-wrap"><div class="progress-bar" style="width:0%"></div></div>
+          </div>
+          <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:8px">First insights in ~8 minutes. You can close this tab.</div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Progress update mechanism</div>
+          <div class="state-list">
+            <div class="state-item">SSE stream: GET /api/jobs/:jobId/stream</div>
+            <div class="state-item">Worker updates jobs.progress + jobs.progress_message every 5s</div>
+            <div class="state-item">Frontend polls SSE → updates progress bars live</div>
+            <div class="state-item">On job complete → SSE sends final event → frontend reloads</div>
+            <div class="state-item">User can close browser; jobs continue in worker</div>
+            <div class="state-item">On return: check site.status → show appropriate state</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI MONITORING -->
+<div id="p-monitoring" class="panel">
+  <div class="lane-title">Module 03 — AI Prompt Monitoring</div>
+
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does prompt auto-generation work from brand context?')">
+        <div class="step-icon"><i class="ti ti-sparkles" aria-hidden="true"></i></div>
+        <div class="step-label">Auto-generate prompts</div>
+        <div class="step-sub">Topics + GSC queries → 50-300 AI questions</div>
+        <div class="step-tags"><span class="tag t-amber">LLM</span><span class="tag t-teal">GSC data</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the prompt review and management UI work?')">
+        <div class="step-icon"><i class="ti ti-list-check" aria-hidden="true"></i></div>
+        <div class="step-label">Review prompts</div>
+        <div class="step-sub">User sees list; can add, disable, or edit prompts</div>
+        <div class="step-tags"><span class="tag t-purple">Dashboard</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How are prompts scheduled to run across AI models?')">
+        <div class="step-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+        <div class="step-label">Scheduled run</div>
+        <div class="step-sub">Daily cron: fire all active prompts vs all enabled models</div>
+        <div class="step-tags"><span class="tag t-blue">Cron</span><span class="tag t-blue">BullMQ</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How do we call each AI model and capture the answer?')">
+        <div class="step-icon"><i class="ti ti-robot" aria-hidden="true"></i></div>
+        <div class="step-label">Run vs AI models</div>
+        <div class="step-sub">ChatGPT, Gemini, Perplexity, Claude, Grok (parallel)</div>
+        <div class="step-tags"><span class="tag t-amber">5 APIs</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How do we detect brand mentions and citations in AI answers?')">
+        <div class="step-icon"><i class="ti ti-eye" aria-hidden="true"></i></div>
+        <div class="step-label">Detect & score</div>
+        <div class="step-sub">Mention? Cited? Position? → metrics updated</div>
+        <div class="step-tags"><span class="tag t-teal">Scoring</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">Prompt generation algorithm</div>
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Input sources for generation</div>
+          <div class="state-list">
+            <div class="state-item">brand_context.primary_topics (e.g. ["email marketing","CRM"])</div>
+            <div class="state-item">brand_context.target_audience (e.g. "SMB marketing teams")</div>
+            <div class="state-item">gsc_data.top_queries (top 20 by impressions if connected)</div>
+            <div class="state-item">site_competitors.domain (for competitive prompts)</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">5 prompt templates per topic</div>
+          <div class="state-list">
+            <div class="state-item">"What is the best [topic] tool for [audience]?"</div>
+            <div class="state-item">"How do I [common task in topic]?"</div>
+            <div class="state-item">"What are the top [topic] platforms in 2026?"</div>
+            <div class="state-item">"Compare [brand] vs alternatives for [topic]"</div>
+            <div class="state-item">"Is [brand] good for [use case]?"</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Prompt run per model — what happens</div>
+          <div class="state-list">
+            <div class="state-item">Check rate limit bucket (Redis) → wait if full</div>
+            <div class="state-item">Call provider with web search enabled</div>
+            <div class="state-item">OpenAI: Responses API + web_search_preview tool</div>
+            <div class="state-item">Gemini: generateContent + googleSearch tool</div>
+            <div class="state-item">Perplexity: /chat/completions + return_citations:true</div>
+            <div class="state-item">Claude: messages API + web_search_20250305 tool</div>
+            <div class="state-item">Grok: chat/completions (real-time web enabled)</div>
+            <div class="state-item">Store: answer_text, citations[], tokens, latency_ms</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">Brand mention detection logic</div>
+          <div class="state-list">
+            <div class="state-item">Check answer_text for brand_name (case-insensitive)</div>
+            <div class="state-item">Check answer_text for domain ("acme.com")</div>
+            <div class="state-item">brand_mention_count = occurrences in text</div>
+            <div class="state-item">brand_position = index of first mention / total length × 10</div>
+            <div class="state-item">brand_cited = any citation URL contains site.domain</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="lane-title">What the user sees — Prompts dashboard</div>
+    <div class="screen">
+      <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div><div class="dot" style="background:#63d45d"></div><span style="font-size:10px;color:var(--color-text-secondary);margin-left:6px">AI Visibility → All Prompts</span></div>
+      <div class="screen-body">
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-val">72</div><div class="kpi-lbl">Visibility score</div></div>
+          <div class="kpi-card"><div class="kpi-val">61%</div><div class="kpi-lbl">Mention rate</div></div>
+          <div class="kpi-card"><div class="kpi-val">34%</div><div class="kpi-lbl">Citation rate</div></div>
+          <div class="kpi-card"><div class="kpi-val">18%</div><div class="kpi-lbl">Share of voice</div></div>
+        </div>
+        <table class="mini-table">
+          <thead><tr><th>Prompt</th><th>Mention</th><th>Cited</th><th>Score</th><th>Trend</th></tr></thead>
+          <tbody>
+            <tr><td>Best email marketing tool for SMBs?</td><td><span class="badge b-g">5/5 models</span></td><td><span class="badge b-g">3/5</span></td><td>88</td><td>+4</td></tr>
+            <tr><td>How to automate email drip campaigns?</td><td><span class="badge b-a">3/5 models</span></td><td><span class="badge b-a">1/5</span></td><td>52</td><td>+1</td></tr>
+            <tr><td>Top email marketing platforms 2026?</td><td><span class="badge b-r">0/5 models</span></td><td><span class="badge b-r">0/5</span></td><td>0</td><td>—</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:8px;display:flex;gap:6px">
+          <button class="btn-ghost" style="width:auto;padding:4px 10px;font-size:10px">+ Add prompt</button>
+          <button class="btn-ghost" style="width:auto;padding:4px 10px;font-size:10px">↻ Run all now</button>
+          <button class="btn-ghost" style="width:auto;padding:4px 10px;font-size:10px">Filter by model</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CITATIONS -->
+<div id="p-citations" class="panel">
+  <div class="lane-title">Module 04 — Citation Analyzer</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to extract citations from different AI model response formats?')">
+        <div class="step-icon"><i class="ti ti-link" aria-hidden="true"></i></div>
+        <div class="step-label">Extract citations</div>
+        <div class="step-sub">Parse URLs from explicit refs, grounding, inline text</div>
+        <div class="step-tags"><span class="tag t-blue">3 sources</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to classify citations as own domain, competitor or third party?')">
+        <div class="step-icon"><i class="ti ti-tag" aria-hidden="true"></i></div>
+        <div class="step-label">Classify domain</div>
+        <div class="step-sub">Own / competitor / third-party per citation URL</div>
+        <div class="step-tags"><span class="tag t-teal">Classify</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to calculate share of voice from citation data?')">
+        <div class="step-icon"><i class="ti ti-chart-pie" aria-hidden="true"></i></div>
+        <div class="step-label">Share of voice</div>
+        <div class="step-sub">own_citations / total × 100 per topic & model</div>
+        <div class="step-tags"><span class="tag t-purple">Metric</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to identify own pages that should be cited but aren t?')">
+        <div class="step-icon"><i class="ti ti-search-off" aria-hidden="true"></i></div>
+        <div class="step-label">Uncited pages</div>
+        <div class="step-sub">Own pages relevant to prompts but never cited</div>
+        <div class="step-tags"><span class="tag t-coral">Gap signal</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to display the citation map dashboard?')">
+        <div class="step-icon"><i class="ti ti-map-2" aria-hidden="true"></i></div>
+        <div class="step-label">Citation map UI</div>
+        <div class="step-sub">Donut chart + ranked domain list + own pages table</div>
+        <div class="step-tags"><span class="tag t-green">Dashboard</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Citation extraction — 3 source types</div>
+          <div class="state-list">
+            <div class="state-item">Source 1 — Explicit objects: Perplexity citations[], Claude tool_result URLs</div>
+            <div class="state-item">Source 2 — Grounding metadata: Gemini groundingChunks[].web.uri</div>
+            <div class="state-item">Source 3 — Inline text: regex /https?:\/\/[^\s\)\"\']/ on all answer_text</div>
+            <div class="state-item">Deduplicate: normalize URL (strip trailing /, lowercase domain)</div>
+            <div class="state-item">Store all 3 types with citation_source column for auditing</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">Domain classification</div>
+          <div class="state-list">
+            <div class="state-item">own: extractDomain(url) === site.domain</div>
+            <div class="state-item">competitor: extractDomain(url) IN site_competitors.domain[]</div>
+            <div class="state-item">third_party: everything else</div>
+            <div class="state-item">Subdomains: blog.acme.com → treated as own</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Citation map screen — what user sees</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div></div>
+            <div class="screen-body">
+              <div style="font-size:10px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">Share of voice (this month)</div>
+              <div style="display:flex;gap:8px;margin-bottom:10px">
+                <div style="text-align:center"><div style="font-size:18px;font-weight:500;color:var(--color-text-primary)">18%</div><div style="font-size:9px;color:var(--color-text-secondary)">You</div></div>
+                <div style="text-align:center"><div style="font-size:18px;font-weight:500;color:#D85A30">41%</div><div style="font-size:9px;color:var(--color-text-secondary)">Competitor A</div></div>
+                <div style="text-align:center"><div style="font-size:18px;font-weight:500;color:#888">41%</div><div style="font-size:9px;color:var(--color-text-secondary)">Others</div></div>
+              </div>
+              <table class="mini-table">
+                <thead><tr><th>Domain</th><th>Citations</th><th>Type</th></tr></thead>
+                <tbody>
+                  <tr><td>competitor.com</td><td>247</td><td><span class="badge b-r">Competitor</span></td></tr>
+                  <tr><td>yourdomain.com</td><td>109</td><td><span class="badge b-g">Own</span></td></tr>
+                  <tr><td>hubspot.com</td><td>88</td><td><span class="badge" style="background:var(--color-background-secondary);color:var(--color-text-secondary)">3rd party</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAP DETECTION -->
+<div id="p-gaps" class="panel">
+  <div class="lane-title">Module 05 — Gap Detection Engine</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to query for prompts where brand not mentioned but competitors are?')">
+        <div class="step-icon"><i class="ti ti-search" aria-hidden="true"></i></div>
+        <div class="step-label">Query missed prompts</div>
+        <div class="step-sub">brand_mentioned=false AND competitor citation exists</div>
+        <div class="step-tags"><span class="tag t-blue">SQL query</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to cluster missed prompts by topic?')">
+        <div class="step-icon"><i class="ti ti-topology-ring" aria-hidden="true"></i></div>
+        <div class="step-label">Cluster by topic</div>
+        <div class="step-sub">Group related missed prompts into gap topics</div>
+        <div class="step-tags"><span class="tag t-teal">LLM cluster</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How is the gap score calculated?')">
+        <div class="step-icon"><i class="ti ti-calculator" aria-hidden="true"></i></div>
+        <div class="step-label">Score each gap</div>
+        <div class="step-sub">Prompts count + models + competitor count + GSC volume</div>
+        <div class="step-tags"><span class="tag t-amber">Score 0-100</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to check if own content exists for a gap topic?')">
+        <div class="step-icon"><i class="ti ti-file-check" aria-hidden="true"></i></div>
+        <div class="step-label">Own content check</div>
+        <div class="step-sub">Does site have content on this topic? Full text search</div>
+        <div class="step-tags"><span class="tag t-purple">pg_trgm</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How do we recommend create vs improve vs earn media action?')">
+        <div class="step-icon"><i class="ti ti-route" aria-hidden="true"></i></div>
+        <div class="step-label">Recommend action</div>
+        <div class="step-sub">Create / Improve / Earn Media / UGC</div>
+        <div class="step-tags"><span class="tag t-coral">Action type</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Gap scoring formula</div>
+          <div class="state-list">
+            <div class="state-item">prompt_count / 10 × 30 → up to 30 pts (how many prompts affected)</div>
+            <div class="state-item">models.length / 5 × 25 → up to 25 pts (how many AI models show gap)</div>
+            <div class="state-item">competitor_count / 3 × 25 → up to 25 pts (how many competitors cited)</div>
+            <div class="state-item">gsc_volume / 10000 × 20 → up to 20 pts (organic search volume)</div>
+            <div class="state-item">Total capped at 100. &gt;70 = high / 40-70 = medium / &lt;40 = low</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">Action routing logic</div>
+          <div class="state-list">
+            <div class="state-item">No content on topic → recommended_action: "create"</div>
+            <div class="state-item">Content exists but not cited → recommended_action: "improve"</div>
+            <div class="state-item">Content exists + cited but low position → recommended_action: "improve"</div>
+            <div class="state-item">Topic driven by news/PR → recommended_action: "earn_media"</div>
+            <div class="state-item">Topic driven by community → recommended_action: "ugc"</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Gap Analysis screen — user flow</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div></div>
+            <div class="screen-body">
+              <div style="font-size:10px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px">12 opportunities found</div>
+              <div style="border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:8px;margin-bottom:6px">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:500;color:var(--color-text-primary)">Email marketing for e-commerce</span><span class="badge b-r">Score 87</span></div>
+                <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px">Competitors: Klaviyo, Mailchimp • 12 prompts • ChatGPT, Gemini, Perplexity</div>
+                <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:6px">You have no content on this topic</div>
+                <div style="display:flex;gap:5px">
+                  <button style="font-size:9px;padding:3px 8px;background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:5px;cursor:pointer">Create content</button>
+                  <button style="font-size:9px;padding:3px 8px;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:5px;cursor:pointer;color:var(--color-text-secondary)">View prompts</button>
+                  <button style="font-size:9px;padding:3px 8px;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:5px;cursor:pointer;color:var(--color-text-secondary)">Dismiss</button>
+                </div>
+              </div>
+              <div style="font-size:10px;color:var(--color-text-tertiary)">+ 11 more gaps below...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT ACTIONS -->
+<div id="p-actions" class="panel">
+  <div class="lane-title">Module 07 + 08 — Content Brief Generator & Article Writer</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What triggers a content brief generation?')">
+        <div class="step-icon"><i class="ti ti-plus" aria-hidden="true"></i></div>
+        <div class="step-label">User clicks "Create content" on gap</div>
+        <div class="step-sub">Gap card → POST /api/actions/brief</div>
+        <div class="step-tags"><span class="tag t-blue">User action</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the research step in brief generation work?')">
+        <div class="step-icon"><i class="ti ti-world-search" aria-hidden="true"></i></div>
+        <div class="step-label">Research phase</div>
+        <div class="step-sub">Fetch top cited articles for topic via web search</div>
+        <div class="step-tags"><span class="tag t-teal">Perplexity</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does LLM generate the content brief from research?')">
+        <div class="step-icon"><i class="ti ti-pencil" aria-hidden="true"></i></div>
+        <div class="step-label">Generate brief</div>
+        <div class="step-sub">LLM: title, outline, data points, AEO tips, schema recs</div>
+        <div class="step-tags"><span class="tag t-amber">GPT-4o</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What does the brief review screen look like?')">
+        <div class="step-icon"><i class="ti ti-eye" aria-hidden="true"></i></div>
+        <div class="step-label">User reviews brief</div>
+        <div class="step-sub">Edit, approve, or reject brief before generating article</div>
+        <div class="step-tags"><span class="tag t-purple">Review UI</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the multi-step article generation pipeline work?')">
+        <div class="step-icon"><i class="ti ti-file-plus" aria-hidden="true"></i></div>
+        <div class="step-label">Generate article</div>
+        <div class="step-sub">Multi-step LLM: research → outline → sections → SEO → AEO</div>
+        <div class="step-tags"><span class="tag t-amber">5 LLM steps</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does publishing to Webflow CMS work?')">
+        <div class="step-icon"><i class="ti ti-upload" aria-hidden="true"></i></div>
+        <div class="step-label">Publish to CMS</div>
+        <div class="step-sub">Webflow / Framer API → creates DRAFT → returns editor URL</div>
+        <div class="step-tags"><span class="tag t-coral">Webflow API</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Article generation — 5 LLM pipeline steps</div>
+          <div class="state-list">
+            <div class="state-item">Step 1: Research — web search for top-cited content on topic</div>
+            <div class="state-item">Step 2: Outline — LLM generates H2/H3 structure from brief</div>
+            <div class="state-item">Step 3: Write sections — LLM writes each H2 section individually</div>
+            <div class="state-item">Step 4: SEO pass — optimize title, meta, keywords, internal links</div>
+            <div class="state-item">Step 5: AEO pass — add FAQ schema, direct Q&A pairs, callout blocks</div>
+            <div class="state-item">Total time: ~2-3 minutes per article</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">CMS publish flow — Webflow</div>
+          <div class="state-list">
+            <div class="state-item">User connects Webflow → OAuth2 flow → store access_token</div>
+            <div class="state-item">On first connect: fetch user's collections → let user select "Blog" collection</div>
+            <div class="state-item">On publish: POST /v2/collections/{id}/items with _draft: true</div>
+            <div class="state-item">Return: Webflow editor URL → open in new tab for final review</div>
+            <div class="state-item">ALWAYS creates draft — never publishes live without user action</div>
+            <div class="state-item">Store: cms_item_id, cms_editor_url in content_pieces table</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Article editor screen</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div></div>
+            <div class="screen-body">
+              <div style="font-size:11px;font-weight:500;margin-bottom:4px">Email Marketing for E-commerce: The Complete 2026 Guide</div>
+              <div style="font-size:9px;color:var(--color-text-secondary);margin-bottom:8px">2,840 words · Reading time 12 min · AEO score 84/100</div>
+              <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:4px;border-left:2px solid var(--color-border-info);padding-left:8px">Includes: FAQ schema ✓ · How-To schema ✓ · 4 direct Q&A pairs ✓</div>
+              <div style="font-size:10px;font-weight:500;margin:8px 0 4px">Must-include data:</div>
+              <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:2px">✓ "Email drives 40% of e-commerce revenue" — cited</div>
+              <div style="font-size:10px;color:var(--color-text-secondary);margin-bottom:8px">✓ "Welcome series = 51% of email revenue" — cited</div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap">
+                <button style="font-size:9px;padding:4px 10px;background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:5px;cursor:pointer">Publish to Webflow</button>
+                <button style="font-size:9px;padding:4px 10px;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:5px;cursor:pointer;color:var(--color-text-secondary)">Edit in editor</button>
+                <button style="font-size:9px;padding:4px 10px;background:transparent;border:0.5px solid var(--color-border-secondary);border-radius:5px;cursor:pointer;color:var(--color-text-secondary)">Download .md</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ANALYTICS -->
+<div id="p-analytics" class="panel">
+  <div class="lane-title">Module 09 + 10 — GA4 AI Referrals + Cloudflare Bot Analytics</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to connect GA4 and fetch AI referral sessions?')">
+        <div class="step-icon"><i class="ti ti-chart-bar" aria-hidden="true"></i></div>
+        <div class="step-label">Connect GA4</div>
+        <div class="step-sub">OAuth2 → select property → fetch AI referral sessions daily</div>
+        <div class="step-tags"><span class="tag t-blue">GA4 API</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('Which AI referral sources do we track in GA4?')">
+        <div class="step-icon"><i class="ti ti-users" aria-hidden="true"></i></div>
+        <div class="step-label">AI referral sources</div>
+        <div class="step-sub">chatgpt.com, perplexity.ai, claude.ai, gemini.google.com</div>
+        <div class="step-tags"><span class="tag t-teal">8 sources</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to connect Cloudflare and classify AI bots?')">
+        <div class="step-icon"><i class="ti ti-robot" aria-hidden="true"></i></div>
+        <div class="step-label">Cloudflare bot data</div>
+        <div class="step-sub">GraphQL API → classify by user-agent → 3 bot types</div>
+        <div class="step-tags"><span class="tag t-amber">CF GraphQL</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What are the 3 types of AI bot traffic we classify?')">
+        <div class="step-icon"><i class="ti ti-tag" aria-hidden="true"></i></div>
+        <div class="step-label">Classify bots</div>
+        <div class="step-sub">Training crawler / Search crawler / User fetcher</div>
+        <div class="step-tags"><span class="tag t-purple">3 types</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How to build the combined analytics dashboard view?')">
+        <div class="step-icon"><i class="ti ti-dashboard" aria-hidden="true"></i></div>
+        <div class="step-label">Unified dashboard</div>
+        <div class="step-sub">Merge GA4 + Cloudflare + prompt data into one view</div>
+        <div class="step-tags"><span class="tag t-green">Merged view</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">GA4 query — what we fetch</div>
+          <div class="state-list">
+            <div class="state-item">Dimensions: sessionSource, landingPage</div>
+            <div class="state-item">Metrics: sessions, engagedSessions, keyEvents</div>
+            <div class="state-item">Filter: sessionSource IN [chatgpt.com, perplexity.ai, claude.ai, gemini.google.com, you.com, phind.com, copilot.microsoft.com, bing.com]</div>
+            <div class="state-item">Date range: last 30 days (refresh daily via cron)</div>
+            <div class="state-item">Calculate: engagementRate = engagedSessions / sessions</div>
+            <div class="state-item">Calculate: conversionRate = keyEvents / sessions</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">Cloudflare bot type classification</div>
+          <div class="state-list">
+            <div class="state-item">training_crawler: GPTBot, ClaudeBot, Google-Extended, CCBot, Amazonbot</div>
+            <div class="state-item">search_crawler: OAI-SearchBot, Claude-SearchBot, PerplexityBot, Bingbot</div>
+            <div class="state-item">user_fetcher: ChatGPT-User, Claude-User, Perplexity-User ← strongest signal</div>
+            <div class="state-item">user_fetcher = real human asked AI to fetch this page right now</div>
+            <div class="state-item">Group by: user_agent + request_path + hour → store in ai_bot_traffic</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Analytics dashboard</div>
+          <div class="screen">
+            <div class="screen-bar"><div class="dot" style="background:#ef9f27"></div></div>
+            <div class="screen-body">
+              <div style="font-size:10px;font-weight:500;margin-bottom:6px">AI Referral Traffic (last 30 days)</div>
+              <div class="kpi-row">
+                <div class="kpi-card"><div class="kpi-val">1,247</div><div class="kpi-lbl">AI sessions</div></div>
+                <div class="kpi-card"><div class="kpi-val">2.1%</div><div class="kpi-lbl">CVR from AI</div></div>
+                <div class="kpi-card"><div class="kpi-val">3.2k</div><div class="kpi-lbl">Bot crawls</div></div>
+                <div class="kpi-card"><div class="kpi-val">847</div><div class="kpi-lbl">User fetches</div></div>
+              </div>
+              <table class="mini-table">
+                <thead><tr><th>Source</th><th>Sessions</th><th>CVR</th></tr></thead>
+                <tbody>
+                  <tr><td>ChatGPT.com</td><td>847</td><td>1.8%</td></tr>
+                  <tr><td>Perplexity.ai</td><td>312</td><td>3.2%</td></tr>
+                  <tr><td>Claude.ai</td><td>88</td><td>2.4%</td></tr>
+                </tbody>
+              </table>
+              <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:6px">💡 AI traffic converts 3× better than paid search</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BILLING -->
+<div id="p-billing" class="panel">
+  <div class="lane-title">Module 13 — Subscription & Usage Limits</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the 14-day free trial work?')">
+        <div class="step-icon"><i class="ti ti-clock" aria-hidden="true"></i></div>
+        <div class="step-label">14-day trial starts</div>
+        <div class="step-sub">Growth plan features; no card required to start</div>
+        <div class="step-tags"><span class="tag t-green">Free</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('When does a usage limit warning show and what happens?')">
+        <div class="step-icon"><i class="ti ti-alert-triangle" aria-hidden="true"></i></div>
+        <div class="step-label">Usage limit warning</div>
+        <div class="step-sub">At 80% of prompt limit → in-app banner shown</div>
+        <div class="step-tags"><span class="tag t-amber">80% warn</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What happens when a user hits their usage limit?')">
+        <div class="step-icon"><i class="ti ti-lock" aria-hidden="true"></i></div>
+        <div class="step-label">Limit reached</div>
+        <div class="step-sub">Jobs blocked; upgrade modal shown; data still readable</div>
+        <div class="step-tags"><span class="tag t-red">429 error</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the Stripe checkout and subscription flow work?')">
+        <div class="step-icon"><i class="ti ti-credit-card" aria-hidden="true"></i></div>
+        <div class="step-label">Stripe checkout</div>
+        <div class="step-sub">Stripe-hosted checkout → webhook → update subscription</div>
+        <div class="step-tags"><span class="tag t-blue">Stripe</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the plan upgrade activate new limits immediately?')">
+        <div class="step-icon"><i class="ti ti-rocket" aria-hidden="true"></i></div>
+        <div class="step-label">Limits unlocked</div>
+        <div class="step-sub">Webhook → update account.plan → Redis limit cache cleared</div>
+        <div class="step-tags"><span class="tag t-teal">Instant</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Usage tracking mechanism</div>
+          <div class="state-list">
+            <div class="state-item">FAST: Redis INCR usage:{accountId}:{type}:{period} → atomic increment</div>
+            <div class="state-item">Every hour: sync Redis counters → update usage_records table</div>
+            <div class="state-item">Limit check: GET Redis key → compare to PLANS[plan].limits[type]</div>
+            <div class="state-item">Period: monthly (resets on billing cycle start date)</div>
+            <div class="state-item">Types: prompts_run, articles_generated, briefs_generated</div>
+          </div>
+        </div>
+        <div class="state-block">
+          <div class="state-head">Stripe webhook events handled</div>
+          <div class="state-list">
+            <div class="state-item">customer.subscription.created → set account.plan, start_date</div>
+            <div class="state-item">customer.subscription.updated → update plan on upgrade/downgrade</div>
+            <div class="state-item">customer.subscription.deleted → downgrade to free/trial-expired</div>
+            <div class="state-item">invoice.payment_succeeded → reset usage for new period</div>
+            <div class="state-item">invoice.payment_failed → send dunning email; grace period 3 days</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Plan limits at a glance</div>
+          <table class="mini-table">
+            <thead><tr><th>Feature</th><th>Starter $99</th><th>Growth $299</th><th>Pro $599</th></tr></thead>
+            <tbody>
+              <tr><td>Prompts/mo</td><td>50</td><td>150</td><td>300</td></tr>
+              <tr><td>Articles/mo</td><td>0</td><td>4</td><td>8</td></tr>
+              <tr><td>AI models</td><td>2</td><td>3</td><td>5</td></tr>
+              <tr><td>Competitors</td><td>1</td><td>2</td><td>3</td></tr>
+              <tr><td>Sites</td><td>1</td><td>1</td><td>3</td></tr>
+              <tr><td>Seats</td><td>1</td><td>3</td><td>5</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RETENTION -->
+<div id="p-retention" class="panel">
+  <div class="lane-title">Retention Loop — Weekly Engagement Cycle</div>
+  <div class="flow-row">
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the weekly email digest work?')">
+        <div class="step-icon"><i class="ti ti-mail" aria-hidden="true"></i></div>
+        <div class="step-label">Weekly digest email</div>
+        <div class="step-sub">Monday 8am: score change, top gains, top losses, action items</div>
+        <div class="step-tags"><span class="tag t-blue">Cron</span><span class="tag t-blue">Resend</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What does a typical weekly digest email contain?')">
+        <div class="step-icon"><i class="ti ti-chart-line" aria-hidden="true"></i></div>
+        <div class="step-label">Dashboard login</div>
+        <div class="step-sub">Click digest CTA → land on overview with weekly highlights</div>
+        <div class="step-tags"><span class="tag t-teal">Re-engage</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How does the recommended actions list update each week?')">
+        <div class="step-icon"><i class="ti ti-list" aria-hidden="true"></i></div>
+        <div class="step-label">Review actions</div>
+        <div class="step-sub">Top 3 recommended actions by impact score shown in sidebar</div>
+        <div class="step-tags"><span class="tag t-amber">Top 3</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('What happens after a user publishes content and it gets cited?')">
+        <div class="step-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+        <div class="step-label">Action completed</div>
+        <div class="step-sub">Article published → 2-week wait → re-run prompts → measure impact</div>
+        <div class="step-tags"><span class="tag t-purple">Impact loop</span></div>
+      </div>
+      <div class="arr">→</div>
+    </div>
+    <div class="step-wrap">
+      <div class="step" onclick="sendPrompt('How do we show the before/after impact of published content?')">
+        <div class="step-icon"><i class="ti ti-trending-up" aria-hidden="true"></i></div>
+        <div class="step-label">See improvement</div>
+        <div class="step-sub">Score increase → "Your article got cited by Perplexity!" notification</div>
+        <div class="step-tags"><span class="tag t-green">AHA moment</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-div">
+    <div class="two-col">
+      <div>
+        <div class="state-block">
+          <div class="state-head">Weekly digest — content structure</div>
+          <div class="state-list">
+            <div class="state-item">Subject: "Your AI visibility this week: 72 → 76 (+4 pts)"</div>
+            <div class="state-item">Section 1: Big number — current visibility score + weekly change</div>
+            <div class="state-item">Section 2: Biggest gain — which prompt/model improved most</div>
+            <div class="state-item">Section 3: Biggest opportunity — top gap with highest score</div>
+            <div class="state-item">Section 4: CTA — "Create content for this gap" button → deep link</div>
+            <div class="state-item">Section 5: Quick stats — citation rate, share of voice, AI referrals</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="state-block">
+          <div class="state-head">Churn prevention triggers</div>
+          <div class="state-list">
+            <div class="state-item">No login in 7 days → send "We found 3 new gaps" nudge email</div>
+            <div class="state-item">Trial day 10 → "4 days left — upgrade to keep your data" email</div>
+            <div class="state-item">Trial day 14 → "Trial expired" email + grace 24h</div>
+            <div class="state-item">No action taken in 30 days → offer free onboarding call CTA</div>
+            <div class="state-item">Score drops &gt;10pts in a week → alert email + Slack (if connected)</div>
+            <div class="state-item">Competitor gains &gt;5 share-of-voice points → competitive alert email</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.fn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
