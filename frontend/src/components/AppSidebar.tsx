@@ -33,7 +33,7 @@ interface NavSection {
 }
 
 const AppSidebar = () => {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, role, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { canAddProject, currentPlan, projectLimit } = useProjects();
@@ -106,9 +106,9 @@ const AppSidebar = () => {
     },
     ...(isAdmin ? [{
       id: "admin",
-      label: "Superadmin HUD",
+      label: role === "super_admin" ? "Superadmin HUD" : "Support Operator HUD",
       icon: Eye,
-      color: "text-amber-500",
+      color: role === "super_admin" ? "text-amber-500" : "text-primary",
       items: [
         { to: "/admin", label: "Command Center", icon: BarChart2 },
       ],

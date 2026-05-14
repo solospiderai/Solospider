@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ShieldCheck, Users, Database, Cpu, Activity, Zap, CreditCard,
   RefreshCw, TrendingUp, AlertTriangle, CheckCircle, Search, Edit2, Plus,
-  Trash2, Play, Pause, Server, Key, DollarSign, Bot
+  Trash2, Play, Pause, Server, Key, DollarSign, Bot, FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserRecord {
   id: string;
@@ -20,10 +21,31 @@ interface UserRecord {
   createdAt: string;
 }
 
+interface AuditLogRecord {
+  id: string;
+  email: string;
+  action: string;
+  details: string;
+  created_at: string;
+}
+
 export const AdminPanelPage: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, role, permissions, logAuditAction } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<"users" | "queues" | "proxies" | "revenue">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "queues" | "proxies" | "revenue" | "audit">("users");
+
+  const [auditLogs, setAuditLogs] = useState<AuditLogRecord[]>([
+    { id: "log_1", email: "admin@solospider.ai", action: "Refund Issued", details: "Refunded $499 for Enterprise invoice #INV-921", created_at: "2026-05-14 14:22:10" },
+    { id: "log_2", email: "support@solospider.ai", action: "Job Rerun Triggered", details: "Reran sitemap crawl job for project acme.com", created_at: "2026-05-14 16:15:02" },
+    { id: "log_3", email: "admin@solospider.ai", action: "Tier Upgrade", details: "Upgraded marcus.chen@growthstartup.io to Pro Plan", created_at: "2026-05-14 11:05:40" },
+  ]);
+
+  useEffect(() => {
+    // If support role and tab is one of the forbidden ones, force to "users"
+    if (role === "support" && (activeTab === "proxies" || activeTab === "revenue")) {
+      setActiveTab("users");
+    }
+  }, [role, activeTab]);
 
   if (!isAdmin) {
     return (
@@ -40,7 +62,7 @@ export const AdminPanelPage: React.FC = () => {
     );
   }
 
-  // Mock state for users so Admin can dynamically edit plans and give credits
+  // Mock state for users
   const [usersList, setUsersList] = useState<UserRecord[]>([
     { id: "usr_01", email: "elena.rostova@enterprise.com", plan: "Pro", creditsUsed: 284, creditsTotal: 300, projectsCount: 3, createdAt: "2026-03-12" },
     { id: "usr_02", email: "marcus.chen@growthstartup.io", plan: "Growth", creditsUsed: 142, creditsTotal: 150, projectsCount: 1, createdAt: "2026-04-01" },
@@ -49,10 +71,6 @@ export const AdminPanelPage: React.FC = () => {
     { id: "usr_05", email: "alex.turner@solopreneur.ai", plan: "Starter", creditsUsed: 50, creditsTotal: 50, projectsCount: 1, createdAt: "2026-05-10" },
   ]);
 
-  const [selectedUser, setSelectedUser] = useState<UserRecord | null>(null);
-  const [creditBump, setCreditBump] = useState<number>(100);
-  const [selectedPlan, setSelectedPlan] = useState<UserRecord["plan"]>("Growth");
-
   // Worker queues mock state
   const [queues, setQueues] = useState([
     { name: "🕷️ CrawlWorker", status: "Active", concurrency: 2, pending: 14, failed: 0, processedToday: 1248 },
@@ -60,7 +78,11 @@ export const AdminPanelPage: React.FC = () => {
     { name: "📊 ScoringWorker", status: "Active", concurrency: 5, pending: 3, failed: 0, processedToday: 4120 },
   ]);
 
-  const handleAddCredits = (userId: string, amount: number) => {
+  const handleAddCredits = async (userId: string, amount: number) => {
+    if (!permissions.canManageBilling) {
+      toast.error("Permission Denied: Only Super Admins can allocate credits.");
+      return;
+    }
     setUsersList(prev => prev.map(u => {
       if (u.id === userId) {
         return { ...u, creditsTotal: u.creditsTotal + amount };
@@ -68,9 +90,15 @@ export const AdminPanelPage: React.FC = () => {
       return u;
     }));
     toast.success(`Successfully allocated +${amount} credits!`);
+    await logAuditAction("Credit Allocation", `Added +${amount} credits to user ID ${userId}`);
+    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Credit Allocation", details: `Added +${amount} credits to user ID ${userId}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
   };
 
-  const handleUpdatePlan = (userId: string, newPlan: UserRecord["plan"]) => {
+  const handleUpdatePlan = async (userId: string, newPlan: UserRecord["plan"]) => {
+    if (!permissions.canManageBilling) {
+      toast.error("Permission Denied: Only Super Admins can upgrade plan tiers.");
+      return;
+    }
     let newLimit = 50;
     if (newPlan === "Growth") newLimit = 150;
     if (newPlan === "Pro") newLimit = 300;
@@ -83,6 +111,28 @@ export const AdminPanelPage: React.FC = () => {
       return u;
     }));
     toast.success(`Upgraded user to ${newPlan} Plan! Limits updated to ${newLimit}.`);
+    await logAuditAction("Tier Upgrade", `Upgraded user ID ${userId} to ${newPlan} plan`);
+    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Tier Upgrade", details: `Upgraded user ID ${userId} to ${newPlan} plan`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+  };
+
+  const handleFlushQueue = async (queueName: string) => {
+    if (!permissions.canRerunJobs) {
+      toast.error("Permission Denied: You are not authorized to control worker queues.");
+      return;
+    }
+    toast.success(`Flushed backlog for ${queueName}`);
+    await logAuditAction("Queue Control", `Flushed backlog for worker queue ${queueName}`);
+    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Queue Control", details: `Flushed backlog for worker queue ${queueName}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+  };
+
+  const handleRestartPool = async (queueName: string) => {
+    if (role !== "super_admin") {
+      toast.error("Permission Denied: Only Super Admins can restart worker pools.");
+      return;
+    }
+    toast.success(`Restarted worker pool ${queueName}`);
+    await logAuditAction("Worker Restart", `Restarted worker pool for ${queueName}`);
+    setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "admin", action: "Worker Restart", details: `Restarted worker pool for ${queueName}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
   };
 
   const filteredUsers = usersList.filter(u => u.email.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -93,8 +143,10 @@ export const AdminPanelPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-sidebar-border pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-amber-500 text-white font-black uppercase tracking-widest text-[10px]">Superadmin HUD</Badge>
-            <span className="text-xs text-ink-2">Session: Global Executive Authority</span>
+            <Badge className={role === "super_admin" ? "bg-amber-500 text-white font-black uppercase tracking-widest text-[10px]" : "bg-primary text-white font-black uppercase tracking-widest text-[10px]"}>
+              {role === "super_admin" ? "Superadmin HUD" : "Support Operator HUD"}
+            </Badge>
+            <span className="text-xs text-ink-2">Role Clearance: <b className="text-ink uppercase">{role}</b></span>
           </div>
           <h1 className="text-2xl font-black text-ink tracking-tight mt-1">Solospider Operational Command Center</h1>
           <p className="text-xs text-ink-2">Manage revenue, AI worker queues, API burn rates, and allocate user credits.</p>
@@ -111,19 +163,21 @@ export const AdminPanelPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Global Telemetry HUD */}
+      {/* Global Telemetry HUD (Filtered for Support) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl border border-sidebar-border bg-panel shadow-sm">
-          <div className="flex items-center justify-between text-ink-2 mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider">Monthly Recurring</span>
-            <DollarSign className="h-4 w-4 text-emerald-500" />
+        {role === "super_admin" && (
+          <div className="p-4 rounded-xl border border-sidebar-border bg-panel shadow-sm">
+            <div className="flex items-center justify-between text-ink-2 mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider">Monthly Recurring</span>
+              <DollarSign className="h-4 w-4 text-emerald-500" />
+            </div>
+            <div className="text-2xl font-black text-ink">$14,840</div>
+            <div className="flex items-center gap-1 text-[11px] text-emerald-500 font-bold mt-1">
+              <TrendingUp className="h-3 w-3" />
+              <span>+18.4% MoM Growth</span>
+            </div>
           </div>
-          <div className="text-2xl font-black text-ink">$14,840</div>
-          <div className="flex items-center gap-1 text-[11px] text-emerald-500 font-bold mt-1">
-            <TrendingUp className="h-3 w-3" />
-            <span>+18.4% MoM Growth</span>
-          </div>
-        </div>
+        )}
 
         <div className="p-4 rounded-xl border border-sidebar-border bg-panel shadow-sm">
           <div className="flex items-center justify-between text-ink-2 mb-1">
@@ -160,39 +214,52 @@ export const AdminPanelPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Tabs */}
+      {/* Main Tabs (Gated based on Role) */}
       <div className="flex border-b border-sidebar-border gap-2">
         <button
           onClick={() => setActiveTab("users")}
           className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "users" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
             }`}
         >
-          Users & Plan Allocation
+          Users & Accounts
         </button>
         <button
           onClick={() => setActiveTab("queues")}
           className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "queues" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
             }`}
         >
-          BullMQ Worker Queues
+          BullMQ Queues
         </button>
+
+        {role === "super_admin" && (
+          <>
+            <button
+              onClick={() => setActiveTab("proxies")}
+              className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "proxies" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+                }`}
+            >
+              Proxy Mesh
+            </button>
+            <button
+              onClick={() => setActiveTab("revenue")}
+              className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "revenue" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+                }`}
+            >
+              OpenRouter Burn & MRR
+            </button>
+          </>
+        )}
+
         <button
-          onClick={() => setActiveTab("proxies")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "proxies" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+          onClick={() => setActiveTab("audit")}
+          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "audit" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
             }`}
         >
-          Proxy & Scraping Mesh
-        </button>
-        <button
-          onClick={() => setActiveTab("revenue")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "revenue" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
-            }`}
-        >
-          OpenRouter Burn & MRR
+          Audit Logs
         </button>
       </div>
 
-      {/* Tab 1: Users & Plan Allocation */}
+      {/* Tab 1: Users & Accounts */}
       {activeTab === "users" && (
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-panel p-4 rounded-xl border border-sidebar-border">
@@ -264,22 +331,39 @@ export const AdminPanelPage: React.FC = () => {
                         <td className="p-3 font-semibold">{u.projectsCount} Sites</td>
                         <td className="p-3 text-ink-2 font-mono">{u.createdAt}</td>
                         <td className="p-3 text-right space-x-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs py-1 h-7 font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                            onClick={() => handleAddCredits(u.id, 100)}
-                          >
-                            +100 Credits
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-xs py-1 h-7 font-bold text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                            onClick={() => handleUpdatePlan(u.id, u.plan === "Starter" ? "Growth" : u.plan === "Growth" ? "Pro" : "Enterprise")}
-                          >
-                            Bump Tier
-                          </Button>
+                          {role === "super_admin" ? (
+                            <>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs py-1 h-7 font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                onClick={() => handleAddCredits(u.id, 100)}
+                              >
+                                +100 Credits
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-xs py-1 h-7 font-bold text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                                onClick={() => handleUpdatePlan(u.id, u.plan === "Starter" ? "Growth" : u.plan === "Growth" ? "Pro" : "Enterprise")}
+                              >
+                                Bump Tier
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="text-xs py-1 h-7 font-bold text-primary hover:bg-primary/5"
+                              onClick={async () => {
+                                toast.success(`Triggered sitemap crawl rerun for ${u.email}`);
+                                await logAuditAction("Crawl Rerun", `Support operator reran crawl for user ID ${u.id}`);
+                                setAuditLogs(prev => [{ id: `log_${Date.now()}`, email: user?.email || "support", action: "Crawl Rerun", details: `Support operator reran crawl for user ID ${u.id}`, created_at: new Date().toISOString().replace("T", " ").substring(0, 19) }, ...prev]);
+                              }}
+                            >
+                              Rerun Crawl
+                            </Button>
+                          )}
                         </td>
                       </tr>
                     );
@@ -326,12 +410,14 @@ export const AdminPanelPage: React.FC = () => {
                   <span>Processed today: <b className="text-ink">{q.processedToday}</b></span>
                 </div>
                 <div className="flex gap-2 pt-2 border-t border-sidebar-border">
-                  <Button variant="outline" size="sm" onClick={() => toast.success(`Flushed backlog for ${q.name}`)} className="text-xs flex-1">
+                  <Button variant="outline" size="sm" onClick={() => handleFlushQueue(q.name)} className="text-xs flex-1">
                     Flush Queue
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => toast.success(`Restarted worker pool ${q.name}`)} className="text-xs flex-1 text-red-600 hover:text-red-700 hover:bg-red-50">
-                    Restart Pool
-                  </Button>
+                  {role === "super_admin" && (
+                    <Button variant="outline" size="sm" onClick={() => handleRestartPool(q.name)} className="text-xs flex-1 text-red-600 hover:text-red-700 hover:bg-red-50">
+                      Restart Pool
+                    </Button>
+                  )}
                 </div>
               </div>
             ))}
@@ -339,8 +425,8 @@ export const AdminPanelPage: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 3: Proxies */}
-      {activeTab === "proxies" && (
+      {/* Tab 3: Proxies (Super Admin Only) */}
+      {activeTab === "proxies" && role === "super_admin" && (
         <div className="bg-panel p-6 rounded-xl border border-sidebar-border space-y-6">
           <div className="flex items-center justify-between border-b border-sidebar-border pb-4">
             <div>
@@ -372,8 +458,8 @@ export const AdminPanelPage: React.FC = () => {
         </div>
       )}
 
-      {/* Tab 4: Revenue & Burn */}
-      {activeTab === "revenue" && (
+      {/* Tab 4: Revenue & Burn (Super Admin Only) */}
+      {activeTab === "revenue" && role === "super_admin" && (
         <div className="bg-panel p-6 rounded-xl border border-sidebar-border space-y-6">
           <div className="flex items-center justify-between border-b border-sidebar-border pb-4">
             <div>
@@ -404,6 +490,50 @@ export const AdminPanelPage: React.FC = () => {
               <div className="text-xs text-ink-2">Used for live search grounding and real-time news citation verification.</div>
               <div className="w-full h-1 bg-sidebar-border rounded-full"><div className="w-1/6 h-full bg-[#22d3ee] rounded-full" /></div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 5: Audit Logs */}
+      {activeTab === "audit" && (
+        <div className="bg-panel rounded-xl border border-sidebar-border overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-sidebar-border bg-slate-50/50 flex justify-between items-center">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-ink-2" />
+              <span className="font-bold text-xs text-ink uppercase tracking-wider">Enterprise Compliance Audit Trail</span>
+            </div>
+            <Badge className="bg-slate-200 text-ink-2 font-mono text-[10px]">Immutable Logs</Badge>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-100/75 text-ink-2 font-bold uppercase tracking-wider text-[10px] border-b border-sidebar-border">
+                <tr>
+                  <th className="p-3">Operator Account</th>
+                  <th className="p-3">Action Event</th>
+                  <th className="p-3">Audit Details / Payload</th>
+                  <th className="p-3 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-sidebar-border font-mono">
+                {auditLogs.map((log) => (
+                  <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="p-3 font-semibold text-ink flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-200 text-ink-2 flex items-center justify-center font-bold text-[10px] uppercase">
+                        {log.email[0]}
+                      </div>
+                      <span>{log.email}</span>
+                    </td>
+                    <td className="p-3">
+                      <Badge className="bg-slate-600 text-white font-sans text-[10px]">
+                        {log.action}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-ink-2 font-sans">{log.details}</td>
+                    <td className="p-3 text-right text-ink-2">{log.created_at}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
