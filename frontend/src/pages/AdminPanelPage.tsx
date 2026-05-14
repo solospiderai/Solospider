@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { 
-  ShieldCheck, Users, Database, Cpu, Activity, Zap, CreditCard, 
-  RefreshCw, TrendingUp, AlertTriangle, CheckCircle, Search, Edit2, Plus, 
+import {
+  ShieldCheck, Users, Database, Cpu, Activity, Zap, CreditCard,
+  RefreshCw, TrendingUp, AlertTriangle, CheckCircle, Search, Edit2, Plus,
   Trash2, Play, Pause, Server, Key, DollarSign, Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -21,9 +21,24 @@ interface UserRecord {
 }
 
 export const AdminPanelPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"users" | "queues" | "proxies" | "revenue">("users");
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mb-2">
+          <ShieldCheck className="h-8 w-8" />
+        </div>
+        <Badge className="bg-red-500 text-white font-mono uppercase tracking-widest text-[10px]">403 Access Denied</Badge>
+        <h1 className="text-2xl font-black text-ink tracking-tight max-w-md">Superadmin Clearance Required</h1>
+        <p className="text-xs text-ink-2 max-w-sm">
+          Your current session does not hold Executive Authority. Please log in with a designated admin account (`admin@solospider.ai`) to access system telemetry and plan allocation overrides.
+        </p>
+      </div>
+    );
+  }
 
   // Mock state for users so Admin can dynamically edit plans and give credits
   const [usersList, setUsersList] = useState<UserRecord[]>([
@@ -149,33 +164,29 @@ export const AdminPanelPage: React.FC = () => {
       <div className="flex border-b border-sidebar-border gap-2">
         <button
           onClick={() => setActiveTab("users")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${
-            activeTab === "users" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
-          }`}
+          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "users" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+            }`}
         >
           Users & Plan Allocation
         </button>
         <button
           onClick={() => setActiveTab("queues")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${
-            activeTab === "queues" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
-          }`}
+          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "queues" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+            }`}
         >
           BullMQ Worker Queues
         </button>
         <button
           onClick={() => setActiveTab("proxies")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${
-            activeTab === "proxies" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
-          }`}
+          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "proxies" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+            }`}
         >
           Proxy & Scraping Mesh
         </button>
         <button
           onClick={() => setActiveTab("revenue")}
-          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${
-            activeTab === "revenue" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
-          }`}
+          className={`px-4 py-2 text-xs font-bold tracking-wide uppercase transition-all border-b-2 -mb-px ${activeTab === "revenue" ? "border-primary text-primary" : "border-transparent text-ink-2 hover:text-ink"
+            }`}
         >
           OpenRouter Burn & MRR
         </button>
@@ -244,7 +255,7 @@ export const AdminPanelPage: React.FC = () => {
                             <span className={`font-semibold ${burnPercent >= 90 ? "text-red-500" : "text-ink-2"}`}>{burnPercent}%</span>
                           </div>
                           <div className="w-full h-1.5 bg-sidebar-border rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className={`h-full rounded-full ${burnPercent >= 90 ? "bg-red-500" : "bg-primary"}`}
                               style={{ width: `${burnPercent}%` }}
                             />
@@ -253,17 +264,17 @@ export const AdminPanelPage: React.FC = () => {
                         <td className="p-3 font-semibold">{u.projectsCount} Sites</td>
                         <td className="p-3 text-ink-2 font-mono">{u.createdAt}</td>
                         <td className="p-3 text-right space-x-1">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="text-xs py-1 h-7 font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                             onClick={() => handleAddCredits(u.id, 100)}
                           >
                             +100 Credits
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
+                          <Button
+                            variant="outline"
+                            size="sm"
                             className="text-xs py-1 h-7 font-bold text-purple-600 hover:text-purple-700 hover:bg-purple-50"
                             onClick={() => handleUpdatePlan(u.id, u.plan === "Starter" ? "Growth" : u.plan === "Growth" ? "Pro" : "Enterprise")}
                           >
